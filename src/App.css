@@ -24,7 +24,17 @@ body {
   border-radius: 20px;
   cursor: pointer;
   box-shadow: 0 8px 0 #6600aa, 0 15px 30px rgba 
-  (255, 0, 255, 0.4);
+  (255, 0, 255, 0.4),
+  inset 0 0 15px rgba(255, 0, 25, 0.5)
+  0 0 25px #ff00ff;
+  transition: all 0.25s ease-in-out;
+  transform: perspective(500px)translatez(0);
+}
 
-
+.neon-3d-button:hover {
+  transform: perspective(500px) translateZ(15px);
+  box-shadow: 0 4px 0 #6600aa, 
+  0 10px 20px rgba(255, 0, 255, 0.6),
+  inset 0 0 20px rgba(255, 0, 255, 0.7),
+  0 0 45px #ff00ff;
 }
