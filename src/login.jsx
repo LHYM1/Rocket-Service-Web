@@ -24,7 +24,9 @@ const handleSubmit = (e) => {
       alert("Todos los campos son obligatorios");
       return;
     }
-    
 
-}
+    // Aquí va el código de autenticación
+    alert("Inicio de sesión exitoso");
+
+};
 export default login;
