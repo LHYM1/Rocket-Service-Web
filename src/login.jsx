@@ -12,6 +12,14 @@ const handleChange = (e) => {
         ...form,
         [e.target.name]: e.target.value
     });
-}
+};
 
+const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // simulación envio de datos
+    console.log("Dattos del formulario:", form);
+
+
+}
 export default login;
