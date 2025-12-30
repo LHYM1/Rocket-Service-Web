@@ -50,7 +50,7 @@ function iniciarsesion() {
                 <input
                     type="password"
                     name="contrasena"
-                    value={form.contrasena}
+                    value={form.contraseña}
                     onChange={handleChange}
                 />
                 </div>
