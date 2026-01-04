@@ -58,7 +58,7 @@ function Iniciarsesion() {
 
             
                 <div className="container">
-                    <button className='neon-3d-button'>Inicio sesión</button>
+                    <button className='neon-3d-button'>Iniciar sesión</button>
                 </div>
 
             </form>
