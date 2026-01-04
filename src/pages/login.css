@@ -8,6 +8,13 @@
   height: 100vh;
 }
 
+.h2p {
+  color: white;
+  font-weight: 50;
+  text-align: center;
+  margin-bottom: 20px;
+} 
+
 .container {
   text-align: center;
 }

@@ -33,7 +33,7 @@ function Iniciarsesion() {
 
     return (
         <div>
-            <h2>Inicio de Sesión</h2>
+            <h2 className="h2p">Inicio de Sesión</h2>
 
             <form onSubmit={handleSubmit}>
                 <div>
