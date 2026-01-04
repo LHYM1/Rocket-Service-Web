@@ -21,7 +21,7 @@ function Iniciarsesion() {
         // simulación envío de datos
         console.log("Datos del formulario:", form);
 
-        if (form.usuario === "" || form.contrasena === "") {
+        if (form.usuario === "" || form.contraseña === "") {
         alert("Todos los campos son obligatorios");
         return;
         }
