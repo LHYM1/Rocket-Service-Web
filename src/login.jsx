@@ -1,7 +1,7 @@
 import { useState } from "react";
 import './App.css';
 
-function iniciarsesion() {
+function Iniciarsesion() {
     const [form, setForm] = useState({
         usuario: "",
         contraseña: ""
@@ -66,4 +66,4 @@ function iniciarsesion() {
     );
 }
 
-export default login;
+export default Iniciarsesion;
