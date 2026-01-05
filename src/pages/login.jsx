@@ -1,5 +1,6 @@
 import { useState } from "react";
 import './login.css';
+import GoogleButton from "../../components/GoogleButton";
 
 function Iniciarsesion() {
     const [form, setForm] = useState({
@@ -77,6 +78,7 @@ function Iniciarsesion() {
                 <div className="separator">
                     <span>o también puedes iniciar sesión con</span>
                 </div>
+
                 
             </form>
         </div>
