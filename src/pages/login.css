@@ -74,3 +74,58 @@
   inset 0 0 20px rgba(246, 255, 0, 0.599),
   0 0 45px #faee50;
 }
+
+.formPassword {
+  margin-top: 15px;
+  text-align: center;
+  position: relative; 
+}
+
+.passwordLink {
+  color: #ffc107; 
+  text-decoration: none;
+}
+
+.registerLink {
+  color: #ffc107; 
+  text-decoration: none; 
+  text-align: center;
+}
+
+ /* Color específico enlace */
+ .highlight {
+  color: white;
+  text-decoration: none; 
+  text-align: center;
+}
+
+.highlightRegst {
+  color: rgb(255, 255, 20);
+  text-decoration: none; 
+  text-align: center;
+}
+
+/* Estilos separador */
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #bfbebe;
+  margin: 20px 0;
+  font-weight: bold; 
+}
+
+.separator::before,
+.separator::after {
+  content: "";
+  flex: 5;/* Ancho de la línea */
+  border-bottom: 1px solid #ccc;
+}
+
+.separator::before {
+  margin-right: 10px;
+}
+
+.separator::after {
+  margin-left: 10px;
+}

@@ -61,6 +61,23 @@ function Iniciarsesion() {
                     <button className='neon-3d-button'>Iniciar sesión</button>
                 </div>
 
+                <div className="formPassword">
+                    <a href="forgotPassword" className="passwordLink">
+                        ¿Olvidaste tu contraseña?
+                    </a>
+                </div>
+                
+                <div className="formRegister">
+                    <a href="register" className="registerLink">
+                        <span className="highlight">¿Primera vez en Rocket?</span> 
+                            <span className="highlightRegst"> Registrarme</span>
+                    </a>
+                </div>
+
+                <div className="separator">
+                    <span>o también puedes iniciar sesión con</span>
+                </div>
+                
             </form>
         </div>
     );
