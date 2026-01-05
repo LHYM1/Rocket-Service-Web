@@ -1,5 +1,5 @@
 #root {
-  background-color: #474545;
+  background-color: rgb(57, 57, 57);
   margin: 0; 
   font-family: 'orbitron', sans-serif;
   display: flex;
@@ -9,39 +9,68 @@
 }
 
 .h2p {
-  color: white;
+  color: rgb(255, 253, 253);
   font-weight: 50;
+  font: bold;
   text-align: center;
   margin-bottom: 20px;
 } 
+
+.userLabel {
+  color: rgb(255, 254, 254);
+  font-size: 18px;
+
+}
+
+.inputUser {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0 20px 0;
+  border: none;
+  border-radius: 5px;
+}
+
+/* Resaltar input selecionado */
+.inputUser:focus {
+  outline: none;
+  border-color: #fcfbf9; 
+  box-shadow: 0 0 0 0.20rem rgba(254, 221, 3, 0.647);
+}
 
 .container {
   text-align: center;
 }
 
+.containerLogin {
+  background-color: rgb(96, 94, 94); 
+  padding: 70px; 
+  border-radius: 14px; 
+  box-shadow: 0 4px 8px rgba(96, 95, 95, 0.2);
+}
+
 .neon-3d-button {
-  background: linear-gradient(145deg, #ff00cc, 
-  #8000ff);
+  background: linear-gradient(145deg, #ffa600, 
+  #f74403);
   color: white;
   padding: 5px 20px;
-  font-size: 25px;
+  font-size: 20px;
   font-weight: 700;
   text-transform: uppercase;
   border: none;
-  border-radius: 20px;
+  border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 8px 0 #6600aa, 0 15px 30px rgba 
+  box-shadow: 0 8px 0 #aa6f00, 0 15px 30px rgba 
   (255, 0, 255, 0.4),
   inset 0 0 15px rgba(255, 0, 25, 0.5)
-  0 0 25px #ff00ff;
-  transition: all 0.25s ease-in-out;
+  0 0 25px #f68923;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   transform: perspective(500px)translatez(0);
 }
 
 .neon-3d-button:hover {
-  transform: perspective(500px) translateZ(15px);
-  box-shadow: 0 4px 0 #6600aa, 
-  0 10px 20px rgba(255, 0, 255, 0.6),
-  inset 0 0 20px rgba(255, 0, 255, 0.7),
-  0 0 45px #ff00ff;
+  transform: perspective(500px) translateY(-3px);
+  box-shadow: 0 4px 0 #9c6101, 
+  0 10px 20px rgba(255, 174, 0, 0.6),
+  inset 0 0 20px rgba(246, 255, 0, 0.599),
+  0 0 45px #faee50;
 }

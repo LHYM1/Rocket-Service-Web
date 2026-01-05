@@ -32,13 +32,13 @@ function Iniciarsesion() {
     };
 
     return (
-        <div>
+        <div className="containerLogin">
             <h2 className="h2p">Inicio de Sesión</h2>
 
             <form onSubmit={handleSubmit}>
                 <div>
-                <label>Usuario</label>
-                <input
+                <label className="userLabel">Usuario</label>
+                <input className="inputUser"
                     type="text"
                     name="usuario"
                     value={form.usuario}
@@ -47,8 +47,8 @@ function Iniciarsesion() {
                 </div>
 
                 <div>
-                <label>Contraseña</label>
-                <input
+                <label className="userLabel">Contraseña</label>
+                <input className="inputUser"
                     type="password"
                     name="contrasena"
                     value={form.contraseña}
