@@ -1,14 +1,15 @@
-import { FcGoogle } from "react-icons/fc";
+import { GoogleLogin } from "@react-oauth/google";
 
-const GoogleButton = ({ onClick }) => {
+const GoogleButton = () => {
   return (
-    <button
-      onClick={onClick}
-      className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2 hover:bg-gray-100 transition"
-    >
-      <FcGoogle size={22} />
-      <span>Continuar con Google</span>
-    </button>
+    <GoogleLogin
+      onSuccess={(credentialResponse) => {
+        console.log(credentialResponse);
+      }}
+      onError={() => {
+        console.log("Error al iniciar sesión");
+      }}
+    />
   );
 };
 
