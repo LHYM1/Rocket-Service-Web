@@ -1,0 +1,80 @@
+.header {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 1rem;
+    background-color: #fff;
+    border-bottom: 1px solid #eddd;
+}
+
+.empresa {
+    color: black;
+}
+
+.navbar {
+    flex: 1;
+    margin-left: 2rem;
+}
+
+.navLinks {
+    display: flex;
+    list-style: none;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+}
+
+.navLinks {
+    text-decoration: none; 
+    color: #555;
+    font-size: 14px;
+}
+
+.navLinks a:hover {
+    color: #9893fb;
+}
+
+.icons {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.search-button,
+.icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px; 
+    display: flex;
+    align-items: center;
+    color: #333;
+    transition: color 0.2s ease;
+}
+
+.search-button:hover,
+.icon-button:hover {
+    color: #9893fb;
+}
+
+/* Estilo para el contenedor icono notificación */
+.notification-icon {
+    position: relative;
+    display: inline-block;
+}
+
+/* Estilo para el círculo de notificación */
+.counter {
+    position: absolute;
+    top: -5px; 
+    right: -5px;
+    border-radius: 50%;
+    width: 18px; 
+    height: 18px;
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    font-size: 10px;
+    color: #fff;
+    background-color: #9893fb;
+}

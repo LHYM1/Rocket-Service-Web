@@ -19,7 +19,7 @@ const Navbar = () => {
                     <i className="fas fa-search"></i>
                 </button>
 
-                <link to = "/Notifications" className="nitification-icon">
+                <link to = "/Notifications" className="notification-icon">
                     <i className="fa-regular fa-bell"></i>
                     <span className="counter">0</span>
                 </link>
