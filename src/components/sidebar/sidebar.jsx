@@ -1,4 +1,5 @@
-import React from 'react';
+import 'react-router-dom';
+import './sidebar.css';
 
 const Sidebar = () => {
     return <div className="menu">
@@ -7,21 +8,29 @@ const Sidebar = () => {
         </div>
 
         <div className="menu-list">
-            <a href="#" className="item"></a>
-            <i class="fa-solid fa-house"></i>
-            Dasdboard
+            <a href="#" className="item">
+                <i class="fa-solid fa-house"></i>
+                Dasdboard
+            </a>
+            
+            <a href="#" className="item">
+                <i class="fa-solid fa-user"></i>
+                Usuarios
+            </a>
+
+            <a href="#" className="item">
+                Insumos
+            </a>
+            
+            <a href="#" className="item">
+                Ayuda
+            </a>
+
+            <a href="#" className="item">
+                Ajustes
+            </a>
         </div>
 
-        <div className="menu-list">
-            <a href="#" className="item"></a>
-            <i class="fa-solid fa-users"></i>
-            Usuarios
-        </div>
-        
-        <div className="menu-list">
-            <a href="#" className="item"></a>
-            Insumos
-        </div>
     </div>;
 };
 
