@@ -1,7 +1,6 @@
-import React from 'react';
-import { link } from 'react-router-dom';
+import 'react-router-dom';
 import './Dashboard';
-import './navbar.css';
+import './Navbar.css';
 
 const Navbar = () => {
     return (
