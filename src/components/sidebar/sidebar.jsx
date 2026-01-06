@@ -14,6 +14,7 @@ const Sidebar = () => {
 
         <div className="menu-list">
             <a href="#" className="item"></a>
+            <i class="fa-solid fa-users"></i>
             Usuarios
         </div>
         
