@@ -1,6 +1,6 @@
 import { useState } from "react";
 import './login.css';
-import GoogleButton from "../components/login/googleButton";
+import GoogleButton from "../components/btnLogin/googleButton";
 
 function Iniciarsesion() {
     const [form, setForm] = useState({
