@@ -1,4 +1,5 @@
 import 'react-router-dom';
+import './Sidebar.css';
 
 const Sidebar = () => {
     return <div className="menu">
