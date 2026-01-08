@@ -3,7 +3,6 @@ from 'react-router-dom';
 import Login from "./pages/login/login.jsx";
 import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './pages/dashboard/Dashboard';
-import Profile from './pages/profile/Profile';
 
 function App() {
 
@@ -14,8 +13,7 @@ function App() {
         <Route path="/" element={<Login />} />
 
         <Route path="dashboard" element={<DashboardLayout />}>
-           <Route path="dashboard" element={<Dashboard />} />  
-           <Route path="profile" element={<Profile />} />       
+           <Route index element={<Dashboard />} />       
         </Route>
 
       </Routes>

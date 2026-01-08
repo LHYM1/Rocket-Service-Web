@@ -1,6 +1,5 @@
-import 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './Navbar.css';
-import './Sidebar';
 
 const Navbar = () => {
     return (
@@ -9,7 +8,7 @@ const Navbar = () => {
             <nav className="navbar">
                 <ul className="navLinks">
                     <li>
-                        <link to = "/" >Home</link>
+                        <Link to = "/" >Home</Link>
                     </li>
                 </ul>
             </nav>
@@ -19,10 +18,10 @@ const Navbar = () => {
                     <i className="fas fa-search"></i>
                 </button>
 
-                <link to = "/Notifications" className="notification-icon">
+                <Link to = "/Notifications" className="notification-icon">
                     <i className="fa-regular fa-bell"></i>
                     <span className="counter">0</span>
-                </link>
+                </Link>
             </div>
         </section>
     )

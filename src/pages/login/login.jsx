@@ -1,11 +1,14 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import './login.css';
 import GoogleButton from "../../components/btnLogin/googleButton";
 
 function Iniciarsesion() {
+    const navigate = useNavigate();
+
     const [form, setForm] = useState({
         usuario: "",
-        contraseña: ""
+        contrasena: ""
     });
 
 
@@ -22,13 +25,15 @@ function Iniciarsesion() {
         // simulación envío de datos
         console.log("Datos del formulario:", form);
 
-        if (form.usuario === "" || form.contraseña === "") {
-        alert("Todos los campos son obligatorios");
-        return;
+        if (form.usuario === "" || form.contrasena === "") {
+            alert("Todos los campos son obligatorios");
+            return;
         }
 
         // Aquí va el código de autenticación
         alert("Inicio de sesión exitoso");
+
+        navigate("/dashboard");
 
     };
 
@@ -52,7 +57,7 @@ function Iniciarsesion() {
                 <input className="inputUser"
                     type="password"
                     name="contrasena"
-                    value={form.contraseña}
+                    value={form.contrasena}
                     onChange={handleChange}
                 />
                 </div>

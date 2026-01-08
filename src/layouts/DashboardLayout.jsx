@@ -1,9 +1,10 @@
 import Sidebar from "../components/sidebar/Sidebar.jsx";
-import Navbar from "../components/navbar/Navbar.jsx";
+import Navbar from "../components/navbar/navbar.jsx";
 import { Outlet } from "react-router-dom";
 
 const DashboardLayout = () => {
   return (
+
     <div style={{ display: "flex" }}>
       <Sidebar />
 
