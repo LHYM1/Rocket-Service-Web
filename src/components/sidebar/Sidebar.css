@@ -7,7 +7,31 @@
 
 .name-company {
     text-align: center;
+    margin-left: -703px;
     padding: 20px;
+    font-weight: 200;
     color: white;
-    
+
+}
+
+.name-company .fa-solid fa-house {
+    font-size: 2rem;
+}
+
+.menu-list .item {
+    display: flex;
+    flex-direction: column;
+    margin-left: -450px;
+    gap: 20px;
+    padding: 30%;
+    font-size: 1.1rem;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: 0.3s ease-in-out;
+    color: #F0EAE9;
+}
+
+.menu-list .item:hover {
+    background: #E3712B;
+    color: #F0EAE9;
 }
