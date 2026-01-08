@@ -1,4 +1,4 @@
-import 'react-router-dom';
+
 import './Sidebar.css';
 
 const Sidebar = () => {
@@ -8,30 +8,30 @@ const Sidebar = () => {
         </div>
 
         <div className="menu-list">
-            <a href="#" className="item">
-                <i class="fa-solid fa-house"></i>
+            <Link to="#" className="item">
+                <i className="fa-solid fa-house"></i>
                 Dasdboard
-            </a>
+            </Link>
             
-            <a href="#" className="item">
-                <i class="fa-solid fa-user"></i>
+            <Link to="#" className="item">
+                <i className="fa-solid fa-user"></i>
                 Usuarios
-            </a>
+            </Link>
 
-            <a href="#" className="item">
-                <i class="fa-solid fa-box"></i>
+            <Link to="#" className="item">
+                <i className="fa-solid fa-box"></i>
                 Insumos
-            </a>
+            </Link>
             
-            <a href="#" className="item">
-                <i class="fa-solid fa-circle-question"></i>
+            <Link to="#" className="item">
+                <i className="fa-solid fa-circle-question"></i>
                 Ayuda
-            </a>
+            </Link>
 
-            <a href="#" className="item">
-                <i class="fa-solid fa-gear"></i>
+            <Link to="#" className="item">
+                <i className="fa-solid fa-gear"></i>
                 Ajustes
-            </a>
+            </Link>
         </div>
 
     </div>;

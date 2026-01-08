@@ -1,0 +1,13 @@
+.menu {
+    display: flex; 
+    flex-direction: column;
+    gap: 2.3rem;
+    height: 94vh;   
+}
+
+.name-company {
+    text-align: center;
+    padding: 20px;
+    color: white;
+    
+}
