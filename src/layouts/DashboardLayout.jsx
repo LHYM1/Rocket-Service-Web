@@ -1,8 +1,9 @@
 import Sidebar from "../components/sidebar/Sidebar.jsx";
 import Navbar from "../components/navbar/navbar.jsx";
+import "./DashboardLayout.css"; /*Estilos globales dashboard, profile y content*/
 import { Outlet } from "react-router-dom";
 
-const DashboardLayout = () => {
+const DashboardLayout = () => { 
   return (
 
     <div className="dashboard">
@@ -11,7 +12,7 @@ const DashboardLayout = () => {
       <div style={{ flex: 1 }}>
         <Navbar />
       </div>
-      
+
       <div className="dashboard-content">
         <Outlet /> {/* Aquí cambia el contenido central */}
       </div>
