@@ -5,11 +5,14 @@ import { Outlet } from "react-router-dom";
 const DashboardLayout = () => {
   return (
 
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div className="dashboard">
       <Sidebar />
 
       <div style={{ flex: 1 }}>
         <Navbar />
+      </div>
+      
+      <div className="dashboard-content">
         <Outlet /> {/* Aquí cambia el contenido central */}
       </div>
     </div>
