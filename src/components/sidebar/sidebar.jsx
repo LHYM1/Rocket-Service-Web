@@ -18,14 +18,17 @@ const Sidebar = () => {
             </a>
 
             <a href="#" className="item">
+                <i class="fa-solid fa-box"></i>
                 Insumos
             </a>
             
             <a href="#" className="item">
+                <i class="fa-solid fa-circle-question"></i>
                 Ayuda
             </a>
 
             <a href="#" className="item">
+                <i class="fa-solid fa-gear"></i>
                 Ajustes
             </a>
         </div>
