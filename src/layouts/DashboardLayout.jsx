@@ -5,12 +5,12 @@ import { Outlet } from "react-router-dom";
 const DashboardLayout = () => {
   return (
 
-    <div style={{ display: "flex" }}>
+    <div style={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar />
 
       <div style={{ flex: 1 }}>
         <Navbar />
-        <Outlet /> {/* Aquí se renderizan las rutas hijas */}
+        <Outlet /> {/* Aquí cambia el contenido central */}
       </div>
     </div>
   );
