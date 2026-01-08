@@ -1,6 +1,6 @@
 import 'react-router-dom';
-import './Dashboard';
 import './Navbar.css';
+import './Sidebar';
 
 const Navbar = () => {
     return (
