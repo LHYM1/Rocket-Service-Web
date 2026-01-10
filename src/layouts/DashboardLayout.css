@@ -1,15 +1,22 @@
 .dashboard {
     display: flex;
-    gap: 20px;
     min-height: 100vh;
 }
 
 .dashboard-main {
     margin-left: 250px;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-navbar {
+    height: 60px;
+    
 }
 
 .dashboard-content {
-    background-color: rgb(57, 57, 57);
+    display: flex;
+    padding: 1.16rem;
+    margin-top: 12px;
     flex: 1;
-    border-radius: 20px;
 }
