@@ -9,12 +9,14 @@ const DashboardLayout = () => {
     <div className="dashboard">
       <Sidebar />
 
-      <div style={{ flex: 1 }}>
-        <Navbar />
-      </div>
+      <div className="dashboard-main">
+          <div className="dashboard-navbar">
+            <Navbar />
+          </div>
 
-      <div className="dashboard-content">
-        <Outlet /> {/* Aquí cambia el contenido central */}
+        <div className="dashboard-content">
+          <Outlet /> {/* Aquí cambia el contenido central */}
+        </div>
       </div>
     </div>
   );

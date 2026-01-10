@@ -1,35 +1,44 @@
 .menu {
-    display: flex; 
+    background-color: rgb(219, 43, 43); 
+    width: 240px;
+    display: flex;
+    position: fixed; 
     flex-direction: column;
     gap: 2.3rem;
-    height: 94vh;   
+    height: 100vh;
+    margin-left: -350px;
+    padding: 1rem;   
+    border-radius: 20px;
 }
 
 .name-company {
-    text-align: center;
-    margin-left: -703px;
-    padding: 20px;
+    display: flex;
     font-weight: 200;
     color: white;
-
 }
 
-.name-company .fa-solid fa-house {
-    font-size: 2rem;
+.menu-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .menu-list .item {
     display: flex;
-    flex-direction: column;
-    margin-left: -450px;
-    gap: 20px;
-    padding: 30%;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+    width: 100%;
+    text-align: left;
+    padding: 12px 11px; 
     font-size: 1.1rem;
     text-decoration: none;
     border-radius: 10px;
     transition: 0.3s ease-in-out;
     color: #F0EAE9;
 }
+
 
 .menu-list .item:hover {
     background: #E3712B;

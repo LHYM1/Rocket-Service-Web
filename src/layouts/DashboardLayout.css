@@ -1,0 +1,8 @@
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+.dashboard-main {
+    margin-left: 250px;
+}
