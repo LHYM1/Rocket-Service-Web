@@ -1,4 +1,5 @@
 import 'react-router-dom';
+import './Dashboard.css';
 
 const Dashboard = () => {
     return (
