@@ -14,7 +14,6 @@
 .dashboard-navbar {
     height: 70px;
     flex-shrink: 0; /* Evita que el navbar se estire */
-    
 }
 
 .dashboard-content {
