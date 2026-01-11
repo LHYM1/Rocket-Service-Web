@@ -1,14 +1,11 @@
 .menu {
     background-color: rgb(219, 43, 43); 
-    width: 240px;
-    display: flex;
-    position: fixed; 
     flex-direction: column;
     gap: 2.3rem;
-    height: 100vh;
-    margin-left: -350px;
+    height: 100%;
     padding: 1rem;   
-    border-radius: 20px;
+    border-radius: 0 20px 20px 0;
+    flex-shrink: 0;
 }
 
 .name-company {

@@ -1,7 +1,7 @@
 .dashboard-page {
-    display: flex;
     padding: 50px;
-    width: 300px;
+    width: 100%;
+    max-width: 900px;
     height: 400px;
     background-color: aliceblue;
     border-radius: 20px;

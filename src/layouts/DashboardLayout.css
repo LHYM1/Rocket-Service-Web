@@ -1,22 +1,24 @@
 .dashboard {
     display: flex;
-    min-height: 100vh;
+    height: 100%;
+    width: 100%;
 }
 
 .dashboard-main {
-    margin-left: 250px;
+    flex: 1;
     display: flex;
     flex-direction: column;
+    margin-left: 12px;
 }
 
 .dashboard-navbar {
-    height: 60px;
+    height: 70px;
+    flex-shrink: 0; /* Evita que el navbar se estire */
     
 }
 
 .dashboard-content {
-    display: flex;
-    padding: 1.16rem;
-    margin-top: 12px;
     flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
 }
