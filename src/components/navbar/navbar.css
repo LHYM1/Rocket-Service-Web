@@ -9,14 +9,15 @@
 }
 
 .header h2 { /* Estilos nombre empresa */
+    display: flex;
     font-weight: 900; /* Opacidad de la letra */
 }
 
 .empresa-name1 {
-    color: #DAA520; /* Color primer nombre empresa*/
+    color: #efb810; /* Color primer nombre empresa*/
 }
 
-.empesa-name2 {
+.empresa-name2 {
     color: #ff9d00;
 }
 

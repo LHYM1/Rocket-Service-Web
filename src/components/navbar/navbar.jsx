@@ -6,7 +6,7 @@ const Navbar = () => {
         <section className="header">
             <h1>
                 <span className="empresa-name1">Rocket</span>
-                <span className="empesa-name2">Service</span>
+                <span className="empresa-name2"> Service</span>
             </h1>
             <nav className="navbar">
                 <ul className="navLinks">
