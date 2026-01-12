@@ -4,7 +4,7 @@
     align-items: center; 
     padding: 1rem;
     background-color: #fff;
-    border-bottom: 1px solid #eddd;
+    border-bottom: none;
     border-radius: 0 0 20px 20px;
 }
 
@@ -13,7 +13,6 @@
 }
 
 .navbar {
-    position: fixed;
     flex: 1;
     margin-left: 2rem;
     z-index: 1000;
