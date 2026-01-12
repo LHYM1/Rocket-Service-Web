@@ -63,7 +63,16 @@
     transition: color 0.2s ease;
 }
 
+/*Los iconos de search y profile
+cambian de color al pasar cursor
+por encima*/
+
 .search-button:hover,
+.icon-button:hover {
+    color: #fbb693;
+}
+
+.profile:hover,
 .icon-button:hover {
     color: #fbb693;
 }
