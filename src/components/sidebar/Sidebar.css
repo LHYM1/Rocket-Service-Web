@@ -10,6 +10,7 @@
 
 .name-company {
     display: flex;
+    margin-bottom: 1rem; /*Separación vértical nombre empresa y menu-list*/
     font-weight: 200;
     color: white;
 }
