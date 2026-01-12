@@ -13,8 +13,10 @@
 }
 
 .navbar {
+    position: fixed;
     flex: 1;
     margin-left: 2rem;
+    z-index: 1000;
 }
 
 .navLinks {
@@ -55,11 +57,12 @@
 
 .search-button:hover,
 .icon-button:hover {
-    color: #9893fb;
+    color: #fbb693;
 }
 
 /* Estilo para el contenedor icono notificación */
 .notification-icon {
+    color:#eb8526;
     position: relative;
     display: inline-block;
 }
@@ -76,6 +79,6 @@
     justify-content: center; 
     align-items: center;
     font-size: 10px;
-    color: #fff;
-    background-color: #9893fb;
+    color: #ffffff;
+    background-color: #e0b765;
 }
