@@ -22,6 +22,11 @@ const Sidebar = () => {
                 <i className="fa-solid fa-box"></i>
                 Insumos
             </Link>
+
+            <Link to="#" className="item">
+                <i className="fa-solid fa-chart-column"></i>
+                Reportes
+            </Link>
             
             <Link to="#" className="item">
                 <i className="fa-solid fa-circle-question"></i>
@@ -31,6 +36,11 @@ const Sidebar = () => {
             <Link to="#" className="item">
                 <i className="fa-solid fa-gear"></i>
                 Ajustes
+            </Link>
+
+            <Link to="#" className="item">
+                <i className="fa-solid fa-right-from-bracket"></i>
+                Cerrar sesión
             </Link>
         </div>
 
