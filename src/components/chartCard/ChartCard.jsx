@@ -1,6 +1,6 @@
 import Card from '../card/Card';
 
-function Card({ title, children })  {
+function ChartCard({ title, children })  {
     return (
         <Card title={title} className="chart-card">
             { children }
@@ -8,4 +8,4 @@ function Card({ title, children })  {
     );
 }
 
-export default Card;
+export default ChartCard;

@@ -1,10 +1,10 @@
-import TableCard from '../card/Card';
+import Card from '../card/Card';
 
 function TableCard({ title, children }) {
     return (
-        <card title={title} className="table-card">
+        <Card title={title} className="table-card">
             {children}
-        </card>
+        </Card>
     );
 }
 

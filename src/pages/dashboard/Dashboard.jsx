@@ -7,10 +7,12 @@ import './Dashboard.css';
 const Dashboard = () => {
     return (
         <div className="dashboard-page">
-
-            <Card title="Órdenes totales">
-                <h2>0</h2>
-            </Card>
+            <div className="dash-container">
+                <Card title="Órdenes totales">
+                    <h2>0</h2>
+                </Card>
+            </div>
+            
 
             <Card title="Ordenes pendientes"> 
                 <h2>0</h2>
