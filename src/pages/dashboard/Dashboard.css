@@ -1,15 +1,10 @@
 .dashboard-page {
     padding: 50px;
     width: 100%;
-    max-width: 400px;
-    height: 400px;
-    background-color: #ffff;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    border-radius: 20px;
 }
 
-.card {
-    background-color: #ffff;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    border-radius: 20px;
+.dash-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
 }
