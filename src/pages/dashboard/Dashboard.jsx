@@ -9,12 +9,13 @@ const Dashboard = () => {
         <div className="dashboard-page">
             <div className="dash-container">
 
-                <Card title="Órdenes totales">
-                    <img   
-                        className="img-ord"
-                        alt="imagenCardOrdenTotal"
-                        src="https://res.cloudinary.com/dtmmoziql/image/upload/v1768928683/image_8_ixpefe.svg"
-                    />
+                <Card title="Ordenes totales">
+                    <div className={styles.cardIcon}> 
+                        <img   
+                            alt="imagenCardOrdenTotal"
+                            src="https://res.cloudinary.com/dtmmoziql/image/upload/v1768928683/image_8_ixpefe.svg"
+                        />
+                    </div>
                     <h2>0</h2>
                 </Card>
 
