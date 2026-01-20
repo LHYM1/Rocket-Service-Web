@@ -1,4 +1,4 @@
-import Card from '../card/Card';
+import Card from '../card/Card'; // Heredación de estilos de card
 
 function ChartCard({ title, children })  {
     return (
