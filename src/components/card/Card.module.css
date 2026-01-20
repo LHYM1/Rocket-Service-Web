@@ -1,5 +1,13 @@
+.title {
+    text-align: center;
+    font-size: 23px;
+    margin-bottom: 6px;
+}
+
 .card {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 23px;
     max-width: 300px;
     height: 200px;
@@ -8,23 +16,30 @@
     border-radius: 20px;
 }
 
-h2 { /* Estilos counter card */
-    display: flex;
-    flex-direction: column;
+/* Wrapper semántico de iconos.
+Evita que el icono empuje otros
+elementos 
+*/
+.cardIcon {
+    width: 87px;
+    height: 120px;
+    display: flex;          
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.cardIcon img,
+.cardIcon svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Fijación icono */
+}
+
+
+.counter {
+    font-weight: 600;
+    color: rgb(77, 74, 74);
     text-align: center;
 }
 
-/* Wrapper de iconos */
-.cardIcon {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    width: 48px;
-    height: 48px;
-}
-
-.cardIcon img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}

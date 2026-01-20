@@ -9,22 +9,24 @@ const Dashboard = () => {
         <div className="dashboard-page">
             <div className="dash-container">
 
-                <Card title="Ordenes totales">
-                    <div className="card-icon"> 
+                <Card 
+                    title="Ordenes totales"
+                    icon={
                         <img   
                             alt="imagenCardOrdenTotal"
-                            src="https://res.cloudinary.com/dtmmoziql/image/upload/v1768928683/image_8_ixpefe.svg"
+                            src="https://res.cloudinary.com/dtmmoziql/image/upload/v1768944919/clipboard-svgrepo-com_1_pwafgx.svg"
                         />
-                    </div>
-                    <h2>0</h2>
+                    }
+                >
+                    <span>0</span>
                 </Card>
 
                 <Card title="Ordenes pendientes"> 
-                    <h2>0</h2>
+                    <span>0</span>
                 </Card>
 
                 <Card title="Ordenes finalizadas"> 
-                    <h2>0</h2>
+                    <span>0</span>
                 </Card>
 
             </div>
