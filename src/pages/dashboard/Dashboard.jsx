@@ -11,7 +11,7 @@ const Dashboard = () => {
 
                 <Card title="Órdenes totales">
                     <img   
-                        className="img-ordTotl"
+                        className="img-ord"
                         alt="imagenCardOrdenTotal"
                         src="https://res.cloudinary.com/dtmmoziql/image/upload/v1768928683/image_8_ixpefe.svg"
                     />
