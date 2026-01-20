@@ -10,7 +10,7 @@ const Dashboard = () => {
             <div className="dash-container">
 
                 <Card title="Ordenes totales">
-                    <div className={styles.cardIcon}> 
+                    <div className="card-icon"> 
                         <img   
                             alt="imagenCardOrdenTotal"
                             src="https://res.cloudinary.com/dtmmoziql/image/upload/v1768928683/image_8_ixpefe.svg"
