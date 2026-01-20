@@ -8,8 +8,15 @@
     border-radius: 20px;
 }
 
-h2 {
+h2 { /* Estilos counter card */
     display: flex;
     flex-direction: column;
     text-align: center;
+}
+
+.img-ord {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    height: 17px;
 }
