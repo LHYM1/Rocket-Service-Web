@@ -21,11 +21,28 @@ const Dashboard = () => {
                     <span>0</span>
                 </Card>
 
-                <Card title="Ordenes pendientes"> 
+                <Card 
+                    title="Ordenes pendientes"
+                    icon={
+                        <img   
+                            alt="imagenCardOrdenPend"
+                            src="https://res.cloudinary.com/dtmmoziql/image/upload/v1768957469/clipboard-list-svgrepo-com_vgnp90.svg"
+                        />
+                    }
+                > 
+
                     <span>0</span>
                 </Card>
 
-                <Card title="Ordenes finalizadas"> 
+                <Card 
+                    title="Ordenes finalizadas"
+                    icon={
+                        <img   
+                            alt="imagenCardOrdenPend"
+                            src="https://res.cloudinary.com/dtmmoziql/image/upload/v1768957848/clipboard-list-svgrepo-com_1_ywdaov.svg"
+                        />
+                    }
+                > 
                     <span>0</span>
                 </Card>
 
