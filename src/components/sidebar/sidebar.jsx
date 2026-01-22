@@ -10,7 +10,7 @@ const Sidebar = () => {
         <div className="menu-list">
             <Link to="/panel" className="item">
                 <i className="fa-solid fa-house"></i>
-                Dasdboard
+                Dashboard
             </Link>
             
             <Link to="#" className="item">
