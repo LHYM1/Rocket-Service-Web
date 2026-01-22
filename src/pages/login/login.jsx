@@ -33,7 +33,7 @@ function Iniciarsesion() {
         // Aquí va el código de autenticación
         alert("Inicio de sesión exitoso");
 
-        navigate("/dashboard");
+        navigate("/panel");
 
     };
 
