@@ -38,7 +38,7 @@ const Sidebar = () => {
                 Ajustes
             </Link>
 
-            <Link to="#" className="item">
+            <Link to="/dashboard/login" className="item">
                 <i className="fa-solid fa-right-from-bracket"></i>
                 Cerrar sesión
             </Link>
