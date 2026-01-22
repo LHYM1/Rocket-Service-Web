@@ -8,7 +8,7 @@ const Sidebar = () => {
         </div>
 
         <div className="menu-list">
-            <Link to="#" className="item">
+            <Link to="/dashboard" className="item">
                 <i className="fa-solid fa-house"></i>
                 Dasdboard
             </Link>
@@ -23,7 +23,7 @@ const Sidebar = () => {
                 Insumos
             </Link>
 
-            <Link to="#" className="item">
+            <Link to="/dashboard/reports" className="item">
                 <i className="fa-solid fa-chart-column"></i>
                 Reportes
             </Link>
