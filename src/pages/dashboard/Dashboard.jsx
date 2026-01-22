@@ -1,10 +1,16 @@
 
-import ChartCard from '../../components/chartCard/ChartCard';
+
 import TableCard from '../../components/tableCard/tableCard';
 import Card from '../../components/card/Card';
 import './Dashboard.css';
 
 const Dashboard = () => {
+
+    const orders = [
+        { id: 1, client: 'Juan', status: 'Pendiente', total: 120000 },
+        { id: 2, client: 'Ana', status: 'Finalizado', total: 85000 },   
+    ];
+
     return (
         <div className="dashboard-page">
             <div className="dash-container">
@@ -47,6 +53,11 @@ const Dashboard = () => {
                 </Card>
 
             </div>
+
+            <TableCard 
+                title="Ordenes recientes"
+                data={orders}
+            />
         
         </div>
     );

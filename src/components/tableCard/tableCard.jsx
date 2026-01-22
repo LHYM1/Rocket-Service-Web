@@ -1,6 +1,6 @@
 import Card from '../card/Card';
 
-const TableCard = ({ title, data }) => {
+const TableCard = ({ title, data = [] }) => {
     return (
         <Card title={title}>
             <div className="table-responsive">
@@ -15,24 +15,34 @@ const TableCard = ({ title, data }) => {
                     </thead>
 
                     <tbody>
-                        {data.map(order => (
-                            <tr key={order.id}>
-                                <td>{order.id}</td>
-                                <td>{order.client}</td>
+                            {data.length === 0 ? (
+                                <tr>
+                                    <td colSpan="4" className="text-center text-muted">
+                                        No hay órdenes registradas
+                                    </td>
+                                </tr>
+                            ) : (
+                                data.map(order => (
+                                    <tr key={order.id}>
+                                        <td>{order.id}</td>
+                                        <td>{order.client}</td>
 
-                                <td>
-                                    <span className={`badge ${
-                                        order.status === 'Pendiente'
-                                        ? 'bg-warning'
-                                        : 'bg-success'
-                                    }`}>
-                                        {order.status}
-                                    </span>
-                                </td>
-                                
-                                <td>${order.total}</td>
-                            </tr>
-                        ))}
+                                        <td>
+                                            <span className={`badge ${
+                                                order.status === 'Pendiente'
+                                                ? 'bg-warning'
+                                                : 'bg-success'
+                                            }`}>
+                                                {order.status}
+                                            </span>
+                                        </td>
+                                    
+                                        <td>
+                                            ${Number(order.total).toLocaleString()}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                     </tbody>
                 </table>
             </div>
