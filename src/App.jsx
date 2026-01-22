@@ -17,7 +17,7 @@ function App() {
 
         <Route path="/" element={<Login />} />
 
-        <Route path="/dashboard" element={<DashboardLayout />}>
+        <Route path="/rocket" element={<DashboardLayout />}>
           <Route index element={<Dashboard />} /> 
           <Route path="content" element={<Content />} />
           <Route path="profile" element={<Profile />} /> 
