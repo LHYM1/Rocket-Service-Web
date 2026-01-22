@@ -1,25 +1,36 @@
 import Card from '../card/Card';
-import styles from './TableCard.module.css';
 
-function TableCard({ title, columns, data }) {
+const TableCard = ({ title, data }) => {
     return (
         <Card title={title}>
-            <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                    <thead>
+            <div className="table-responsive">
+                <table className="table table-hover align-middle">
+                    <thead className="table-light">
                         <tr>
-                            {columns.map((col, index) => (
-                                <th key={index}>{col}</th>
-                            ))}
+                           <th>ID</th>
+                           <th>Cliente</th>
+                           <th>Estado</th>
+                           <th>Total</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        {data.map((row, rowIndex) => (
-                            <tr key={rowIndex}>
-                                {columns.map((col, colIndex) => (
-                                    <td key={colIndex}>{row[col]}</td>
-                                ))}
+                        {data.map(order => (
+                            <tr key={order.id}>
+                                <td>{order.id}</td>
+                                <td>{order.client}</td>
+
+                                <td>
+                                    <span className={`badge ${
+                                        order.status === 'Pendiente'
+                                        ? 'bg-warning'
+                                        : 'bg-success'
+                                    }`}>
+                                        {order.status}
+                                    </span>
+                                </td>
+                                
+                                <td>${order.total}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -27,6 +38,6 @@ function TableCard({ title, columns, data }) {
             </div>
         </Card>
     );
-}
+};
 
 export default TableCard;
