@@ -1,6 +1,4 @@
 
-
-import TableCard from '../../components/tableCard/tableCard';
 import Card from '../../components/card/Card';
 import './Dashboard.css';
 
