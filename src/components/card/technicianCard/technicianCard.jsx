@@ -1,6 +1,7 @@
-import '.technician.css';
+import './technicianCard.css';
+import Card from '../Card';
 
-const TechnicianCard = ({ tecnico, asignacion }) => {
+const TechnicianCard = ({ tecnico, asignar }) => {
     return (
         <Card title={tecnico.nombre}>
 
@@ -8,9 +9,9 @@ const TechnicianCard = ({ tecnico, asignacion }) => {
                 <strong>Estado:</strong>{" "}
                 <span
                     className={`estado ${
-                    technician.status === "Disponible" /*Operador ternario (indicar estado)*/
-                        ? "Realizando servicio"
-                        : "Fuera de jornada"
+                    tecnico.estado === "Disponible" /*Operador ternario (indicar estado)*/
+                        ? "disponible"
+                        : "ocupado"
                     }`}
                 >
                     {tecnico.estado}
@@ -21,7 +22,7 @@ const TechnicianCard = ({ tecnico, asignacion }) => {
             <button
                 className="btn-asignar"
                 disabled={tecnico.estado !== "Disponible"}
-                onClick={() => asignacion(tecnico.id)}  
+                onClick={() => asignar(tecnico.id)}  
             >
                 Asignar orden
             </button>

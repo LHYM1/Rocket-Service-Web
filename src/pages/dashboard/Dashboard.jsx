@@ -1,8 +1,21 @@
 
 import Card from '../../components/card/Card';
+import TechnicianCard from '../../components/card/technicianCard/technicianCard';
 import './Dashboard.css';
 
 const Dashboard = () => {
+    const tecnicos = [ // Declaración array tecnicos
+        {
+            id: 1,
+            nombre: "Juan Pérez",
+            estado: "Disponible"
+        }
+    ];
+
+    const asignar = (idTecnico) => {
+        console.log("Asignar orden al técnico:", idTecnico);
+    }
+
     return (
         <div className="dashboard-page">
             <div className="dash-container">
@@ -44,6 +57,16 @@ const Dashboard = () => {
                     <span>0</span>
                 </Card>
 
+            </div>
+
+            <div className="tecnicos">
+                {tecnicos.map(tecnico => (
+                    <TechnicianCard
+                        key={tecnico.id}
+                        tecnico={tecnico}
+                        asignar={asignar}
+                    />
+                ))}
             </div>
         
         </div>
