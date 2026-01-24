@@ -1,0 +1,52 @@
+.nombre {
+    gap: 12px;  
+}
+
+.p-text { /* Estilos párrafo */
+    margin-bottom: 10px;
+    font-size: 19.5px;
+}
+
+.estado {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Estilos para el estado disponible técnico */
+.estado.disponible {
+    background-color: #e6f7ee;
+    color: #1f8f55;
+}
+
+
+/* Estilos para el estado ocupado del técnico */
+.estado.ocupado {
+    background-color: #fdecea;
+    color: #c0392b;
+}
+
+.btn-asignar { /* Borón asignar */
+    margin-top: 12px;
+    width: 100%;
+    padding: 2px;
+    border-radius: 8px;
+    border: none;
+    background-color: #fd8828;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* Cambiar de color al pasar cursor */
+.btn-asignar:hover {
+    background-color: #ff7300;
+}
+
+/* Deshabilitar botón */
+.btn-asignar:disabled {
+    background-color: #c7c7c7;
+    cursor: not-allowed;
+}
