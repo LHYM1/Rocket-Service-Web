@@ -8,3 +8,8 @@
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 24px;
 }
+
+/* Contendedor de técnicos */
+.tecnicos-container {
+    margin-top: 24px;
+} 
