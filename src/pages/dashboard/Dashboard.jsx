@@ -59,14 +59,19 @@ const Dashboard = () => {
 
             </div>
 
-            <div className="tecnicos-container">
-                {tecnicos.map(tecnico => (
-                    <TechnicianCard
-                        key={tecnico.id}
-                        tecnico={tecnico}
-                        asignar={asignar}
-                    />
-                ))}
+            <div className="tecnicos-container"> 
+                <h3 className="tecnicos-title">Técnicos disponibles</h3>
+
+                <div className="tecnicos-list">
+                    {tecnicos.map(tecnico => (
+                        <TechnicianCard
+                            key={tecnico.id}
+                            tecnico={tecnico}
+                            asignar={asignar}
+                        />
+                    ))}
+                </div>
+               
             </div>
         
         </div>
