@@ -35,3 +35,12 @@
     height: 34px;
     object-fit: contain;
 }
+
+/* Estilos para scroll bonito */
+.tecnicos-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tecnicos-list::-webkit-scrollbar {
+    width: 6px;
+}
