@@ -1,3 +1,9 @@
+.technician-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
 
 .nombre {
     gap: 12px;  
@@ -31,7 +37,7 @@
 .btn-asignar { /* Borón asignar */
     margin-top: 12px;
     width: 100%;
-    padding: 8px 33px; /* 8 ancho y 33 largo botón */
+    padding: 3px 34px; /* 8 ancho y 33 largo botón */
     font-size: 18px;
     border-radius: 8px;
     border: none;
