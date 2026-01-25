@@ -61,7 +61,7 @@ const Dashboard = () => {
 
             <div className="tecnicos-container"> 
                 <h3 className="tecnicos-title">
-                    <img 
+                    <img className="img-tec"
                         alt="imgCardTecnicos"
                         src=  
                         "https://res.cloudinary.com/dtmmoziql/image/upload/v1769342546/users-svgrepo-com_twccwo.svg"
