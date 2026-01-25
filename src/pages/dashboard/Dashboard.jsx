@@ -59,7 +59,7 @@ const Dashboard = () => {
 
             </div>
 
-            <div className="tecnicos">
+            <div className="tecnicos-container">
                 {tecnicos.map(tecnico => (
                     <TechnicianCard
                         key={tecnico.id}
