@@ -60,7 +60,14 @@ const Dashboard = () => {
             </div>
 
             <div className="tecnicos-container"> 
-                <h3 className="tecnicos-title">Técnicos disponibles</h3>
+                <h3 className="tecnicos-title">
+                    <img 
+                        alt="imgCardTecnicos"
+                        src=  
+                        "https://res.cloudinary.com/dtmmoziql/image/upload/v1769342546/users-svgrepo-com_twccwo.svg"
+                    />
+                    Técnicos disponibles
+                </h3>
 
                 <div className="tecnicos-list">
                     {tecnicos.map(tecnico => (
