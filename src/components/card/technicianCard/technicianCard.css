@@ -53,16 +53,16 @@
     color: #fff;
 }
 
-.btn-asignar { /* Borón asignar */
+.btn-asignar { /* Botón asignar */
     margin-top: 11px;
     width: 100%;
-    padding: 4px 1px; /* 8 ancho y 33 largo botón */
-    font-size: 18px;
+    padding: 7px 1px; /* 7 alto y 1 largo botón */
+    font-size: 17px;
     border-radius: 8px;
     border: none;
     background-color: #fd8828;
     color: #fff;
-    font-weight: 600;
+    font-weight: 580;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
