@@ -16,7 +16,7 @@
     border-radius: 16px;
     padding: 1.5rem;
     width: 100%;
-    max-width: 33rem;
+    max-width: 25rem;
     max-height: 420px; /* Tamaño del cotenedor grande */
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     display: flex;
