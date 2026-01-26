@@ -13,6 +13,7 @@
 .avatar {
     width: 48px;
     height: 48px;
+    aspect-ratio: 1/1;
     border-radius: 100%;
     background: #e9eef5; /* Color fondo avatar */
     color: #5b6b82; /* Color letra */
@@ -27,7 +28,7 @@
     flex: 1; /* Contenido card crece o decrece proporcionalmente */
 }
 
-.technician-info h4 {
+.technician-info h4 { /* Nombre técnico */
     margin: 0;
     font-size: 18px;
 }
