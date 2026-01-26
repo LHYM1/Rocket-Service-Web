@@ -1,17 +1,35 @@
-.technician-content {
+.technician-card {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: 14px;
+    border: 1px gainsboro solid; /* Borde card */
+    background: #fefcf9; /* Color fondo card */
+    width: 100%; 
 }
 
-.nombre {
-    gap: 12px;  
+/* Avatar con inciales */
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 100%;
+    background: #e9eef5; /* Color fondo avatar */
+    color: #5b6b82; /* Color letra */
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.p-text { /* Estilos párrafo */
-    margin-bottom: 10px;
-    font-size: 19.5px;
+/* Info general */
+.technician-info {
+    flex: 1; /* Contenido card crece o decrece proporcionalmente */
+}
+
+.technician-info h4 {
+    margin: 0;
+    font-size: 18px;
 }
 
 .estado {
@@ -19,25 +37,26 @@
     border-radius: 20px;
     font-size: 0.9rem;
     font-weight: 600;
+    display: inline-flex;
 }
 
 /* Estilos para el estado disponible técnico */
 .estado.disponible {
-    background-color: #e6f7ee;
+    background-color: #daf7e8;
     color: #1f8f55;
 }
 
 
 /* Estilos para el estado ocupado del técnico */
 .estado.ocupado {
-    background-color: #fdecea;
-    color: #c0392b;
+    background-color: #dc2626;;
+    color: #fff;
 }
 
 .btn-asignar { /* Borón asignar */
-    margin-top: 12px;
+    margin-top: 11px;
     width: 100%;
-    padding: 3px 34px; /* 8 ancho y 33 largo botón */
+    padding: 4px 1px; /* 8 ancho y 33 largo botón */
     font-size: 18px;
     border-radius: 8px;
     border: none;
