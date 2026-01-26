@@ -13,10 +13,12 @@
 .avatar {
     width: 48px;
     height: 48px;
-    aspect-ratio: 1/1;
+    flex-shrink: 0;
     border-radius: 100%;
-    background: #e9eef5; /* Color fondo avatar */
-    color: #5b6b82; /* Color letra */
+    border: 2.5px solid #fff; /* Borde avatar */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); /* Sombra borde avatar */
+    background: #dfe9f6; /* Color fondo avatar */
+    color: #5d6d84; /* Color letra */
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -59,8 +61,8 @@
     width: 100%;
     padding: 7px 1px; /* 7 alto y 1 largo botón */
     font-size: 17px;
-    border-radius: 8px;
     border: none;
+    border-radius: 8px;
     background-color: #fd8828;
     color: #fff;
     font-weight: 580;
