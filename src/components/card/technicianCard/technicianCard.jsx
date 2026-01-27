@@ -3,7 +3,7 @@ import Avatar from '../../avatar/Avatar';
 
 const TechnicianCard = ({ tecnico, asignar }) => {
     return (
-        <div className="styles.card">
+        <div className={styles.card}>
         
             {/* Avatar */}
             <Avatar 
@@ -19,8 +19,8 @@ const TechnicianCard = ({ tecnico, asignar }) => {
                 <span
                     className={`${styles.estado} ${
                         tecnico.estado === "Disponible" /*Operador ternario (indicar estado)*/
-                            ? "styles.disponible"
-                            : "styles.ocupado"
+                            ? styles.disponible
+                            : styles.ocupado
                     }`}
                 >
                     {tecnico.estado}
@@ -30,7 +30,7 @@ const TechnicianCard = ({ tecnico, asignar }) => {
 
             {/* Acción */}
             <button
-                className="styles.btnAsignar"
+                className={styles.btnAsignar}
                 disabled={tecnico.estado !== "Disponible"}
                 onClick={() => asignar(tecnico.id)}  
             >

@@ -9,6 +9,38 @@
     width: 100%; 
 }
 
+.info {
+    flex: 1; /* Contenido card crece o decrece proporcionalmente */
+}
+
+.name { /* Nombre técnico */
+    margin: 0;
+    font-size: 18px;
+}
+
+.estado {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: inline-flex;
+}
+
+/* Estilos para el estado disponible técnico */
+.disponible {
+    background-color: #d0f6e2;
+    color: #1f8f55;
+}
+
+
+/* Estilos para el estado ocupado del técnico */
+.ocupado {
+    background-color: #dc2626;
+    color: #fff;
+}
+
+
 /* Avatar con inciales */
 .avatar {
     width: 48px;
@@ -25,38 +57,8 @@
     justify-content: center;
 }
 
-/* Info general */
-.technician-info {
-    flex: 1; /* Contenido card crece o decrece proporcionalmente */
-}
 
-.technician-info h4 { /* Nombre técnico */
-    margin: 0;
-    font-size: 18px;
-}
-
-.estado {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    display: inline-flex;
-}
-
-/* Estilos para el estado disponible técnico */
-.estado.disponible {
-    background-color: #daf7e8;
-    color: #1f8f55;
-}
-
-
-/* Estilos para el estado ocupado del técnico */
-.estado.ocupado {
-    background-color: #dc2626;;
-    color: #fff;
-}
-
-.btn-asignar { /* Botón asignar */
+.btnAsignar { /* Botón asignar */
     margin-top: 11px;
     width: 100%;
     padding: 7px 1px; /* 7 alto y 1 largo botón */
@@ -71,12 +73,12 @@
 }
 
 /* Cambiar de color al pasar cursor */
-.btn-asignar:hover {
+.btnAsignar:hover {
     background-color: #ff7300;
 }
 
 /* Deshabilitar botón */
-.btn-asignar:disabled {
+.btnAsignar:disabled {
     background-color: #c7c7c7;
     cursor: not-allowed;
 }
