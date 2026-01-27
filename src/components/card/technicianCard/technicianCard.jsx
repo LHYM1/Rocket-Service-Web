@@ -1,26 +1,26 @@
-import './technicianCard.css';
+import styles from './technicianCard.module.css';
+import Avatar from '../avatar/Avatar';
 
 const TechnicianCard = ({ tecnico, asignar }) => {
     return (
-        <div className="technician-card">
+        <div className="styles.card">
         
             {/* Avatar */}
-            <div className="avatar">
-                {tecnico.nombre
-                    .split(" ")
-                    .map(p => p[0])
-                    .join("")}
-            </div>  
+            <Avatar 
+                name={tecnico.nombre}
+                size="md"
+                status={tecnico.estado === "Disponible" ? "online" : "offline"}
+            />  
 
             {/* info técnico */}
-            <div className="technician-info">
-                <h4>{tecnico.nombre}</h4>
+            <div className={styles.info}>
+                <h4 className={styles.name}>{tecnico.nombre}</h4>
 
                 <span
-                    className={`estado ${
+                    className={`${styles.estado} ${
                         tecnico.estado === "Disponible" /*Operador ternario (indicar estado)*/
-                            ? "disponible"
-                            : "ocupado"
+                            ? "styles.disponible"
+                            : "styles.ocupado"
                     }`}
                 >
                     {tecnico.estado}
@@ -30,7 +30,7 @@ const TechnicianCard = ({ tecnico, asignar }) => {
 
             {/* Acción */}
             <button
-                className="btn-asignar"
+                className="styles.btnAsignar"
                 disabled={tecnico.estado !== "Disponible"}
                 onClick={() => asignar(tecnico.id)}  
             >
