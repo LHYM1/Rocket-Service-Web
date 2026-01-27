@@ -1,5 +1,5 @@
 import styles from './technicianCard.module.css';
-import Avatar from '../avatar/Avatar';
+import Avatar from '../../avatar/Avatar';
 
 const TechnicianCard = ({ tecnico, asignar }) => {
     return (
