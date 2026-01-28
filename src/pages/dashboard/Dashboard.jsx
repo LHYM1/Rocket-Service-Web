@@ -9,7 +9,27 @@ const Dashboard = () => {
             id: 1,
             nombre: "Juan Pérez",
             estado: "Disponible"
+        },
+
+        /*Agregando más objetos al array */
+        { 
+            id: 2,
+            nombre: "Pablo Gómez",
+            estado: "Ocupado"
+        },
+
+        {
+            id: 3,
+            nombre: "María Rodríguez",
+            estado: "Disponible"
+        },
+
+        {
+            id: 4,
+            nombre: "Andrés Valencia",
+            estado: "Disponible"
         }
+
     ];
 
     const asignar = (idTecnico) => {
