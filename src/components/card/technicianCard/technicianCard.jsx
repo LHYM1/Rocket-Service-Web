@@ -2,6 +2,15 @@ import styles from './technicianCard.module.css';
 import Avatar from '../../avatar/Avatar';
 
 const TechnicianCard = ({ tecnico, asignar }) => {
+
+    // constante estado para normalizar estados tecnicos
+    const estado = tecnico.estado.toLowerCase().trim();
+
+    // función para poner la primera letra del estado en mayúscula
+    const controlar = (texto) => {
+        return texto.charAt(0).toUpperCase() + texto.slice(1);
+    }
+
     return (
         <div className={styles.card}>
         
@@ -9,7 +18,7 @@ const TechnicianCard = ({ tecnico, asignar }) => {
             <Avatar 
                 name={tecnico.nombre}
                 size="md"
-                status={tecnico.estado === "Disponible" ? "online" : "offline"}
+                status={tecnico.estado === "disponible" ? "online" : "offline"}
             />  
 
             {/* info técnico */}
@@ -18,12 +27,12 @@ const TechnicianCard = ({ tecnico, asignar }) => {
 
                 <span
                     className={`${styles.estado} ${
-                        tecnico.estado === "Disponible" /*Operador ternario (indicar estado)*/
+                        estado === "disponible" /*Operador ternario (indicar estado)*/
                             ? styles.disponible
                             : styles.ocupado
                     }`}
                 >
-                    {tecnico.estado}
+                    {controlar(estado)}
 
                 </span>
             </div>
@@ -31,7 +40,7 @@ const TechnicianCard = ({ tecnico, asignar }) => {
             {/* Acción */}
             <button
                 className={styles.btnAsignar}
-                disabled={tecnico.estado !== "Disponible"}
+                disabled={estado !== "disponible"}
                 onClick={() => asignar(tecnico.id)}  
             >
                 Asignar orden
