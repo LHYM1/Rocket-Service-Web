@@ -40,24 +40,6 @@
     color: #fff;
 }
 
-
-/* Avatar con inciales */
-.avatar {
-    width: 48px;
-    height: 48px;
-    flex-shrink: 0; /* Formar circunferencia */
-    border-radius: 100%;
-    border: 2px solid #fff; /* Borde avatar */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); /* Sombra borde avatar */
-    background: #dfe9f6; /* Color fondo avatar */
-    color: #5d6d84; /* Color letra */
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-
 .btnAsignar { /* Botón asignar */
     margin-top: 11px;
     width: 100%;
