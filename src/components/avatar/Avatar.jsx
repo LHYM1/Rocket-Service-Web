@@ -19,7 +19,7 @@ const Avatar = ({ name, src, size="md", status }) => {
     const initials = getInitials(name);
 
     return (
-        <div className={`styles.avatar ${styles[size]} ${styles[status]}`}>
+        <div className={`${styles.avatar} ${styles[size]} ${styles[status]}`}>
             {src ? (
                 <img src={src} alt={name} />
             ) : (
