@@ -9,10 +9,13 @@ const OrderCard = ({ order, activa, onSelect }) => {
 
             <div className={styles.header}>
                 <h4>{order.codigo}</h4>
-                <span className={styles.estado}>{order.estado}</span>
             </div>
 
-            <p><b>Cliente:</b> {order.cliente}</p>
+            <div className={styles.cliente}>
+                <p><b>Cliente:</b> {order.cliente}</p>
+                <span className={styles.estado}>{order.estado}</span>
+            </div>
+            
             <p><b>Servicio:</b> {order.servicio}</p>
 
             <p className={styles.descripcion}>
