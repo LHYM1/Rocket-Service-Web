@@ -5,20 +5,46 @@
     background-color: rgb(243, 235, 235);
     border-radius: 12px;
     border: 1px solid rgb(205, 202, 202);
-    padding: 16px;
+    padding: 16px 20px;
+    width: 100%;
     gap: 1px;
     transition: all 0.2s ease;
 }
 
-.card-header {
+/* Card activa */
+.activa {
+    box-shadow: 0 0 0 2px #ff6a00
+}
+
+.header {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h4 {
+    margin: 0;
+    font-size: 1.1rem;
 }
 
 .estado {
-    display: grid;
-    text-align: center;
+    display: flex;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 1rem;
     color: #6E6B6B;
     background-color: #F7F2F4;
-    padding: 2px 8px;
     font-weight: 600;
+}
+
+.descripcion {
+    font-size: 0.75rem;
+    color: #555;
+}
+
+/* Fecha orden */
+.fecha {
+    align-self: flex-end; /* Alinea al final del contenedor */
+    color: #777;
+    margin-top: 5px;
 }
