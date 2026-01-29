@@ -1,9 +1,21 @@
 
 import Card from '../../components/card/Card';
+import OrderList from '../../components/orders/OrdersList';
 import TechnicianCard from '../../components/card/technicianCard/technicianCard';
 import './Dashboard.css';
 
 const Dashboard = () => {
+    const ordenes = [ // Declaración array ordenes
+        {
+            id: 1,
+            codigo: "ORD-001",
+            cliente: "Andrés Valencia",
+            servicio: "Reparación de aire acondicionado",
+            estado: "Pendiente",
+            fechaInicio: "2026-06-01"
+        }
+    ];
+
     const tecnicos = [ // Declaración array tecnicos
         {
             id: 1,
@@ -78,7 +90,7 @@ const Dashboard = () => {
                 </Card>
 
             </div>
-
+            
             <div className="tecnicos-container"> 
                 <h3 className="tecnicos-title">
                     <img className="img-tec"
@@ -88,7 +100,7 @@ const Dashboard = () => {
                     />
                     Técnicos disponibles
                 </h3>
-
+                
                 <div className="tecnicos-list">
                     {tecnicos.map(tecnico => (
                         <TechnicianCard
@@ -98,7 +110,18 @@ const Dashboard = () => {
                         />
                     ))}
                 </div>
-               
+            </div>
+
+            <div className="ordenes-container">
+                <h3 className="ordenes-title">
+                    Listado ordenes
+                </h3>
+
+                <OrderCard>
+                    <OrderList 
+                    ordenes={ordenes}
+                />
+                </OrderCard>
             </div>
         
         </div>
