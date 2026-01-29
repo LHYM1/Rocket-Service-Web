@@ -1,0 +1,24 @@
+.card {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    background-color: rgb(243, 235, 235);
+    border-radius: 12px;
+    border: 1px solid rgb(205, 202, 202);
+    padding: 16px;
+    gap: 1px;
+    transition: all 0.2s ease;
+}
+
+.card-header {
+    display: flex;
+}
+
+.estado {
+    display: grid;
+    text-align: center;
+    color: #6E6B6B;
+    background-color: #F7F2F4;
+    padding: 2px 8px;
+    font-weight: 600;
+}
