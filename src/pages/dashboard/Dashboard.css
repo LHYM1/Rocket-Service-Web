@@ -9,6 +9,24 @@
     gap: 24px;
 }
 
+/* Contenedor principal ordenes y técnicos */
+.main-section {
+    display: flex;
+    gap: 17px;
+    margin-top: 1rem; /* Espacio vertical entre cards */
+    align-items: center;
+}
+
+/* Ordenes (izquierda) */
+.ordenes-container {
+    flex: 2; /* Ocupa el doble de espacio */
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+
+}
+
 /* Contendedor de técnicos */
 .tecnicos-container {
     margin-top: 2rem;
