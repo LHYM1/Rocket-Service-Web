@@ -13,8 +13,8 @@
 .main-section {
     display: flex;
     gap: 17px;
-    margin-top: 1rem; /* Espacio vertical entre cards */
-    align-items: center;
+    margin-top: 1.7rem; /* Espacio vertical entre cards */
+    align-items: flex-start; /* Alinea container ordenes con container técnicos */
 }
 
 /* Ordenes (izquierda) */
@@ -29,7 +29,6 @@
 
 /* Contendedor de técnicos */
 .tecnicos-container {
-    margin-top: 2rem;
     background-color: #fff;
     border-radius: 16px;
     padding: 1.5rem;
