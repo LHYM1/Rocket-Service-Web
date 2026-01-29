@@ -90,39 +90,43 @@ const Dashboard = () => {
                 </Card>
 
             </div>
-            
-            <div className="tecnicos-container"> 
-                <h3 className="tecnicos-title">
-                    <img className="img-tec"
-                        alt="imgCardTecnicos"
-                        src=  
-                        "https://res.cloudinary.com/dtmmoziql/image/upload/v1769342546/users-svgrepo-com_twccwo.svg"
-                    />
-                    Técnicos disponibles
-                </h3>
-                
-                <div className="tecnicos-list">
-                    {tecnicos.map(tecnico => (
-                        <TechnicianCard
-                            key={tecnico.id}
-                            tecnico={tecnico}
-                            asignar={asignar}
-                        />
-                    ))}
+
+            { /* SECCIÓN PRINCIPAL ORDENES Y TÉCNICOS */ }
+            <div className="main-section">
+
+                { /* ÓRDENES - IZQUIERDA */ }
+                <div className="ordenes-container">
+                    <h3 className="ordenes-title">
+                        Listado ordenes
+                    </h3>
+
+                    <OrderList ordenes={ordenes} />
                 </div>
-            </div>
+                
+                { /* TÉCNICOS - DERECHA */ }
+                <div className="tecnicos-container"> 
+                    <h3 className="tecnicos-title">
+                        <img className="img-tec"
+                            alt="imgCardTecnicos"
+                            src=  
+                            "https://res.cloudinary.com/dtmmoziql/image/upload/v1769342546/users-svgrepo-com_twccwo.svg"
+                        />
+                        Técnicos disponibles
+                    </h3>
+                    
+                    <div className="tecnicos-list">
+                        {tecnicos.map(tecnico => (
+                            <TechnicianCard
+                                key={tecnico.id}
+                                tecnico={tecnico}
+                                asignar={asignar}
+                            />
+                        ))}
+                    </div>
+                </div>
 
-            <div className="ordenes-container">
-                <h3 className="ordenes-title">
-                    Listado ordenes
-                </h3>
-
-                <OrderCard>
-                    <OrderList 
-                    ordenes={ordenes}
-                />
-                </OrderCard>
             </div>
+            
         
         </div>
     );
