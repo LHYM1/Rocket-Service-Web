@@ -9,11 +9,7 @@ const Navbar = () => {
                 <span className="empresa-name2"> Service</span>
             </h1>
             <nav className="navbar">
-                <ul className="navLinks">
-                    <li>
-                        <Link to = "/" >Home</Link>
-                    </li>
-                </ul>
+        
             </nav>
 
             <div className="icons">
