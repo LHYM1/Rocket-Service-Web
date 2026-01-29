@@ -15,6 +15,10 @@ const OrderCard = ({ order, activa, onSelect }) => {
             <p><b>Cliente:</b> {order.cliente}</p>
             <p><b>Servicio:</b> {order.servicio}</p>
 
+            <p className={styles.descripcion}>
+                {order.descripcion}
+            </p>
+                
             {/* Letra pequeña para fecha de inicio orden */}
             <small className={styles.fecha}>
                 Fecha inicio: {order.fechaInicio}
