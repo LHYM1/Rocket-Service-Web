@@ -111,7 +111,7 @@ const Dashboard = () => {
                             src=  
                             "https://res.cloudinary.com/dtmmoziql/image/upload/v1769342546/users-svgrepo-com_twccwo.svg"
                         />
-                        Técnicos disponibles
+                            Disponibilidad técnicos
                     </h3>
                     
                     <div className="tecnicos-list">
