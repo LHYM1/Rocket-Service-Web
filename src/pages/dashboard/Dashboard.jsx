@@ -12,7 +12,16 @@ const Dashboard = () => {
             cliente: "Andrés Valencia",
             servicio: "Reparación de aire acondicionado",
             estado: "Pendiente",
-            fechaInicio: "2026-06-01"
+            fechaInicio: "01-01-2026"
+        },
+
+        {
+            id: 2,
+            codigo: "ORD-002",
+            cliente: "Ivan Castro",
+            servicio: "Mantenimiento de sistema eléctrico",
+            estado: "En proceso",
+            fechaInicio: "12-01-2026"
         }
     ];
 
