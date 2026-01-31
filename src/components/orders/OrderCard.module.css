@@ -40,14 +40,38 @@
     margin: 0;
 }
 
+/* Estados orden */
 .estado {
     display: flex;
-    padding: 4px 8px;
+    padding: 4px 12px;
     border-radius: 999px;
     font-size: 1rem;
-    color: #6E6B6B;
-    background-color: #fafde2;
     font-weight: 600;
+}
+
+.pendiente {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.enProceso {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.asignada {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.finalizada {
+    background-color: #7FFF00;
+    color: #5F9EA0;
+}
+
+.cancelada {
+    background-color: #f8d7da;
+    color: #721c24;
 }
 
 .descripcion {
