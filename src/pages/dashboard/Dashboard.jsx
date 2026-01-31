@@ -136,7 +136,10 @@ const Dashboard = () => {
                         Listado ordenes
                     </h3>
 
-                    <OrderList ordenes={ordenes} />
+                    <div className="ordenes-list">
+                        <OrderList ordenes={ordenes} />
+                    </div>
+                    
                 </div>
                 
                 { /* TÉCNICOS - DERECHA */ }
