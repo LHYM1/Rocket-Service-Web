@@ -1,6 +1,24 @@
 import styles from './OrderCard.module.css';
 
 const OrderCard = ({ order, activa, onSelect }) => {
+
+    const estadosClases = {
+        pendiente: "pendiente",
+        "en proceso": "enProceso",
+        finalizada: "finalizada",
+        cancelada: "cancelada",
+        asignada: "asignada"
+    };
+
+    // Constante estadoOrden para normalizar estados de ordenes
+    const estadoOrden = order.estado.toLowerCase().trim();
+
+    // Función para poner la primera letra del estado de la orden en mayúscula
+    const controlarEstado = (texto) => {
+        return texto.charAt(0).toUpperCase() +
+        texto.slice(1);
+    }
+
     return (
         <div 
             className={`${styles.card} ${activa ? styles.activa : ""}`}
@@ -13,7 +31,14 @@ const OrderCard = ({ order, activa, onSelect }) => {
 
             <div className={styles.cliente}>
                 <p><b>Cliente:</b> {order.cliente}</p>
-                <span className={styles.estado}>{order.estado}</span>
+
+                <span
+                    className={`${styles.estado} ${
+                        styles[estadosClases[estadoOrden]] || styles.pendiente
+                    }`}
+                >
+                    {controlarEstado(estadoOrden)}
+                </span>
             </div>
             
             <p><b>Servicio:</b> {order.servicio}</p>
