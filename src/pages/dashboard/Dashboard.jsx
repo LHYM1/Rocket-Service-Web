@@ -22,6 +22,15 @@ const Dashboard = () => {
             servicio: "Mantenimiento de sistema eléctrico",
             estado: "En proceso",
             fechaInicio: "12-01-2026"
+        },
+
+        {
+            id: 3,
+            codigo: "ORD-003",
+            cliente: "Natalia Rodríguez",
+            servicio: "Instalación de sistema de seguridad",
+            estado: "finalizada",
+            fechaInicio: "15-01-2026"
         }
     ];
 
