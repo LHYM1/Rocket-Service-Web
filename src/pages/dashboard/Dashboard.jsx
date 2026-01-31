@@ -31,6 +31,24 @@ const Dashboard = () => {
             servicio: "Instalación de sistema de seguridad",
             estado: "finalizada",
             fechaInicio: "15-01-2026"
+        },
+
+        {
+            id: 4,
+            codigo: "ORD-004",
+            cliente: "Carlos Méndez",
+            servicio: "Frenos y suspensión",
+            estado: "Cancelada",
+            fechaInicio: "10-01-2026"
+        },
+
+        {
+            id: 5,
+            codigo: "ORD-005",
+            cliente: "Laura Gómez",
+            servicio: "Cambio de aceite y filtros",
+            estado: "Asignada",
+            fechaInicio: "12-01-2026"
         }
     ];
 
