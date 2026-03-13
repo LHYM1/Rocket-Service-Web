@@ -1,0 +1,21 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/Juan-dev-25/RocketService-#readme",
+  "bugs": {
+    "url": "https://github.com/Juan-dev-25/RocketService-/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Juan-dev-25/RocketService-.git"
+  },
+  "license": "ISC",
+  "author": "Juan Bernal Y kevin Bastidas",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  }
+}
