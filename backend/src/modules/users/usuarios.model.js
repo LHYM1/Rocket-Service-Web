@@ -1,21 +1,11 @@
-const db = require('../config/db');
+const db = require('../../config/db');
 
 const users = {
     findAll: async () => { // Este método sirve para traer toda la tabla de usuarios
-        const [rows] = await db.query(`
-            SELECT 
-                u.id_usuario,
-                u.nombre,
-                u.apellido,
-                u.correo_usuario,
-                u.telefono_usuario,
-                u.foto_usuario_url,
-                t.categoria_usuario AS clasificacion_de_usuarios
-            FROM usuarios u 
-            INNER JOIN clasificacion_de_usuarios t
-            ON u.id_tipo_usuario = t.id_tipo_usuario
-        `);
+        const [rows] = await db.query('SELECT * FROM usuarios');
+    
         return rows;
+            
     },
 
     findById: async (id) => {
@@ -46,11 +36,10 @@ const users = {
             correo_usuario, 
             telefono_usuario, 
             contrasena,
-            foto_usuario_url,
             id_tipo_usuario
         } = data;
 
-        const [result] = await db.query('UPDATE usuarios SET nombre = ?, apellido = ?, correo_usuario = ?, telefono_usuario = ?, contrasena = ?, WHERE id_usuario = ?',
+        const [result] = await db.query('UPDATE usuarios SET nombre = ?, apellido = ?, correo_usuario = ?, telefono_usuario = ?, contrasena = ? WHERE id_usuario = ?',
             [nombre, apellido, correo_usuario, telefono_usuario, contrasena, foto_usuario_url, id_tipo_usuario, id]);
         return result.affectedRows > 0;
     },
