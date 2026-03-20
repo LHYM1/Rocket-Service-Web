@@ -1,5 +1,5 @@
 // en la constante usuario se guarda los datos de endPoint agregar, eliminar, actualizar y listar de la tabla usuario
-const usuarios = require('../models/usuariosModelo');
+const usuarios = require('../../models/usuariosModelo');
 
 exports.listarUsuario = async (req, res) => {
 
