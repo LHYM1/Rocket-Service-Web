@@ -1,8 +1,8 @@
 import Card from '../card/Card';
 
-const TableCard = ({ title, data = [] }) => {
+const TableCard = ({ data = [] }) => {
     return (
-        <Card title={title}>
+        <Card>
             <div className="table-responsive">
                 <table className="table table-hover align-middle">
                     <thead className="table-light">
