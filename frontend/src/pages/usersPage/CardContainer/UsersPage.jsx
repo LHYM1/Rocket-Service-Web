@@ -1,16 +1,17 @@
 import { useState } from 'react'
 import { useEffect } from "react";
 import axios from 'axios'
+import UserForm from '../../components/users/UserForm';
+import UsersTable from '../../components/users/UsersTable';
 
 function UsersPage() {
-  const [usuarios, setUsuarios ] = useState([]);
-  const [showModal, setShowModal] = useState(false); // Estado para abrir/cerrar el modal
-  const [eliminar, setEliminar] = useState(false);
+  const [users, setUsers ] = useState([]);
   
+  // constante listar usuarios
   const getUsuarios = () => {
     axios.get("http://localhost:4000/api/usuarios/listar")
     .then((response) => {
-      setUsuarios(response.data);
+      setUsers(response.data);
     })
     .catch((error) => {
       console.log(error);
@@ -23,11 +24,23 @@ function UsersPage() {
 
   return (
     <>
-      <UserForm />
-      <UsersTable usuarios={usuarios} />
+      {/**
+       *<UserForm 
+        usuarioSeleccionado={usuarioSeleccionado}
+        setUsuarioSeleccionado={setUsuarioSeleccionado}
+        getUsuarios={getUsuarios}
+       />
+      */}
+     
+
+      <UsersTable usuarios={usuarios} 
+        users={users}
+        setUsuarioSeleccionado={setUsuarioSeleccionado}
+        getUsuarios={getUsuarios}
+      />
+
     </>
-  );
-  
+  ); 
 }
 
 export default UsersPage();

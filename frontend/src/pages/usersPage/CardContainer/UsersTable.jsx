@@ -1,9 +1,56 @@
 import useState from 'react';
 import useEffect from 'react';
+import UsersPage from 'UsersPage';
 
+function UsersTable () {
+    return (
+       <div className="table-responsive">
+            <table className="table table-hover align-middle">
+                <thead className="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Estado</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
 
-const [selectUser, setSelectUser] = useState(null); // usuario seleccionado
+                <tbody>
+                        {data.length === 0 ? (
+                                <tr>
+                                    <td colSpan="4" className="text-center text-muted">
+                                        No hay órdenes registradas
+                                    </td>
+                                </tr>
+                            ) : (
+                                data.map(order => (
+                                    <tr key={order.id}>
+                                        <td>{order.id}</td>
+                                        <td>{order.client}</td>
 
-const handleEdit = (usuario) => {
-    setSelectUser(usuario);
+                                        <td>
+                                            <span className={`badge ${
+                                                order.status === 'Pendiente'
+                                                ? 'bg-warning'
+                                                : 'bg-success'
+                                            }`}>
+                                                {order.status}
+                                            </span>
+                                        </td>
+                                    
+                                        <td>
+                                            ${Number(order.total).toLocaleString()}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                    </tbody>
+                </table>
+        </div>
+
+        
+    )
 }
+
+export default UsersTable;
+  
