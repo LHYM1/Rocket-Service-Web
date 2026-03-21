@@ -29,7 +29,7 @@ function UsersTable ({ user, setUsuarioSeleccionado, getUsuarios}) {
             </thead>
 
             <tbody>
-                {usuarios.map((u) => (
+                {user.map((u) => (
                 <tr key={u.id_usuario}>
                     <td>{u.codigo_usuario}</td>
                     <td>{u.nombre}</td>
