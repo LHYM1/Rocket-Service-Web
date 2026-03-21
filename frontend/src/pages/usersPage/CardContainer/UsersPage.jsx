@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useEffect } from "react";
 import axios from 'axios'
-import UserForm from '../../components/users/UserForm';
+
+//import UserForm from '../../components/users/UserForm';
 import UsersTable from '../../components/users/UsersTable';
 
 function UsersPage() {
