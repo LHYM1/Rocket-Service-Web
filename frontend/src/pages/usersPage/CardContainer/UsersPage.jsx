@@ -35,7 +35,7 @@ function UsersPage() {
      
 
       <UsersTable usuarios={usuarios} 
-        users={users}
+        user={users} 
         setUsuarioSeleccionado={setUsuarioSeleccionado}
         getUsuarios={getUsuarios}
       />
