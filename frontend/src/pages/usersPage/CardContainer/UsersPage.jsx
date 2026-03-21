@@ -1,3 +1,6 @@
+import { useState } from 'react'
+import { useEffect } from "react";
+import axios from 'axios'
 
 function UsersPage() {
   const [usuarios, setUsuarios ] = useState([]);
