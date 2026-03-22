@@ -35,7 +35,7 @@ function UsersPage() {
      
 
       <UsersTable 
-        user={users} 
+        user={users}  // User viene del Component UsersTable
         setUsuarioSeleccionado={setUsers}
         getUsuarios={getUsuarios}
       />
