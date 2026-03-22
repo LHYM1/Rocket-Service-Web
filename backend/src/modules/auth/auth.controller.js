@@ -5,7 +5,12 @@ const login = async (req, res) => {
   const { usuario, contrasena } = req.body;
 
   try {
-    const [rows] = await pool.query("SELECT * FROM usuarios WHERE id_usuario = ?", [usuario]);
+    const [rows] = await pool.query(
+      `SELECT u.nombre, u.apellido, u.contrasena, c.categoria_usuario
+      AS rol FROM usuarios.u INNER JOIN clasificacion_de_usuarios.c
+      ON u.id_usuario = c.id_tipo_usuario WHERE u.id_usuario = ? ;
+
+    `)
 
     if (rows.length === 0) {
       return res.status(404).json({ message: "Usuario no encontrado" });
