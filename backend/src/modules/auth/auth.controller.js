@@ -25,9 +25,10 @@ const login = async (req, res) => {
     );
 
     res.json({ token });
-  } catch (error) {
-    res.status(500).json({ message: "Error en el servidor", error });
-  }
+
+    } catch (error) {
+        res.status(500).json({ message: "Servidor caído o base de datos caída", error });
+    }
 };
 
 module.exports = { login };
