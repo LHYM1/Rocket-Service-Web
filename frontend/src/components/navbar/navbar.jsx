@@ -17,9 +17,9 @@ const Navbar = () => {
                     <i className="fas fa-search"></i>
                 </button>
 
-                <buttton className="profile">
+                <button className="profile">
                     <i className="fa-regular fa-user"></i>
-                </buttton>
+                </button>
 
                 <Link to = "/Notifications" className="notification-icon">
                     <i className="fa-regular fa-bell"></i>

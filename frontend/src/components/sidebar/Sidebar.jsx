@@ -13,7 +13,7 @@ const Sidebar = () => {
                 Dashboard
             </Link>
             
-            <Link to="#" className="item">
+            <Link to="/panel/users" className="item">
                 <i className="fa-solid fa-user"></i>
                 Usuarios
             </Link>

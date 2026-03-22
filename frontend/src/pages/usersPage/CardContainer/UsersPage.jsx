@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState } from 'react';
 import { useEffect } from "react";
-import axios from 'axios'
+import axios from 'axios';
 
 //import UserForm from '../../components/users/UserForm';
-import UsersTable from '../../components/users/UsersTable';
+import UsersTable from './UsersTable';
 
 function UsersPage() {
   const [users, setUsers ] = useState([]);
@@ -34,9 +34,9 @@ function UsersPage() {
       */}
      
 
-      <UsersTable usuarios={usuarios} 
+      <UsersTable 
         user={users} 
-        setUsuarioSeleccionado={setUsuarioSeleccionado}
+        setUsuarioSeleccionado={setUsers}
         getUsuarios={getUsuarios}
       />
 
@@ -44,4 +44,4 @@ function UsersPage() {
   ); 
 }
 
-export default UsersPage();
+export default UsersPage;

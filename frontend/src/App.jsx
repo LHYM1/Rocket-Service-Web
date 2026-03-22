@@ -8,6 +8,7 @@ import Report from './pages/reports/Report';
 
 import Content from './components/content/Content';
 import Profile from './components/profile/Profile';
+import UsersPage from './pages/usersPage/CardContainer/UsersPage';
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
           <Route path="content" element={<Content />} />
           <Route path="profile" element={<Profile />} /> 
           <Route path="reports" element={<Report />} />
+          <Route path="users" element={<UsersPage />} />
         </Route>
            
       </Routes>
