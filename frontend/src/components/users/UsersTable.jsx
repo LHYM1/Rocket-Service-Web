@@ -38,11 +38,13 @@ function UsersTable ({ user, setUsuarioSeleccionado, getUsuarios}) {
                         <td>{u.telefono_usuario}</td>
 
                         <td>
-                        <button onClick={() => setUsuarioSeleccionado(u)}>
+                        <button onClick={() => setUsuarioSeleccionado(u)}
+                            type="button" class="btn btn-warning btn-color">
                             Editar
                         </button>
 
-                        <button onClick={() => eliminarUsuario(u.id_usuario)}>
+                        <button onClick={() => eliminarUsuario(u.id_usuario)}
+                            type="button" class="btn btn-danger btn-color">
                             Eliminar
                         </button>
                         </td>
