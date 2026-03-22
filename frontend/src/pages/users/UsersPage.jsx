@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { useEffect } from "react";
 import axios from 'axios';
 
-//import UserForm from '../../components/users/UserForm';
+import UserForm from '../../components/users/UserForm';
 import UsersTable from '../../components/users/UsersTable';
 
 function UsersPage() {
   const [users, setUsers ] = useState([]);
+  const [idSeleccionado, setIdSeleccionado] = useState([]);
   
   // constante listar usuarios
   const getUsuarios = () => {
@@ -25,14 +26,11 @@ function UsersPage() {
 
   return (
     <>
-      {/**
-       *<UserForm 
-        usuarioSeleccionado={usuarioSeleccionado}
-        setUsuarioSeleccionado={setUsuarioSeleccionado}
+      <UserForm 
+        idSeleccionado={idSeleccionado}
+        setIdSeleccionado={setIdSeleccionado}
         getUsuarios={getUsuarios}
-       />
-      */}
-     
+      />
 
       <UsersTable 
         user={users}  // User viene del Component UsersTable

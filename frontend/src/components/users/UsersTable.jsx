@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-function UsersTable ({ user, setUsuarioSeleccionado, getUsuarios}) {
+function UsersTable ({ user, setIdSeleccionado, getUsuarios}) {
 
     const eliminarUsuario = (id) => {
         axios.delete(`http://localhost:4000/api/usuarios/eliminar/${id}`)
@@ -17,14 +17,14 @@ function UsersTable ({ user, setUsuarioSeleccionado, getUsuarios}) {
 
     return (
         <table className="table table-hover" border="1">
-            <thead thead className="table-light">
+            <thead className="table-light">
                 <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Correo</th>
-                <th>Teléfono</th>
-                <th>Acciones</th>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
 
@@ -38,13 +38,13 @@ function UsersTable ({ user, setUsuarioSeleccionado, getUsuarios}) {
                         <td>{u.telefono_usuario}</td>
 
                         <td>
-                        <button onClick={() => setUsuarioSeleccionado(u)}
-                            type="button" class="btn btn-warning btn-color">
+                        <button onClick={() => setIdSeleccionado(u)}
+                            type="button" className="btn btn-warning btn-color">
                             Editar
                         </button>
 
                         <button onClick={() => eliminarUsuario(u.id_usuario)}
-                            type="button" class="btn btn-danger btn-color">
+                            type="button" className="btn btn-danger btn-color">
                             Eliminar
                         </button>
                         </td>
