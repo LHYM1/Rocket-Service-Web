@@ -7,7 +7,7 @@ import UsersTable from '../../components/users/UsersTable';
 
 function UsersPage() {
   const [users, setUsers ] = useState([]);
-  const [idSeleccionado, setIdSeleccionado] = useState([]);
+  const [idSeleccionado, setIdSeleccionado] = useState(null);
   
   // constante listar usuarios
   const getUsuarios = () => {
@@ -34,7 +34,7 @@ function UsersPage() {
 
       <UsersTable 
         user={users}  // User viene del Component UsersTable
-        setUsuarioSeleccionado={setUsers}
+        setIdSeleccionado={setIdSeleccionado}
         getUsuarios={getUsuarios}
       />
 
