@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import axios from 'axios';
 
 //import UserForm from '../../components/users/UserForm';
-import UsersTable from './UsersTable';
+import UsersTable from '../../components/users/UsersTable';
 
 function UsersPage() {
   const [users, setUsers ] = useState([]);

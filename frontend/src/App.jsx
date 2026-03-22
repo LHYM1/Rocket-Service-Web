@@ -8,7 +8,7 @@ import Report from './pages/reports/Report';
 
 import Content from './components/content/Content';
 import Profile from './components/profile/Profile';
-import UsersPage from './pages/users/UsersPage.js';
+import UsersPage from './pages/users/UsersPage';
 
 function App() {
 
