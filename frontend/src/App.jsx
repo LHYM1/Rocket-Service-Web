@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } 
 from 'react-router-dom';
 import Login from "./pages/login/login.jsx";
+import Register from './pages/register/Register.jsx';
 import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './pages/dashboard/Dashboard';
 import Report from './pages/reports/Report';
@@ -16,7 +17,9 @@ function App() {
     <Router>
       <Routes>
 
-        <Route path="/" element={<Login />} />  
+        <Route path="/" element={<Login />} /> 
+        <Route path="/" element={<Register />} />
+
 
         <Route path="/panel" element={<DashboardLayout />}>
           <Route index element={<Dashboard />} /> 
