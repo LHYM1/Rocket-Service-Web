@@ -7,6 +7,9 @@ const router = express.Router();
 // Ruta login
 router.post("/login", login);
 
+// Ruta register
+router.post("/register", login)
+
 // Ruta protegida solo para admin
 router.get("/admin-data", verifyRole(["admin"]), (req, res) => {
     res.json({ 
