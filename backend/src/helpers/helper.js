@@ -1,22 +1,8 @@
-// Protección de rutas
-import { Navigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
+export const getUser = () => {
   const token = localStorage.getItem("token");
+  if (!token) return null;
 
-  if (!token) {
-    return <Navigate to="/login" />;
-  }
-
-  const user = jwtDecode(token);
-
-  // Validación del rol
-  if (!allowedRoles.includes(user.role)) {
-    return <Navigate to="/login" />;
-  }
-
-  return children;
+  return jwtDecode(token);
 };
-
-export default ProtectedRoute;
