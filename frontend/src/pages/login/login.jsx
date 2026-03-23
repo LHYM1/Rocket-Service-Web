@@ -54,9 +54,7 @@ function Iniciarsesion() {
             // guardar token
             localStorage.setItem("token", data.token);
 
-            alert(
-                "Inicio de sesión exitoso. Pero tu panel y rutas están en construcción 😢"
-            );
+            alert("Inicio de sesión exitoso.");
 
             navigate("/panel");
 
