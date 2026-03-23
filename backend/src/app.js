@@ -1,7 +1,7 @@
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors'); // permite acceso a la API desde el frontend
-const authRoutes = require('./auth/auth.routes');
+const authRoutes = require('./modules/auth/auth.routes');
 
 const userRoutes = require('./modules/users/usuarios.routes');
 
