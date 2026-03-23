@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import './login.css';
 import GoogleButton from "../../components/btnLogin/googleButton";
-import Register from "../register/Register"
 
 function Iniciarsesion() {
     const navigate = useNavigate();
@@ -21,7 +20,7 @@ function Iniciarsesion() {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         // simulación envío de datos
@@ -32,11 +31,37 @@ function Iniciarsesion() {
             return;
         }
 
-        // Aquí va el código de autenticación
-        alert("Inicio de sesión exitoso");
+        // petición al backend
+        try {
+            const response = await fetch("http://localhost:4000/api/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    correo_usuario: form.usuario, 
+                    contrasena: form.contrasena
+                })
+            });
 
-        navigate("/panel");
+            const data = await response.json();
 
+            if (!response.ok) {
+                alert(data.message || "Error al iniciar sesión");
+                return;
+            }
+
+            // guardar token
+            localStorage.setItem("token", data.token);
+
+            alert("Inicio de sesión exitoso");
+
+            navigate("/panel");
+
+        } catch (error) {
+            console.error(error);
+            alert("Error en el servidor");
+        }
     };
 
     return (
