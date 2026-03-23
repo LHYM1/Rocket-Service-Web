@@ -53,18 +53,48 @@ function Registro() {
   };
 
   return (
-    <div className="containerRegister">
-      <h2>Registro de Usuario</h2>
-      <form onSubmit={handleSubmit}>
-        <input type="text" name="usuario" placeholder="Usuario" value={form.usuario} onChange={handleChange} />
-        <input type="password" name="contrasena" placeholder="Contraseña" value={form.contrasena} onChange={handleChange} />
-        <input type="text" name="nombre" placeholder="Nombre" value={form.nombre} onChange={handleChange} />
-        <input type="text" name="apellido" placeholder="Apellido" value={form.apellido} onChange={handleChange} />
-        <input type="email" name="correo_usuario" placeholder="Correo" value={form.correo_usuario} onChange={handleChange} />
-        <input type="tel" name="telefono_usuario" placeholder="Teléfono" value={form.telefono_usuario} onChange={handleChange} />
+      <div className="container d-flex justify-content-center align-items-center vh-100">
+        <div className="card shadow p-4" style={{ maxWidth: "800px", width: "100%" }}>
+            <h2 className="text-center mb-4">Registro de Usuario</h2>
+            <form onSubmit={handleSubmit}>
+                <div className="row mb-3">
+                    <div className="col-md-6">
+                    <input type="text" name="usuario" placeholder="Usuario"
+                        className="form-control" value={form.usuario} onChange={handleChange} />
+                    </div>
+                    <div className="col-md-6">
+                    <input type="password" name="contrasena" placeholder="Contraseña"
+                        className="form-control" value={form.contrasena} onChange={handleChange} />
+                    </div>
+                </div>
 
-        <button type="submit">Registrarme</button>
-      </form>
+                <div className="row mb-3">
+                    <div className="col-md-6">
+                    <input type="text" name="nombre" placeholder="Nombre"
+                        className="form-control" value={form.nombre} onChange={handleChange} />
+                    </div>
+                    <div className="col-md-6">
+                    <input type="text" name="apellido" placeholder="Apellido"
+                        className="form-control" value={form.apellido} onChange={handleChange} />
+                    </div>
+                </div>
+
+                <div className="row mb-3">
+                    <div className="col-md-6">
+                    <input type="email" name="correo_usuario" placeholder="Correo"
+                        className="form-control" value={form.correo_usuario} onChange={handleChange} />
+                    </div>
+                    <div className="col-md-6">
+                    <input type="tel" name="telefono_usuario" placeholder="Teléfono"
+                        className="form-control" value={form.telefono_usuario} onChange={handleChange} />
+                    </div>
+                </div>
+
+                <button type="submit" className="btn w-50" style={{ backgroundColor: "#ff6600", color: "white" }}>
+                    Registrarme
+                </button>
+            </form>
+        </div>
     </div>
   );
 }
