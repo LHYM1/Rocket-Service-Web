@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const pool = require("../../config/db"); // conexion a mysql
+const bcrypt = require("bcrypt");
 
 // register
 const register = async (req, res) => {
@@ -13,7 +14,7 @@ const register = async (req, res) => {
 
     await pool.query(
       `INSERT INTO usuarios (contrasena, nombre, apellido, correo_usuario, telefono_usuario, id_tipo_usuario)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [ hashedPassword, nombre, apellido, correo_usuario, telefono_usuario, ID_TECNICO ]
     );
 
@@ -24,18 +25,18 @@ const register = async (req, res) => {
 };
 
 
-
+// login
 const login = async (req, res) => {
-  const { usuario, contrasena } = req.body;
+  const { correo_usuario, contrasena } = req.body;
 
   try {
     const [rows] = await pool.query(
       `SELECT u.id_usuario, u.nombre, u.apellido, u.contrasena, 
-        c.categoria_usuario AS u
+        c.categoria_usuario AS role
       FROM usuarios 
       INNER JOIN clasificacion_de_usuarios AS c
       ON u.id_tipo_usuario = c.id_tipo_usuario WHERE u.usuario = ?`,
-      [usuario]
+      [correo_usuario]
     );
 
     if (rows.length === 0) {
@@ -53,7 +54,7 @@ const login = async (req, res) => {
     const token = jwt.sign (
        { 
         id: user.id_usuario, 
-        role: user.role, 
+        role: user.rol, // role es alias
         nombre: user.nombre, 
         apellido: user.apellido 
       },
@@ -68,4 +69,4 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { login };
+module.exports = { login, register };
