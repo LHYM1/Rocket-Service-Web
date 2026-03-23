@@ -1,23 +1,32 @@
 const jwt = require("jsonwebtoken");
 
 // Protección de rutas
-const validarToken = (req, res, next) => {
-    // El token suele enviarse en el header 'Authorization'
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Formato: "Bearer TOKEN"
+const validarToken = (roles) => {
+    return (req, res, next) => {
 
-    if (!token) {
-        return res.status(401).json({ mensaje: "Acceso denegado. No hay token." });
+    const authHeader = req.headers['authorization'];
+
+    if (!authHeader) {
+      return res.status(401).json({ message: "Token requerido" });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) {
-            // Si pasó más de 1 minuto, 'err' contendrá la información de la expiración
-            return res.status(403).json({ mensaje: "Token expirado o inválido" });
-        }
-        req.user = user;
-        next(); // Si es válido, continúa a la función de la ruta
-    });
+    const token = authHeader.split(" ")[1];
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      req.user = decoded;
+
+      if (!roles.includes(decoded.role)) {
+        return res.status(403).json({ message: "No autorizado" });
+      }
+
+      next();
+
+    } catch (error) {
+      return res.status(401).json({ message: "Token inválido" });
+    }
+  };
 };
 
 module.exports = { validarToken };
