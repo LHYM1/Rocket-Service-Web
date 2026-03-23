@@ -11,7 +11,6 @@ function Registro() {
     apellido: "",
     correo_usuario: "",
     telefono_usuario: "",
-    id_tipo_usuario: 2 // por defecto "usuario normal"
   });
 
   const handleChange = (e) => {
@@ -25,7 +24,7 @@ function Registro() {
     e.preventDefault();
 
     // Validación básica
-    if (!form.usuario || !form.contrasena || !form.nombre || !form.apellido) {
+    if (!form.contrasena || !form.nombre || !form.apellido) {
       alert("Todos los campos obligatorios deben estar completos");
       return;
     }
