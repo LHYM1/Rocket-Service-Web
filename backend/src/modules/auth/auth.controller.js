@@ -1,6 +1,28 @@
 const jwt = require("jsonwebtoken");
 const pool = require("../../config/db"); // conexion a mysql
 
+// register
+const register = async (req, res) => {
+  const { usuario, contrasena, nombre, apellido, correo_usuario, telefono_usuario, id_tipo_usuario } = req.body;
+
+  try {
+    // Encriptar contraseña
+    const hashedPassword = await bcrypt.hash(contrasena, 10);
+
+    await pool.query(
+      `INSERT INTO usuarios (usuario, contrasena, nombre, apellido, correo_usuario, telefono_usuario, id_tipo_usuario)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [usuario, hashedPassword, nombre, apellido, correo_usuario, telefono_usuario, id_tipo_usuario]
+    );
+
+    res.json({ message: "Usuario registrado correctamente" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al registrar usuario", error });
+  }
+};
+
+
+
 const login = async (req, res) => {
   const { usuario, contrasena } = req.body;
 
@@ -19,8 +41,6 @@ const login = async (req, res) => {
     }
 
     const user = rows[0];
-
-    // Bcrypt para comparar contraseñas
     
     // Comparar contraseñas encriptadas
     const match = await bcrypt.compare(contrasena, user.contrasena);
