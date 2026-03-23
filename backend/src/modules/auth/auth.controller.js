@@ -6,13 +6,15 @@ const register = async (req, res) => {
   const { usuario, contrasena, nombre, apellido, correo_usuario, telefono_usuario, id_tipo_usuario } = req.body;
 
   try {
+    const ID_TECNICO = 2; 
+
     // Encriptar contraseña
     const hashedPassword = await bcrypt.hash(contrasena, 10);
 
     await pool.query(
       `INSERT INTO usuarios (usuario, contrasena, nombre, apellido, correo_usuario, telefono_usuario, id_tipo_usuario)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [usuario, hashedPassword, nombre, apellido, correo_usuario, telefono_usuario, id_tipo_usuario]
+      [usuario, hashedPassword, nombre, apellido, correo_usuario, telefono_usuario, ID_TECNICO]
     );
 
     res.json({ message: "Usuario registrado correctamente" });
