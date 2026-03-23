@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import './login.css';
 import GoogleButton from "../../components/btnLogin/googleButton";
 
@@ -74,10 +75,10 @@ function Iniciarsesion() {
                 </div>
                 
                 <div className="formRegister">
-                    <a href="register" className="registerLink">
+                    <Link to="/register" className="registerLink">
                         <span className="highlight">¿Primera vez en Rocket?</span> 
                             <span className="highlightRegst"> Registrarme</span>
-                    </a>
+                    </Link>
                 </div>
 
                 <div className="separator">
