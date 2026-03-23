@@ -40,7 +40,7 @@ function Registro() {
 
       if (response.ok) {
         alert("Registro exitoso");
-        navigate("/login"); // redirige al login
+        navigate("/"); // redirige al login
       } else {
         alert(data.message || "Error en el registro");
       }
