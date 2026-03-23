@@ -25,3 +25,5 @@ router.get("/tec-data", verifyRole(["user", "admin"]), (req, res) => {
         user: req.user 
     });
 });
+
+module.exports = router;    
