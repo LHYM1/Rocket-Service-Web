@@ -6,7 +6,6 @@ function Registro() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    usuario: "",
     contrasena: "",
     nombre: "",
     apellido: "",
@@ -54,17 +53,14 @@ function Registro() {
 
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
-        <div className="card shadow p-4" style={{ maxWidth: "800px", width: "100%" }}>
+        <div className="card shadow p-4" style={{ maxWidth: "600px", width: "100%" }}>
             <h2 className="text-center mb-4">Registro de Usuario</h2>
             <form onSubmit={handleSubmit}>
                 <div className="row mb-3">
+                    
                     <div className="col-md-6">
-                    <input type="text" name="usuario" placeholder="Usuario"
-                        className="form-control" value={form.usuario} onChange={handleChange} />
-                    </div>
-                    <div className="col-md-6">
-                    <input type="password" name="contrasena" placeholder="Contraseña"
-                        className="form-control" value={form.contrasena} onChange={handleChange} />
+                        <input type="password" name="contrasena" placeholder="Contraseña"
+                            className="form-control" value={form.contrasena} onChange={handleChange} />
                     </div>
                 </div>
 
