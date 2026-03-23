@@ -13,7 +13,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   // Validación de rol
   if (!allowedRoles.includes(user.role)) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
 
   return children;
