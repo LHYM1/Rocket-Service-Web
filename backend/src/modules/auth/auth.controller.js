@@ -33,9 +33,9 @@ const login = async (req, res) => {
     const [rows] = await pool.query(
       `SELECT u.id_usuario, u.nombre, u.apellido, u.contrasena, 
         c.categoria_usuario AS role
-      FROM usuarios 
-      INNER JOIN clasificacion_de_usuarios AS c
-      ON u.id_tipo_usuario = c.id_tipo_usuario WHERE u.usuario = ?`,
+      FROM usuarios u
+      INNER JOIN clasificacion_de_usuarios c
+      ON u.id_tipo_usuario = c.id_tipo_usuario WHERE u.correo_usuario = ?`,
       [correo_usuario]
     );
 
@@ -54,7 +54,7 @@ const login = async (req, res) => {
     const token = jwt.sign (
        { 
         id: user.id_usuario, 
-        role: user.rol, // role es alias
+        role: user.role, // role es alias
         nombre: user.nombre, 
         apellido: user.apellido 
       },
