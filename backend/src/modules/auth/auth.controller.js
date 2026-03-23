@@ -6,11 +6,13 @@ const login = async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      `SELECT u.nombre, u.apellido, u.contrasena, c.categoria_usuario
-      AS rol FROM usuarios.u INNER JOIN clasificacion_de_usuarios.c
-      ON u.id_usuario = c.id_tipo_usuario WHERE u.id_usuario = ? ;
-
-    `)
+      `SELECT u.id_usuario, u.nombre, u.apellido, u.contrasena, 
+        c.categoria_usuario AS u
+      FROM usuarios 
+      INNER JOIN clasificacion_de_usuarios AS c
+      ON u.id_tipo_usuario = c.id_tipo_usuario WHERE u.usuario = ?`,
+      [usuario]
+    );
 
     if (rows.length === 0) {
       return res.status(404).json({ message: "Usuario no encontrado" });
@@ -24,7 +26,12 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign (
-      { id: user.id, role: user.role },
+       { 
+        id: user.id_usuario, 
+        role: user.role, 
+        nombre: user.nombre, 
+        apellido: user.apellido 
+      },
       process.env.JWT_SECRET,
       { expiresIn: "1min" }
     );
@@ -32,7 +39,7 @@ const login = async (req, res) => {
     res.json({ token });
 
     } catch (error) {
-        res.status(500).json({ message: "Servidor caído o base de datos caída", error });
+      res.status(500).json({ message: "Error en el servidor", error });
     }
 };
 
