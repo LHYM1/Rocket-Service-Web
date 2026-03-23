@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import './login.css';
 import GoogleButton from "../../components/btnLogin/googleButton";
+import Register from "../register/Register"
 
 function Iniciarsesion() {
     const navigate = useNavigate();
@@ -77,7 +78,7 @@ function Iniciarsesion() {
                 <div className="formRegister">
                     <Link to="/register" className="registerLink">
                         <span className="highlight">¿Primera vez en Rocket?</span> 
-                            <span className="highlightRegst"> Registrarme</span>
+                            <span className="highlightRegst"> Registrarme</span>         
                     </Link>
                 </div>
 
