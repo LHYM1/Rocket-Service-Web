@@ -1,6 +1,6 @@
 const express = require("express");
 const { login, register } = require("./auth.controller")
-const { verifyRole } = require("../../middlewares/authMiddleware");
+const { validarToken } = require("../../middlewares/authMiddleware");
 
 const router = express.Router();
 
@@ -11,7 +11,7 @@ router.post("/login", login);
 router.post("/register", register)
 
 // Ruta protegida solo para admin
-router.get("/admin-data", verifyRole(["Administrador"]), (req, res) => {
+router.get("/admin-data", validarToken(["Administrador"]), (req, res) => {
     res.json({ 
         message: "Bienvenido administrador", 
         user: req.user 
@@ -19,7 +19,7 @@ router.get("/admin-data", verifyRole(["Administrador"]), (req, res) => {
 })
 
 // Ruta protegida para técnico
-router.get("/tec-data", verifyRole(["Técnico", "Administrador"]), (req, res) => {
+router.get("/tec-data", validarToken(["Técnico", "Administrador"]), (req, res) => {
     res.json({ 
         message: "Bienvenido Técnico", 
         user: req.user 
