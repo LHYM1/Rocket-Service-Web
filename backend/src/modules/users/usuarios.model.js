@@ -9,7 +9,6 @@ const users = {
                 u.apellido,
                 u.correo_usuario,
                 u.telefono_usuario,
-                u.foto_usuario_url,
                 t.categoria_usuario AS clasificacion_de_usuarios
             FROM usuarios u 
             INNER JOIN clasificacion_de_usuarios t
