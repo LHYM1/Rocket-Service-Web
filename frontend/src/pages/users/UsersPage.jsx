@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import UsersTable from "./UsersTable";
-import UserModalAgr from "./UserModalAgr";
+import UsersTable from "../../components/users/UsersTable";
+import UserModalAgr from "../../components/users/ModalEdtMod";
 
 function UsersPage() {
   const [usuarios, setUsuarios] = useState([]);
