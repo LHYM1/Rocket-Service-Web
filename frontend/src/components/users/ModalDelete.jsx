@@ -3,7 +3,7 @@ import axios from 'axios';
 
 function DeleteModal ({usuario}) {
     const eliminarUsuario = () => {
-        axios.delete(`http://localhost:3004/api/usuarios/eliminar/${usuario.id_usuario}`)
+        axios.delete(`http://localhost:4000/api/usuarios/eliminar/${usuario.id_usuario}`)
         .then((response) => {
             console.log(response.data);
             // Aquí puedes agregar lógica para actualizar la lista de usuarios después de eliminar
