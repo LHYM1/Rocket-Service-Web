@@ -34,30 +34,34 @@ function UserForm({ idSeleccionado, setIdSeleccionado, getUsuarios }) {
     };
 
     // función para enviar la actualización al backend
-    const handleSubmit  = () => {
-        if (idSeleccionado && idSeleccionado.id_usuario) {
-            const idReal = idSeleccionado.id_usuario;
+    const handleSubmit  = async () => {
+        try {
+            if (idSeleccionado && idSeleccionado.id_usuario) {
 
-            const { id_usuario, ...datosParaEnviar } = form
-            axios.put(`http://localhost:4000/api/usuarios/modificar/${idSeleccionado}`, form)
+                const idReal = idSeleccionado.id_usuario;
+                const { id_usuario, ...datosParaEnviar } = form
+
+                await axios.put(
+                    `http://localhost:4000/api/usuarios/modificar/${idReal}`,        datosParaEnviar
+                );
                 
+                alert("Usuario actualizado con éxito");
 
-                .then(() => {
-                    alert(" Categoria usuario actualizada con éxito");
-                    getUsuarios();
-                    resetForm();
-                })
-                .catch(err => console.error(err));
-        } else {
-            // función para registrar usuarios y enviarlos al backend
-            axios.post("http://localhost:4000/api/usuarios/crear", form)
+            } else {
+                await axios.post(
+                    "http://localhost:4000/api/usuarios/crear",
+                    form
+                );
 
-            .then(() => {
-                alert("Registro Exitoso");
-                getUsuarios();
-                resetForm();
-            })
-            .catch(err => console.error("Error al crear usuario:", err));
+                alert("Registro exitoso");
+            }
+
+            getUsuarios();
+            resetForm();
+
+        } catch (err) {
+            console.error("Error:", err);
+            alert("Error en la operación");
         }
     };
 
