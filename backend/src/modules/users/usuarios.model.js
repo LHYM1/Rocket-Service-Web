@@ -19,13 +19,10 @@ const users = {
             apellido, 
             correo_usuario, 
             telefono_usuario, 
-            contrasena,
-            foto_usuario_url,
-            id_tipo_usuario 
         } = data;
 
-        const [result] = await db.query('INSERT INTO usuarios (nombre, apellido, correo_usuario, telefono_usuario, contrasena, foto_usuario_url, id_tipo_usuario) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [nombre, apellido, correo_usuario, telefono_usuario, contrasena, foto_usuario_url, id_tipo_usuario]);
+        const [result] = await db.query('INSERT INTO usuarios (nombre, apellido, correo_usuario, telefono_usuario, contrasena) VALUES (?, ?, ?, ?, ?, ?)',
+            [nombre, apellido, correo_usuario, telefono_usuario, null, 1]);
         return result.insertId;
     },
 
@@ -35,12 +32,10 @@ const users = {
             apellido, 
             correo_usuario, 
             telefono_usuario, 
-            contrasena,
-            id_tipo_usuario
         } = data;
 
-        const [result] = await db.query('UPDATE usuarios SET nombre = ?, apellido = ?, correo_usuario = ?, telefono_usuario = ?, contrasena = ? WHERE id_usuario = ?',
-            [nombre, apellido, correo_usuario, telefono_usuario, contrasena, foto_usuario_url, id_tipo_usuario, id]);
+        const [result] = await db.query('UPDATE usuarios SET nombre = ?, apellido = ?, correo_usuario = ?, telefono_usuario = ? WHERE id_usuario = ?',
+            [nombre, apellido, correo_usuario, telefono_usuario, id]);
         return result.affectedRows > 0;
     },
 
