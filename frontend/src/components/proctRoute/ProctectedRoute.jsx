@@ -13,6 +13,9 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   // Validación de rol
   if (!allowedRoles.includes(user.role)) {
+    alert(
+        "Inicio de sesión exitoso. Pero tu panel y rutas están en construcción 😢"
+    );
     return <Navigate to="/" />;
   }
 
