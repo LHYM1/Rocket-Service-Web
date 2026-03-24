@@ -67,6 +67,7 @@ function UsersPage() {
           idSeleccionado={idSeleccionado}
           getUsuarios={getUsuarios}
           onClose={() => setShowModal(false)}
+          onSuccess={() => getUsuarios()}
         />
       )}
     </div>

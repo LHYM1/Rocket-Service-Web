@@ -33,7 +33,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
       if (idSeleccionado) {
         // Editar
         await axios.put(
-          `http://localhost:4000/api/usuarios/editar/${idSeleccionado.id_usuario}`,
+          `http://localhost:4000/api/usuarios/modificar/${idSeleccionado.id_usuario}`,
           usuario
         );
         alert("Usuario actualizado con éxito");
