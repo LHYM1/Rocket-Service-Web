@@ -19,11 +19,13 @@ function UsersTable ({ user, setIdSeleccionado, getUsuarios}) {
         <table className="table table-hover" border="1">
             <thead className="table-light">
                 <tr>
-                    <th>Código</th>
+                    <th>Id</th>
                     <th>Nombre</th>
                     <th>Apellido</th>
                     <th>Correo</th>
                     <th>Teléfono</th>
+                    <th>Categoria</th>
+                    
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -31,11 +33,12 @@ function UsersTable ({ user, setIdSeleccionado, getUsuarios}) {
             <tbody>
                 {user.map((u) => (
                     <tr key={u.id_usuario}>
-                        <td>{u.codigo_usuario}</td>
+                        <td>{u.id_usuario}</td>
                         <td>{u.nombre}</td>
                         <td>{u.apellido}</td>
                         <td>{u.correo_usuario}</td>
                         <td>{u.telefono_usuario}</td>
+                        <td>{u.clasificacion_de_usuarios}</td>
 
                         <td>
                             <button onClick={() => setIdSeleccionado(u)}
@@ -48,8 +51,9 @@ function UsersTable ({ user, setIdSeleccionado, getUsuarios}) {
                                 Eliminar
                             </button>
                         </td>
-                    </tr>
+                    </tr>                    
                 ))}
+                
             </tbody>
         </table>
 

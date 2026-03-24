@@ -101,18 +101,18 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                 onChange={handleChange}
               />
             </div>
+
             <div className="mb-3">
               <label className="form-label">Tipo de Usuario</label>
-              <select
-                className="form-select"
+
+              <input
+                type="text"
+                className="form-control"
                 name="clasificacion_de_usuarios"
                 value={usuario.clasificacion_de_usuarios}
                 onChange={handleChange}
-              >
-                <option value="">Seleccione...</option>
-                <option value="admin">Administrador</option>
-                <option value="user">Usuario</option>
-              </select>
+              />
+
             </div>
           </div>
           <div className="modal-footer">

@@ -9,6 +9,10 @@ function UsersPage() {
   const [busqueda, setBusqueda] = useState("");
   const [showModal, setShowModal] = useState(false);
 
+   // Paginación
+  const [pagina, setPagina] = useState(1);
+  const usuariosPorPagina = 5;
+
   const getUsuarios = () => {
     axios.get("http://localhost:4000/api/usuarios/listar")
       .then(res => setUsuarios(res.data))
@@ -25,6 +29,14 @@ function UsersPage() {
     u.apellido.toLowerCase().includes(busqueda.toLowerCase()) ||
     u.correo_usuario.toLowerCase().includes(busqueda.toLowerCase())
   );
+
+  // Calcular usuarios de la página actual
+  const inicio = (pagina - 1) * usuariosPorPagina;
+  const fin = inicio + usuariosPorPagina;
+  const usuariosPaginados = usuariosFiltrados.slice(inicio, fin);
+
+  // Número total de páginas
+  const totalPaginas = Math.ceil(usuariosFiltrados.length / usuariosPorPagina);
 
   return (
     <div className="container mt-4">
@@ -53,13 +65,40 @@ function UsersPage() {
 
       {/* Tabla */}
       <UsersTable
-        user={usuariosFiltrados}
+        user={usuariosPaginados}
         setIdSeleccionado={(u) => {
           setIdSeleccionado(u);
           setShowModal(true);
         }}
         getUsuarios={getUsuarios}
       />
+
+      {/* Paginador */}
+      <div className="d-flex justify-content-center mt-3">
+        <nav>
+          <ul className="pagination">
+            <li className={`page-item ${pagina === 1 ? "disabled" : ""}`}>
+              <button className="page-link" onClick={() => setPagina(pagina - 1)}>
+                Anterior
+              </button>
+            </li>
+
+            {Array.from({ length: totalPaginas }, (_, i) => (
+              <li key={i} className={`page-item ${pagina === i + 1 ? "active" : ""}`}>
+                <button className="page-link" onClick={() => setPagina(i + 1)}>
+                  {i + 1}
+                </button>
+              </li>
+            ))}
+
+            <li className={`page-item ${pagina === totalPaginas ? "disabled" : ""}`}>
+              <button className="page-link" onClick={() => setPagina(pagina + 1)}>
+                Siguiente
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
 
       {/* Modal de agregar/editar */}
       {showModal && (
