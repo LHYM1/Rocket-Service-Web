@@ -4,7 +4,6 @@ import axios from "axios";
 function UserForm({ idSeleccionado, setIdSeleccionado, getUsuarios }) {
 
     const [form, setForm] = useState({
-        codigo_usuario: "",
         nombre: "",
         apellido: "",
         correo_usuario: "",
@@ -15,7 +14,6 @@ function UserForm({ idSeleccionado, setIdSeleccionado, getUsuarios }) {
         if (idSeleccionado) {
             // Si hay alguién seleccionado, llenar el formulario con sus datos
             setForm({
-                codigo_usuario: idSeleccionado.codigo_usuario || "",
                 nombre: idSeleccionado.nombre || "",
                 apellido: idSeleccionado.apellido || "",
                 correo_usuario: idSeleccionado.correo_usuario || "",
@@ -39,14 +37,21 @@ function UserForm({ idSeleccionado, setIdSeleccionado, getUsuarios }) {
             if (idSeleccionado && idSeleccionado.id_usuario) {
 
                 const idReal = idSeleccionado.id_usuario;
-                const { id_usuario, ...datosParaEnviar } = form
+
+                // Enviar solo los campos editables
+                const datosParaEnviar = {
+                    nombre: form.nombre,
+                    apellido: form.apellido,
+                    correo_usuario: form.correo_usuario,
+                    telefono_usuario: form.telefono_usuario
+                };
 
                 await axios.put(
-                    `http://localhost:4000/api/usuarios/modificar/${idReal}`,        datosParaEnviar
+                    `http://localhost:4000/api/usuarios/modificar/${idReal}`,
+                    datosParaEnviar
                 );
-                
-                alert("Usuario actualizado con éxito");
 
+                alert("Usuario actualizado con éxito");
             } else {
                 await axios.post(
                     "http://localhost:4000/api/usuarios/crear",
@@ -61,7 +66,7 @@ function UserForm({ idSeleccionado, setIdSeleccionado, getUsuarios }) {
 
         } catch (err) {
             console.error("Error:", err);
-            alert("Error en la operación");
+            alert("Error al realizar operación");
         }
     };
 
@@ -74,7 +79,6 @@ function UserForm({ idSeleccionado, setIdSeleccionado, getUsuarios }) {
     // Esta función solo limpia los inputs locales
     const resetFormState = () => {
         setForm({
-            codigo_usuario: "",
             nombre: "",
             apellido: "",
             correo_usuario: "",
@@ -90,7 +94,6 @@ function UserForm({ idSeleccionado, setIdSeleccionado, getUsuarios }) {
                 {idSeleccionado ? "Editar Datos del Usuario" : "Registrar Nuevo Usuario"}
             </h2>
 
-            <input name="codigo_usuario" value={form.codigo_usuario} onChange={handleChange} placeholder="Código" />
             <input name="nombre" value={form.nombre} onChange={handleChange} placeholder="Nombre" />
             <input name="apellido" value={form.apellido} onChange={handleChange} placeholder="Apellido" />
             <input name="correo_usuario" value={form.correo_usuario} onChange={handleChange} placeholder="Correo" />
