@@ -11,6 +11,7 @@ import ProtectedRoute from './components/proctRoute/ProctectedRoute.jsx';
 import Content from './components/content/Content';
 import Profile from './components/profile/Profile';
 import UsersPage from './pages/users/UsersPage';
+import RolesPage from './pages/roles/RolesPage';
 
 function App() {
 
@@ -35,6 +36,7 @@ function App() {
           <Route path="profile" element={<Profile />} /> 
           <Route path="reports" element={<Report />} />
           <Route path="users" element={<UsersPage />} />
+          <Route path="roles" element={<RolesPage />} />
         </Route>
            
       </Routes>

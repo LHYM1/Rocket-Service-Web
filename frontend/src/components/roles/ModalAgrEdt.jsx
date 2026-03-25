@@ -59,7 +59,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                 type="text"
                 className="form-control"
                 name="categoria_usuario"
-                value={clasfUser.categoria_usuario}
+                value={clasfUser.categoria_usuario || ""}
                 onChange={handleChange}
               />
             </div>

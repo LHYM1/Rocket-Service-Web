@@ -18,6 +18,11 @@ const Sidebar = () => {
                 Usuarios
             </Link>
 
+            <Link to="/panel/roles" className="item">
+                <i className="fa-solid fa-user"></i>
+                Roles
+            </Link>
+
             <Link to="#" className="item">
                 <i className="fa-solid fa-box"></i>
                 Insumos

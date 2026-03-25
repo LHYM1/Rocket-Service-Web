@@ -1,6 +1,9 @@
 import axios from 'axios'
 
 function RolesTable ({ roles, setIdSeleccionado, getRoles}) {
+    if (!roles || !Array.isArray(roles)) {
+        return <p>No hay roles disponibles</p>;
+    }
 
     const eliminarRol = (id) => {
         axios.delete(`http://localhost:4000/api/clasificacion_de_usuarios/eliminar/${id}`)
@@ -34,12 +37,12 @@ function RolesTable ({ roles, setIdSeleccionado, getRoles}) {
                        
 
                         <td>
-                            <button onClick={() => setIdSeleccionado(u)}
+                            <button onClick={() => setIdSeleccionado(r)}
                                 type="button" className="btn btn-warning btn-color">
                                 Editar
                             </button>
 
-                            <button onClick={() => eliminarRol(u.id_tipo_usuario)}
+                            <button onClick={() => eliminarRol(r.id_tipo_usuario)}
                                 type="button" className="btn btn-danger btn-color">
                                 Eliminar
                             </button>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import UsersTable from "../../components/roles/RolesTable";
-import UserModalAgr from "../../components/roles/ModalAgrEdt";
+import RolesTable from "../../components/roles/RolesTable";
+import ModalAgrEdt from "../../components/roles/ModalAgrEdt";
 
 function UsersPage() {
   const [roles, setRoles] = useState([]);
@@ -14,7 +14,7 @@ function UsersPage() {
   const RolesPorPagina = 5;
 
   const getRoles = () => {
-    axios.get("http://localhost:4000/api/usuarios/listar")
+    axios.get("http://localhost:4000/api/clasificacion_de_usuarios/listar")
       .then(res => setRoles(res.data))
       .catch(err => console.error(err));
   };
@@ -24,8 +24,8 @@ function UsersPage() {
   }, []);
 
   // Filtrar usuarios según búsqueda
-  const RolesFiltrados = clasificacion_de_usuarios.filter(u =>
-    u.categoria_usuario.toLowerCase().includes(busqueda.toLowerCase()) 
+  const RolesFiltrados = roles.filter(r =>
+    (r.categoria_usuario || "").toLowerCase().includes(busqueda.toLowerCase())
   );
 
   // Calcular usuarios de la página actual
@@ -62,8 +62,8 @@ function UsersPage() {
       </div>
 
       {/* Tabla */}
-      <UsersTable
-        user={rolesPaginados}
+      <RolesTable
+        roles={rolesPaginados}
         setIdSeleccionado={(u) => {
           setIdSeleccionado(u);
           setShowModal(true);
@@ -100,7 +100,7 @@ function UsersPage() {
 
       {/* Modal de agregar/editar */}
       {showModal && (
-        <UserModalAgr
+        <ModalAgrEdt
           idSeleccionado={idSeleccionado}
           getRoles={getRoles}
           onClose={() => setShowModal(false)}
