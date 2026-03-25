@@ -7,6 +7,7 @@ const cors = require('cors'); // permite acceso a la API desde el frontend
 const authRoutes = require('./modules/auth/auth.routes');
 
 const userRoutes = require('./modules/users/usuarios.routes');
+const rolesRoutes = require('./modules/roles/roles.routes');
 
 const app = express();
 
@@ -17,9 +18,8 @@ app.use(cors()); // permite acceso a la API desde el frontend
 app.use('/api/usuarios', userRoutes);
 
 // Rutas para clasificación de usuarios
-/*
-app.use('/api/clasificacion_de_usuarios', userRoutes);
-*/
+app.use('/api/clasificacion_de_usuarios', rolesRoutes);
+
 
 // Rutas autenticación
 app.use('/api/auth', authRoutes);
