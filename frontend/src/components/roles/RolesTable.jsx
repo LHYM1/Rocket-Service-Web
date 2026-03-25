@@ -1,17 +1,17 @@
 import axios from 'axios'
 
-function UsersTable ({ roles, setIdSeleccionado, getRoles}) {
+function RolesTable ({ roles, setIdSeleccionado, getRoles}) {
 
-    const eliminarUsuario = (id) => {
-        axios.delete(`http://localhost:4000/api/usuarios/eliminar/${id}`)
+    const eliminarRol = (id) => {
+        axios.delete(`http://localhost:4000/api/clasificacion_de_usuarios/eliminar/${id}`)
     
         .then(() => {
-            alert("Usuario eliminado con éxito");
+            alert("Rol eliminado con éxito");
             getRoles();
         })
         .catch(err =>  {
             console.error(err);
-            alert("No se pudo eliminar el usuario");
+            alert("No se pudo eliminar el Rol");
         }); 
     }
 
@@ -27,9 +27,9 @@ function UsersTable ({ roles, setIdSeleccionado, getRoles}) {
             </thead>
 
             <tbody>
-                {user.map((r) => (
-                    <tr key={r.id_usuario}>
-                        <td>{r.id_usuario}</td>
+                {roles.map((r) => (
+                    <tr key={r.id_tipo_usuario}>
+                        <td>{r.id_tipo_usuario}</td>
                         <td>{r.categoria_usuario}</td>
                        
 
@@ -39,7 +39,7 @@ function UsersTable ({ roles, setIdSeleccionado, getRoles}) {
                                 Editar
                             </button>
 
-                            <button onClick={() => eliminarUsuario(u.id_usuario)}
+                            <button onClick={() => eliminarRol(u.id_tipo_usuario)}
                                 type="button" className="btn btn-danger btn-color">
                                 Eliminar
                             </button>
@@ -53,5 +53,5 @@ function UsersTable ({ roles, setIdSeleccionado, getRoles}) {
     )
 }
 
-export default UsersTable;
+export default RolesTable;
   
