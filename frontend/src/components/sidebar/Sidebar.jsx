@@ -28,6 +28,12 @@ const Sidebar = () => {
                 Insumos
             </Link>
 
+            <Link to="/panel/orders" className="item">
+                <i className="fa-solid fa-box"></i>
+                Ordenes
+            </Link>
+
+
             <Link to="/panel/reports" className="item">
                 <i className="fa-solid fa-chart-column"></i>
                 Reportes
