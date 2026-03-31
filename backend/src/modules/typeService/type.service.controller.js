@@ -56,4 +56,17 @@ exports.actTypeServ = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-};
+}
+
+exports.eliminarTypeServ = async (req, res) => {
+    try {
+        const eliminado = await typeService.delete(req.params.id);
+        if (!eliminado) 
+            return res.status(404).json({
+                message: "Categoria de usuario no encontrada" 
+            });
+        res.json({ message: "Categoria de usuario eliminada" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
