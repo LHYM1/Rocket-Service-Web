@@ -4,10 +4,10 @@ const pool = require("./src/config/db");
 
 const crearAdmin = async () => {
     try {
-        const nombre = "Carlos";
-        const apellido = "Cuesta";
-        const correo_usuario = "admin@test.com";
-        const telefono_usuario = "123456789";
+        const nombre = "Nicolas";
+        const apellido = "Florez";
+        const correo_usuario = "nicolas@gmail.com";
+        const telefono_usuario = "3226786545";
         const contrasena = "123456";
 
         const ID_ADMIN = 3; // tipo de usuario administrador

@@ -22,7 +22,7 @@ app.use('/api/usuarios', userRoutes);
 app.use('/api/clasificacion_de_usuarios', rolesRoutes);
 
 // Ruta para ordenes
-app.use('api/ordenes_de_servicio', ordersRoutes);
+app.use('/api/ordenes_de_servicio', ordersRoutes);
 
 
 // Rutas autenticación
