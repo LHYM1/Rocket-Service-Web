@@ -70,23 +70,23 @@ function Iniciarsesion() {
 
             <form onSubmit={handleSubmit}>
                 <div>
-                <label className="userLabel">Usuario</label>
-                <input className="inputUser"
-                    type="text"
-                    name="usuario"
-                    value={form.usuario}
-                    onChange={handleChange}
-                />
+                    <label className="userLabel">Usuario</label>
+                    <input className="inputUser"
+                        type="text"
+                        name="usuario"
+                        value={form.usuario}
+                        onChange={handleChange}
+                    />
                 </div>
 
                 <div>
-                <label className="userLabel">Contraseña</label>
-                <input className="inputUser"
-                    type="password"
-                    name="contrasena"
-                    value={form.contrasena}
-                    onChange={handleChange}
-                />
+                    <label className="userLabel">Contraseña</label>
+                    <input className="inputUser"
+                        type="password"
+                        name="contrasena"
+                        value={form.contrasena}
+                        onChange={handleChange}
+                    />
                 </div>
 
             
