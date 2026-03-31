@@ -6,21 +6,15 @@ const OrdenServicio = {
         const query = (`
             SELECT o.id_orden,
                 o.codigo_orden,
+                m.placa,
 
-                m.placa, 
-                m.codigo_moto,
-
-                c.nombre AS nombreCliente,
-                c.apellido AS apellidoCliente,
-
-                t.nombre AS nomTecnico
-                t.apellido AS apellidoTecnico,
-
-                ts.nombre_servicio,
-
-                e.nombre_estado,
+                CONCAT(c.nombre, '', c.apellido) AS cliente,
+                CONCAT(t.nombre, '', t.apellido) AS tecnico,
 
                 o.descripcion_del_problema,
+                e.nombre_estado,
+                ts.nombre_servicio,
+
                 o.fecha_creacion,
                 o.fecha_finalizacion_estimada
             
