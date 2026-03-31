@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import OrdersTable from "../../components/orders/OrdersTable"; // Asegúrate de actualizar la ruta
-import ModalEdtAgr from "../../components/orders/ModalEdtAgr"; // El modal que creamos antes
+import OrdersTable from "../../components/orders/OrdersTable";  
+import ModalEdtAgr from "../../components/orders/ModalEdtAgr";
 
 function OrdenesPage() {
   const [ordenes, setOrdenes] = useState([]);
@@ -14,7 +14,7 @@ function OrdenesPage() {
   const ordenesPorPagina = 5;
 
   const getOrdenes = () => {
-    // Actualizamos a la ruta de órdenes
+    
     axios.get("http://localhost:4000/api/ordenes_de_servicio/listar")
       .then(res => {
         // Validamos si la respuesta es el array directo o viene en .data
@@ -44,7 +44,7 @@ function OrdenesPage() {
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2><i className="bi bi-tools"></i> Gestión de Órdenes de Servicio</h2>
-        <span className="badge bg-secondary">Total: {ordenesFiltradas.length}</span>
+
       </div>
 
       {/* Barra de acciones */}

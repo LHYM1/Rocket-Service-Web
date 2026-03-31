@@ -26,10 +26,15 @@ function OrdenesTable ({ ordenes, setIdSeleccionado, getOrdenes }) {
                 <tr>
                     <th>ID</th>
                     <th>Código</th>
+                    <th>Placa</th>
+                    <th>Cliente</th>
                     <th>Técnico</th>
+                    <th>Problema</th>
                     <th>Estado</th>
-                    <th>Fecha Creación</th>
-                    <th>Costo Final</th>
+                    <th>Servicio</th>
+                    <th>Fech Creación</th>
+                    <th>Fech Finalización</th>
+
                     <th className="text-center">Acciones</th>
                 </tr>
             </thead>
@@ -37,9 +42,8 @@ function OrdenesTable ({ ordenes, setIdSeleccionado, getOrdenes }) {
             <tbody>
                 {ordenes.map((o) => (
                     <tr key={o.id_orden}>
-                        <td>{o.id_orden}</td>
                         <td><strong>{o.codigo_orden}</strong></td>
-                        <td>{o.id_tecnico_asignado}</td> {/* Aquí podrías mostrar el nombre si haces un JOIN en el backend */}
+                        <td>{o.id_tecnico_asignado}</td> 
                         <td>
                             <span className={`badge ${o.id_estado_de_servicio === 3 ? 'bg-success' : 'bg-info'}`}>
                                 {o.id_estado_de_servicio}
