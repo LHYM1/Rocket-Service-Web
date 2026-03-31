@@ -12,6 +12,7 @@ import Content from './components/content/Content';
 import Profile from './components/profile/Profile';
 import UsersPage from './pages/users/UsersPage';
 import RolesPage from './pages/roles/RolesPage';
+import OrdersPage from './pages/orders/OrdersPage';
 
 function App() {
 
@@ -37,6 +38,7 @@ function App() {
           <Route path="reports" element={<Report />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="roles" element={<RolesPage />} />
+          <Route path="orders" element={<OrdersPage />} />
         </Route>
            
       </Routes>
