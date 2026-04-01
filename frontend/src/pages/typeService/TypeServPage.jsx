@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import TypeServTable from "../../components/typeService/TypeServTable";
-import ModalEditAgrTs from "../../components/typeService/ModalEditAgrTs";
+import TypeServTable from "../../components/typeServices/TypeServTable";
+import ModalEditAgrTs from "../../components/typeServices/ModalEditAgrTs";
 
 function TypeServPage() {
   const [tipServ, setTipServ] = useState([]);
@@ -64,8 +64,8 @@ function TypeServPage() {
       {/* Tabla */}
       <TypeServTable
         tipServ={tipServPaginados}
-        setIdSeleccionado={(u) => {
-          setIdSeleccionado(u);
+        setIdSeleccionado={(ts) => {
+          setIdSeleccionado(ts);
           setShowModal(true);
         }}
         getTipServ={getTipServ}
