@@ -1,13 +1,13 @@
 const db = require ('../../config/db');
 
 const typeService = {
-    finAll: async () => { // Listar
+    findAll: async () => { // Listar
         const [rows] = await db.query('SELECT * FROM tipo_servicio');
         return rows;
     },
 
     // consultar por id
-    finAll : async (id) => {
+    findById : async (id) => {
         const [rows] = await db.query(`SELECT * FROM tipo_servicio
         WHERE id_tipo_servicio = ?`, [id]);
         return rows[0];
@@ -66,4 +66,4 @@ const typeService = {
 
 }; 
 
-exports = typeService;
+module.exports = typeService;

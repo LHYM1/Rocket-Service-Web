@@ -27,7 +27,7 @@ app.use('/api/clasificacion_de_usuarios', rolesRoutes);
 app.use('/api/ordenes_de_servicio', ordersRoutes);
 
 // Ruta para tipo de servicio
-app.use('/api/tipo_de_servicio', typeServRoutes);
+app.use('/api/tipo_servicio', typeServRoutes);
 
 
 // Rutas autenticación
