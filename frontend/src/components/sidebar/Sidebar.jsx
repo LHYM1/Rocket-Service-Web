@@ -33,6 +33,11 @@ const Sidebar = () => {
                 Ordenes
             </Link>
 
+            <Link to="/panel/type-service" className="item">
+                <i className="fa-solid fa-box"></i>
+                Tipo servicio
+            </Link>
+
 
             <Link to="/panel/reports" className="item">
                 <i className="fa-solid fa-chart-column"></i>
