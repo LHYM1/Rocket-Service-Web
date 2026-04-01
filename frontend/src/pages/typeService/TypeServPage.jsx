@@ -11,16 +11,16 @@ function TypeServPage() {
 
    // Paginación
   const [pagina, setPagina] = useState(1);
-  const tipServPorPagina = 5;
+  const tipServPorPagina = 3;
 
-  const getTipServ = () => {
+  const getTipoServicio = () => {
     axios.get("http://localhost:4000/api/tipo_servicio/listar")
       .then(res => setTipServ(res.data))
       .catch(err => console.error(err));
   };
 
   useEffect(() => {
-    getTipServ();
+    getTipoServicio();
   }, []);
 
   // Filtrar usuarios según búsqueda
@@ -68,7 +68,7 @@ function TypeServPage() {
           setIdSeleccionado(ts);
           setShowModal(true);
         }}
-        getTipServ={getTipServ}
+        getTipoServicio={getTipoServicio}
       />
 
       {/* Paginador */}
@@ -102,9 +102,9 @@ function TypeServPage() {
       {showModal && (
         <ModalEditAgrTs
           idSeleccionado={idSeleccionado}
-          getTipServ={getTipServ}
+          getTipoServicio={getTipoServicio}
           onClose={() => setShowModal(false)}
-          onSuccess={() => getTipServ()}
+          onSuccess={() => getTipoServicio()}
         />
       )}
     </div>

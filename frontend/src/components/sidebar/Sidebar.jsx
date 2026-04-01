@@ -33,7 +33,7 @@ const Sidebar = () => {
                 Ordenes
             </Link>
 
-            <Link to="/panel/type-service" className="item">
+            <Link to="/panel/type-services" className="item">
                 <i className="fa-solid fa-box"></i>
                 Tipo servicio
             </Link>
