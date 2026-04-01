@@ -13,6 +13,7 @@ import Profile from './components/profile/Profile';
 import UsersPage from './pages/users/UsersPage';
 import RolesPage from './pages/roles/RolesPage';
 import OrdersPage from './pages/orders/OrdersPage';
+import TypeServPage from './pages/typeService/TypeServPage';
 
 function App() {
 
@@ -39,6 +40,7 @@ function App() {
           <Route path="users" element={<UsersPage />} />
           <Route path="roles" element={<RolesPage />} />
           <Route path="orders" element={<OrdersPage />} />
+          <Route path="type-services" element={<TypeServPage />} />
         </Route>
            
       </Routes>
