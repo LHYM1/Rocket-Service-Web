@@ -38,7 +38,7 @@ function TypeServPage() {
 
   return (
     <div className="container mt-4">
-      <h2>Gestión de Tipo servcio</h2>
+      <h2>Gestión de Tipo servicio</h2>
 
       {/* Barra de acciones */}
       <div className="d-flex justify-content-between mb-3">

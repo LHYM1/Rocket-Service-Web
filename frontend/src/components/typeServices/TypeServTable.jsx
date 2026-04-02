@@ -1,21 +1,29 @@
 import axios from 'axios'
 
-function TypeServTable ({ tipServ, setIdSeleccionado, getTipoServ }) {
+// la prop tipServ viene del padre page, es arreglo que muestra la tabla
+// la prop setIdSeleccionado viene del padre page
+// la prop getTipoServicio viene del padre page
+function TypeServTable ({ tipServ, setIdSeleccionado, getTipoServicio }) {
     if (!tipServ || !Array.isArray(tipServ)) {
         return <p>No hay tipos de servicio disponibles</p>;
     }
 
     const eliminarTipServ = (id) => {
-        axios.delete(`http://localhost:4000/api/tipo_servicio/eliminar/${id}`)
-    
-        .then(() => {
-            alert("Tipo de servicio eliminado con éxito");
-            getTipoServ();
-        })
-        .catch(err =>  {
-            console.error(err);
-            alert("No se pudo eliminar el tipo de servicio");
-        }); 
+        
+        if (window.confirm("¿Estás seguro de eliminar este tipo de servicio?")) {
+            axios.delete(`http://localhost:4000/api/tipo_servicio/eliminar/${id}`)
+            .then(() => {
+                alert("Tipo de servicio eliminado con éxito");
+                getTipoServicio(); // función que viene del padre page
+            })
+            .catch(err =>  {
+                console.error(err);
+                alert("No se pudo eliminar el tipo de servicio");
+            }); 
+        } else {
+            alert("El tipo de servicio no fue eliminado");
+        }
+           
     }
 
     return (

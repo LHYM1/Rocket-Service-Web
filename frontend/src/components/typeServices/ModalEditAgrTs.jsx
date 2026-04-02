@@ -14,7 +14,8 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
         if (idSeleccionado) {
             setTipServ({
                 codigo_tipo_servicio: idSeleccionado.codigo_tipo_servicio,
-                nombre_servicio: idSeleccionado.nombre_servicio, descripcion_servicio: idSeleccionado.descripcion_servicio,
+                nombre_servicio: idSeleccionado.nombre_servicio, 
+                descripcion_servicio: idSeleccionado.descripcion_servicio,
                 costo_servicio: idSeleccionado.costo_servicio
             })
         }
@@ -56,7 +57,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
             <div className="modal-content">
                 <div className="modal-header">
                     <h5 className="modal-title">
-                        {idSeleccionado ? "Editar Usuario" : "Registrar Usuario"}
+                        {idSeleccionado ? "Editar tipo servicio" : "Registrar Servicio"}
                     </h5>
 
                     <button type="button" className="btn-close" onClick={onClose}></button>
@@ -69,7 +70,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                         <input
                             type="text"
                             className="form-control"
-                            name="codServ"
+                            name="codigo_tipo_servicio"
                             value={tipoServicio.codigo_tipo_servicio}
                             onChange={handleChange}
                         />
@@ -80,7 +81,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                         <input
                             type="text"
                             className="form-control"
-                            name="servicio"
+                            name="nombre_servicio"
                             value={tipoServicio.nombre_servicio}
                             onChange={handleChange}
                         />
@@ -91,7 +92,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                         <textarea
                             id="descripcion_servicio"
                             className="form-control"
-                            name="mensaje"
+                            name="descripcion_servicio"
                             rows="4"
                             cols="50"
                             placeholder="Describe el servicio aquí.."
@@ -105,7 +106,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                         <input
                             type="number"
                             className="form-control"
-                            name="telefono_usuario"
+                            name="costo_servicio"
                             value={tipoServicio.costo_servicio}
                             onChange={handleChange}
                         />
