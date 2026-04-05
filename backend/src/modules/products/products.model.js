@@ -55,7 +55,7 @@ const product = {
             `UPDATE insumos SET codigo_insumo = ?,
             id_categoria = ?, id_unidad = ?,
             nombre_insumo = ?, precio_base 
-            WHERE id_tipo_servicio = ?`,
+            WHERE id_insumo = ?`,
 
             [
                 codigo_insumo,
