@@ -23,7 +23,7 @@ const Sidebar = () => {
                 Roles
             </Link>
 
-            <Link to="#" className="item">
+            <Link to="/panel/insumos" className="item">
                 <i className="fa-solid fa-box"></i>
                 Insumos
             </Link>
