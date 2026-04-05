@@ -12,7 +12,7 @@ const product = {
                 p.precio_base
             FROM insumos p
             LEFT JOIN categoria ct ON p.id_categoria = ct.id_categoria
-            LEFT JOIN unidad_de_medida und ON p.id_unidad_medida = und.id_unidad_medida
+            LEFT JOIN unidad_de_medida und ON p.id_unidad = und.id_unidad
         `);
         return rows;
     },
