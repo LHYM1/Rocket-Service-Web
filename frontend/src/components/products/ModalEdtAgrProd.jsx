@@ -10,6 +10,10 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
         precio_base: ""
     });
 
+    // Para cargar categorías y unidades en los select
+    const [categorias, setCategorias] = useState([]);
+    const [unidades, setUnidades] = useState([]);
+
     // useEffect para precargar datos de DB si hay un idSeleccionado
     useEffect(() => {
         if (idSeleccionado) {
@@ -22,6 +26,18 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
             })
         }
     }, [idSeleccionado]);
+
+    // useEffect para cargar categorias y unidades
+    useEffect(() => {
+        const fetchData = async () => {
+            const categoria = await axios.get("http://localhost:4000/api/categorias/listar");
+            setCategorias(categoria.data);
+
+            const unidad = await axios.get("http://localhost:4000/api/unidad_de_medida/listar");
+            setUnidades(unidad.data);
+        };
+        fetchData();
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -91,9 +107,9 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
 
                             {/* Seleccionar técnico */}
                             <option value="">Seleccione una categoria</option>
-                            {insumo.map((ins) => (
-                                <option key={ins.id_categoria} value={ins.id_categoria}>
-                                 {ins.nombre} 
+                            {categorias.map((cat) => (
+                                <option key={cat.id_categoria} value={cat.id_categoria}>
+                                 {cat.nombre} 
                                 </option>
                                 
                             ))}
@@ -112,7 +128,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
 
                             {/* Seleccionar */}
                             <option value="">Seleccione una unidad de medida</option>
-                            {insumo.map((ins) => (
+                            {unidades.map((ins) => (
                                 <option key={ins.id_unidad} value={ins.id_unidad}>
                                  {ins.nombre} {ins.simbolo} 
                                 </option>
