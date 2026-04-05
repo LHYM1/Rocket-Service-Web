@@ -9,7 +9,8 @@ const authRoutes = require('./modules/auth/auth.routes');
 const userRoutes = require('./modules/users/usuarios.routes');
 const rolesRoutes = require('./modules/roles/roles.routes');
 const ordersRoutes = require('./modules/orders/orders.routes');
-const typeServRoutes = require('./modules/typeService/type.service.routes')
+const typeServRoutes = require('./modules/typeService/type.service.routes');
+const productsRoutes = require('./modules/products/products.routes');
 
 
 const app = express();
@@ -28,6 +29,9 @@ app.use('/api/ordenes_de_servicio', ordersRoutes);
 
 // Ruta para tipo de servicio
 app.use('/api/tipo_servicio', typeServRoutes);
+
+// Ruta para insumos
+app.use('/api/insumos', productsRoutes);
 
 
 // Rutas autenticación
