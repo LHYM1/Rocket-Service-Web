@@ -107,7 +107,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                 <option value="">Seleccione la categoria del usuario</option>
 
                 { /* filtrando nombre de categoria de usuario */ }
-                {ciudades.map((catUser) => (
+                {usuario.map((catUser) => (
                   <option key={catUser.id_tipo_usuario} value={catUser.id_tipo_usuario}>
                     {catUser.categoria_usuario} 
                   </option>
