@@ -10,6 +10,15 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
     id_tipo_de_usuario: ""
   });
 
+  // cargar categorias de usuario para el select
+  const [categoriaUser, setCategoriaUser] = useState([]);
+
+  useEffect(() => {
+    axios.get("http://localhost:4000/api/clasificacion_de_usuarios/listar")
+      .then(res =>setCategoriaUser(res.data))
+      .catch(err => console.error(err));
+  }, []);
+
   // Si hay usuario seleccionado, precargar datos
   useEffect(() => {
     if (idSeleccionado) {
@@ -68,17 +77,31 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                 type="text"
                 className="form-control"
                 name="nombre"
-                value={usuario.nombre && usuario.apellido ? `${usuario.nombre} ${usuario.apellido}` : ""}
+                placeholder="Ingrese el nombre del usuario"
+                value={usuario.nombre}
                 onChange={handleChange}
               />
             </div>
-            
+
+            <div className="mb-3">
+              <label className="form-label">Apellido</label>
+              <input
+                type="text"
+                className="form-control"
+                name="apellido"
+                placeholder="Ingrese el apellido del usuario"
+                value={usuario.apellido}
+                onChange={handleChange}
+              />
+            </div>
+
             <div className="mb-3">
               <label className="form-label">Correo Electrónico</label>
               <input
                 type="email"
                 className="form-control"
                 name="correo_usuario"
+                placeholder="Ingrese el correo electrónico del usuario"
                 value={usuario.correo_usuario}
                 onChange={handleChange}
               />
@@ -90,6 +113,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                 type="text"
                 className="form-control"
                 name="telefono_usuario"
+                placeholder="Ingrese el teléfono del usuario"
                 value={usuario.telefono_usuario}
                 onChange={handleChange}
               />
@@ -100,15 +124,15 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
 
               <select
                 className="form-select"
-                name="id_tipo_usuario"
+                name="id_tipo_de_usuario"
                 value={usuario.id_tipo_de_usuario}
                 onChange={handleChange}
               >
                 <option value="">Seleccione la categoria del usuario</option>
 
                 { /* filtrando nombre de categoria de usuario */ }
-                {usuario.map((catUser) => (
-                  <option key={catUser.id_tipo_usuario} value={catUser.id_tipo_usuario}>
+                {categoriaUser.map((catUser) => (
+                  <option key={catUser.id_tipo_de_usuario} value={catUser.id_tipo_de_usuario}>
                     {catUser.categoria_usuario} 
                   </option>
                 ))} 
