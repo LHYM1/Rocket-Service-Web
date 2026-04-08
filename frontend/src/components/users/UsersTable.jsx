@@ -24,23 +24,21 @@ function UsersTable ({ user, setIdSeleccionado, getUsuarios}) {
                     <th>Correo</th>
                     <th>Teléfono</th>
                     <th>Categoria</th>
-                    
                     <th>Acciones</th>
                 </tr>
             </thead>
 
             <tbody>
+                {/* Concatenación de nombre y apellido */}
+                {/* El campo nombre_completo viene de la consulta db */ }
                 {user.map((u) => (
                     <tr key={u.id_usuario}>
                         <td>{u.id_usuario}</td>
-                        
-                        {/* Concatenación de nombre y apellido */}
-                        <td>{u.nombre_completo}</td> {/* este alis viene de db*/}
-
+                        <td>{u.nombre_completo}</td> 
                         <td>{u.correo_usuario}</td>
                         <td>{u.telefono_usuario}</td>
                         <td>{u.id_tipo_de_usuario}</td>
-
+                        
                         <td>
                             <button onClick={() => setIdSeleccionado(u)}
                                 type="button" className="btn btn-warning btn-color">
