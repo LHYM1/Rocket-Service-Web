@@ -6,7 +6,7 @@ const users = {
             SELECT 
                 u.id_usuario,
                 CONCAT(u.nombre, ' ', u.apellido) AS nombre_completo,
-                u.email,
+                u.correo_usuario,
                 u.telefono_usuario,
 
                 cat.id_tipo_usuario,
