@@ -2,9 +2,9 @@ const db = require('../../config/db');
 
 const users = {
     findAll: async () => { // Este método sirve para traer toda la tabla de usuarios
-        const [rows] = await db.query(`
+        const query = (`
             SELECT 
-                u.id_usuario,
+                c.id_usuario,
                 u.nombre,
                 u.apellido,
                 u.correo_usuario,
@@ -14,6 +14,7 @@ const users = {
             INNER JOIN clasificacion_de_usuarios t
             ON u.id_tipo_usuario = t.id_tipo_usuario
         `);
+        const [rows] = await db.query(query);
         return rows;
     },
 
