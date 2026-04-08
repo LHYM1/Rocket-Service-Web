@@ -4,15 +4,17 @@ const users = {
     findAll: async () => { // Este método sirve para traer toda la tabla de usuarios
         const query = (`
             SELECT 
-                c.id_usuario,
-                u.nombre,
-                u.apellido,
-                u.correo_usuario,
+                u.id_usuario,
+                CONCAT(u.nombre, ' ', u.apellido) AS nombre_completo,
+                u.email,
                 u.telefono_usuario,
-                t.categoria_usuario AS clasificacion_de_usuarios
+
+                cat.id_tipo_usuario,
+                cat.categoria_usuario
+
             FROM usuarios u 
-            INNER JOIN clasificacion_de_usuarios t
-            ON u.id_tipo_usuario = t.id_tipo_usuario
+            LEFT JOIN clasificacion_de_usuarios cat 
+                ON u.id_tipo_usuario = cat.id_tipo_usuario
         `);
         const [rows] = await db.query(query);
         return rows;
