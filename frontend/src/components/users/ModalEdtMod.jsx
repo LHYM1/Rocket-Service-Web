@@ -105,13 +105,21 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
             <div className="mb-3">
               <label className="form-label">Tipo de Usuario</label>
 
-              <input
-                type="text"
-                className="form-control"
-                name="clasificacion_de_usuarios"
-                value={usuario.clasificacion_de_usuarios}
+              <select
+                className="form-select"
+                name="id_tipo_usuario"
+                value={usuario.id_tipo_usuario}
                 onChange={handleChange}
-              />
+              >
+                <option value="">Seleccione la categoria del usuario</option>
+
+                { /* filtrando nombre de categoria de usuario */ }
+                {ciudades.map((catUser) => (
+                  <option key={catUser.id_tipo_usuario} value={catUser.id_tipo_usuario}>
+                    {catUser.categoria_usuario} 
+                  </option>
+                ))} 
+              </select>
 
             </div>
           </div>
