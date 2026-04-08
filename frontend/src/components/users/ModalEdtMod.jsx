@@ -7,7 +7,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
     apellido: "",
     correo_usuario: "",
     telefono_usuario: "",
-    clasificacion_de_usuarios: ""
+    id_tipo_de_usuario: ""
   });
 
   // Si hay usuario seleccionado, precargar datos
@@ -18,9 +18,9 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
         apellido: idSeleccionado.apellido,
         correo_usuario: idSeleccionado.correo_usuario,
         telefono_usuario: idSeleccionado.telefono_usuario,
-        clasificacion_de_usuarios: idSeleccionado.clasificacion_de_usuarios || ""
+        id_tipo_de_usuario: idSeleccionado.id_tipo_de_usuario || ""
       });
-    }
+    } 
   }, [idSeleccionado]);
 
   const handleChange = (e) => {
@@ -60,6 +60,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
             </h5>
             <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
+
           <div className="modal-body">
             <div className="mb-3">
               <label className="form-label">Nombre</label>
@@ -67,20 +68,11 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                 type="text"
                 className="form-control"
                 name="nombre"
-                value={usuario.nombre}
+                value={usuario.nombre && usuario.apellido ? `${usuario.nombre} ${usuario.apellido}` : ""}
                 onChange={handleChange}
               />
             </div>
-            <div className="mb-3">
-              <label className="form-label">Apellido</label>
-              <input
-                type="text"
-                className="form-control"
-                name="apellido"
-                value={usuario.apellido}
-                onChange={handleChange}
-              />
-            </div>
+            
             <div className="mb-3">
               <label className="form-label">Correo Electrónico</label>
               <input
@@ -91,6 +83,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                 onChange={handleChange}
               />
             </div>
+
             <div className="mb-3">
               <label className="form-label">Teléfono</label>
               <input
@@ -108,7 +101,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
               <select
                 className="form-select"
                 name="id_tipo_usuario"
-                value={usuario.id_tipo_usuario}
+                value={usuario.id_tipo_de_usuario}
                 onChange={handleChange}
               >
                 <option value="">Seleccione la categoria del usuario</option>
