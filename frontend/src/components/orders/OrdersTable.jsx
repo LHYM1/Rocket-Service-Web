@@ -42,15 +42,17 @@ function OrdenesTable ({ ordenes, setIdSeleccionado, getOrdenes }) {
             <tbody>
                 {ordenes.map((o) => (
                     <tr key={o.id_orden}>
+                        <td>{o.id_orden}</td>
                         <td><strong>{o.codigo_orden}</strong></td>
-                        <td>{o.id_tecnico_asignado}</td> 
-                        <td>
-                            <span className={`badge ${o.id_estado_de_servicio === 3 ? 'bg-success' : 'bg-info'}`}>
-                                {o.id_estado_de_servicio}
-                            </span>
-                        </td>
-                        <td>{new Date(o.fecha_creacion).toLocaleDateString()}</td>
-                        <td>${Number(o.costo_total_final).toLocaleString()}</td>
+                        <td>{o.placa}</td>
+                        <td>{o.cliente}</td>
+                        <td>{o.tecnico}</td>
+                        <td>{o.descripcion_del_problema}</td>
+                        <td>{o.nombre_estado}</td>
+                        <td>{o.nombre_servicio}</td>
+                        <td>{new Date(o.fecha_de_creacion).toLocaleDateString()}</td>
+                        <td>{new Date(o.fecha_finalizacion_estimada).toLocaleDateString()}</td>
+                    
 
                         <td className="text-center">
                             <button 
