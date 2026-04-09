@@ -124,7 +124,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
 
               <select
                 className="form-select"
-                name="id_tipo_de_usuario"
+                name="id_tipo_usuario"
                 value={usuario.id_tipo_usuario}
                 onChange={handleChange}
               >
