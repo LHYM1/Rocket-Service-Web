@@ -25,7 +25,8 @@ function UsersPage() {
 
   // Filtrar usuarios según búsqueda
   const usuariosFiltrados = usuarios.filter(u =>
-    u.nombre_completo.toLowerCase().includes(busqueda.toLowerCase()) ||
+    u.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+    u.apellido.toLowerCase().includes(busqueda.toLowerCase()) ||
     u.correo_usuario.toLowerCase().includes(busqueda.toLowerCase())
   );
 

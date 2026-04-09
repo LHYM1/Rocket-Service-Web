@@ -24,9 +24,9 @@ exports.obtenerUsuario = async (req, res) => {
 
 exports.crearUsuario = async (req, res) => {
     try {
-        const { nombre, apellido, correo_usuario, telefono_usuario, contrasena, id_tipo_usuario } = req.body; // Campos que se envian desde el frontend
+        const { nombre, apellido, correo_usuario, telefono_usuario, id_tipo_usuario } = req.body; // Campos que se envian desde el frontend
 
-        if (!nombre || !apellido || !correo_usuario || !telefono_usuario, contrasena, id_tipo_usuario) {
+        if (!nombre || !apellido || !correo_usuario || !telefono_usuario, !id_tipo_usuario) {
             return res.status(400).json({ 
                 message: "Todos los campos son obligatorios" 
             });

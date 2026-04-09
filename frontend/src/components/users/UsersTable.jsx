@@ -21,6 +21,7 @@ function UsersTable ({ user, setIdSeleccionado, getUsuarios}) {
                 <tr>
                     <th>Id</th>
                     <th>Nombre</th>
+                    <th>Apellido</th>
                     <th>Correo</th>
                     <th>Teléfono</th>
                     <th>Categoria</th>
@@ -31,13 +32,15 @@ function UsersTable ({ user, setIdSeleccionado, getUsuarios}) {
             <tbody>
                 {/* Concatenación de nombre y apellido */}
                 {/* El campo nombre_completo viene de la consulta db */ }
+                { /* categoria_usuario es el nombre de la categoria que viene del join */}
                 {user.map((u) => (
                     <tr key={u.id_usuario}>
                         <td>{u.id_usuario}</td>
-                        <td>{u.nombre_completo}</td> 
+                        <td>{u.nombre}</td> 
+                        <td>{u.apellido}</td>
                         <td>{u.correo_usuario}</td>
                         <td>{u.telefono_usuario}</td>
-                        <td>{u.id_tipo_de_usuario}</td>
+                        <td>{u.categoria_usuario}</td> 
                         
                         <td>
                             <button onClick={() => setIdSeleccionado(u)}

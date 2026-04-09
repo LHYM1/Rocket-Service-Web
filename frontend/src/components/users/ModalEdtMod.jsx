@@ -7,17 +7,8 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
     apellido: "",
     correo_usuario: "",
     telefono_usuario: "",
-    id_tipo_de_usuario: ""
+    id_tipo_usuario: ""
   });
-
-  // cargar categorias de usuario para el select
-  const [categoriaUser, setCategoriaUser] = useState([]);
-
-  useEffect(() => {
-    axios.get("http://localhost:4000/api/clasificacion_de_usuarios/listar")
-      .then(res =>setCategoriaUser(res.data))
-      .catch(err => console.error(err));
-  }, []);
 
   // Si hay usuario seleccionado, precargar datos
   useEffect(() => {
@@ -27,10 +18,19 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
         apellido: idSeleccionado.apellido,
         correo_usuario: idSeleccionado.correo_usuario,
         telefono_usuario: idSeleccionado.telefono_usuario,
-        id_tipo_de_usuario: idSeleccionado.id_tipo_de_usuario || ""
+        id_tipo_usuario: idSeleccionado.id_tipo_usuario || ""
       });
     } 
   }, [idSeleccionado]);
+
+  // cargar categorias de usuario para el select
+  const [categoriaUser, setCategoriaUser] = useState([]);
+
+  useEffect(() => {
+    axios.get("http://localhost:4000/api/clasificacion_de_usuarios/listar")
+      .then(res =>setCategoriaUser(res.data))
+      .catch(err => console.error(err));
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -125,14 +125,14 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
               <select
                 className="form-select"
                 name="id_tipo_de_usuario"
-                value={usuario.id_tipo_de_usuario}
+                value={usuario.id_tipo_usuario}
                 onChange={handleChange}
               >
                 <option value="">Seleccione la categoria del usuario</option>
 
                 { /* filtrando nombre de categoria de usuario */ }
                 {categoriaUser.map((catUser) => (
-                  <option key={catUser.id_tipo_de_usuario} value={catUser.id_tipo_de_usuario}>
+                  <option key={catUser.id_tipo_usuario} value={catUser.id_tipo_usuario}>
                     {catUser.categoria_usuario} 
                   </option>
                 ))} 

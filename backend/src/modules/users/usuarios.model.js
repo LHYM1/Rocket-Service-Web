@@ -5,7 +5,8 @@ const users = {
         const query = (`
             SELECT 
                 u.id_usuario,
-                CONCAT(u.nombre, ' ', u.apellido) AS nombre_completo,
+                u.nombre,
+                u.apellido,
                 u.correo_usuario,
                 u.telefono_usuario,
 
@@ -31,10 +32,12 @@ const users = {
             apellido, 
             correo_usuario, 
             telefono_usuario, 
+            id_tipo_usuario,
+
         } = data;
 
-        const [result] = await db.query('INSERT INTO usuarios (nombre, apellido, correo_usuario, telefono_usuario, contrasena) VALUES (?, ?, ?, ?, ?, ?)',
-            [nombre, apellido, correo_usuario, telefono_usuario, null, 1]);
+        const [result] = await db.query('INSERT INTO usuarios (nombre, apellido, correo_usuario, telefono_usuario, id_tipo_usuario ) VALUES (?, ?, ?, ?, ?)',
+            [nombre, apellido, correo_usuario, telefono_usuario, id_tipo_usuario]);
         return result.insertId;
     },
 
@@ -44,10 +47,11 @@ const users = {
             apellido, 
             correo_usuario, 
             telefono_usuario, 
+            id_tipo_usuario
         } = data;
 
-        const [result] = await db.query('UPDATE usuarios SET nombre = ?, apellido = ?, correo_usuario = ?, telefono_usuario = ? WHERE id_usuario = ?',
-            [nombre, apellido, correo_usuario, telefono_usuario, id]);
+        const [result] = await db.query('UPDATE usuarios SET nombre = ?, apellido = ?, correo_usuario = ?, telefono_usuario = ?, id_tipo_usuario = ? WHERE id_usuario = ?',
+            [nombre, apellido, correo_usuario, telefono_usuario,  id_tipo_usuario, id]);
         return result.affectedRows > 0;
     },
 
