@@ -15,7 +15,7 @@ const OrdenServicio = {
                 e.nombre_estado,
                 ts.nombre_servicio,
 
-                o.fecha_creacion,
+                o.fecha_de_creacion,
                 o.fecha_finalizacion_estimada
             
             FROM ordenes_de_servicio o
@@ -26,7 +26,7 @@ const OrdenServicio = {
 
             LEFT JOIN tipo_servicio ts ON o.id_tipo_servicio = ts.id_tipo_servicio
             LEFT JOIN estado_de_orden_de_servicio e ON o.id_estado_de_servicio = e.id_estado_de_servicio
-            ORDER BY o.fecha_creacion DESC
+            ORDER BY o.fecha_de_creacion DESC
 
         `);
         const [rows] = await db.query(query);
