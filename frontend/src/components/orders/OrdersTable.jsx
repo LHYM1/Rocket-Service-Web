@@ -21,60 +21,101 @@ function OrdenesTable ({ ordenes, setIdSeleccionado, getOrdenes }) {
     }
 
     return (
-        <table className="table table-hover table-bordered shadow-sm">
-            <thead className="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Código</th>
-                    <th>Placa</th>
-                    <th>Cliente</th>
-                    <th>Técnico</th>
-                    <th>Problema</th>
-                    <th>Estado</th>
-                    <th>Servicio</th>
-                    <th>Fech Creación</th>
-                    <th>Fech Finalización</th>
+        <div className="card shadow-sm border-0">
+    <div className="card-body">
 
-                    <th className="text-center">Acciones</th>
-                </tr>
-            </thead>
+        <div className="table-responsive">
+            <table className="table table-hover align-middle">
+                
+                <thead className="table-dark text-center">
+                    <tr>
+                        <th>ID</th>
+                        <th>Código</th>
+                        <th>Placa</th>
+                        <th>Cliente</th>
+                        <th>Técnico</th>
+                        <th>Problema</th>
+                        <th>Estado</th>
+                        <th>Servicio</th>
+                        <th>Creación</th>
+                        <th>Finalización</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
 
-            <tbody>
-                {ordenes.map((o) => (
-                    <tr key={o.id_orden}>
-                        <td>{o.id_orden}</td>
-                        <td><strong>{o.codigo_orden}</strong></td>
-                        <td>{o.placa}</td>
-                        <td>{o.cliente}</td>
-                        <td>{o.tecnico}</td>
-                        <td>{o.descripcion_del_problema}</td>
-                        <td>{o.nombre_estado}</td>
-                        <td>{o.nombre_servicio}</td>
-                        <td>{new Date(o.fecha_de_creacion).toLocaleDateString()}</td>
-                        <td>{new Date(o.fecha_finalizacion_estimada).toLocaleDateString()}</td>
-                    
+                <tbody>
+                    {ordenes.map((o) => (
+                        <tr key={o.id_orden}>
 
-                        <td className="text-center">
-                            <button 
-                                onClick={() => setIdSeleccionado(o)}
-                                type="button" 
-                                className="btn btn-warning btn-sm me-2"
-                            >
-                                <i className="bi bi-pencil"></i> Editar
-                            </button>
+                            <td>{o.id_orden}</td>
 
-                            <button 
-                                onClick={() => eliminarOrden(o.id_orden, o.codigo_orden)}
-                                type="button" 
-                                className="btn btn-danger btn-sm"
-                            >
-                                <i className="bi bi-trash"></i> Eliminar
-                            </button>
-                        </td>
-                    </tr>                    
-                ))}
-            </tbody>
-        </table>
+                            <td>
+                                <span className="fw-bold text-primary">
+                                    {o.codigo_orden}
+                                </span>
+                            </td>
+
+                            <td>{o.placa}</td>
+                            <td>{o.cliente}</td>
+                            <td>{o.tecnico}</td>
+
+                            {/* Problema recortado */}
+                            <td style={{ maxWidth: "150px" }}>
+                                <span className="text-truncate d-inline-block w-100">
+                                    {o.descripcion_del_problema}
+                                </span>
+                            </td>
+
+                            {/*  Estado con badge */}
+                            <td className="text-center">
+                                <span className={`badge ${
+                                    o.nombre_estado === "ASIGNADA" ? "bg-primary" :
+                                    o.nombre_estado === "EN PROCESO" ? "bg-warning text-dark" :
+                                    o.nombre_estado === "FINALIZADA" ? "bg-success" :
+                                    "bg-secondary"
+                                }`}>
+                                    {o.nombre_estado}
+                                </span>
+                            </td>
+
+                            <td>{o.nombre_servicio}</td>
+
+                            <td>
+                                {new Date(o.fecha_de_creacion).toLocaleDateString()}
+                            </td>
+
+                            <td>
+                                {o.fecha_finalizacion_estimada
+                                    ? new Date(o.fecha_finalizacion_estimada).toLocaleDateString()
+                                    : <span className="text-muted">—</span>
+                                }
+                            </td>
+
+                            {/* Botones mejorados */}
+                            <td className="text-center">
+                                <button 
+                                    onClick={() => setIdSeleccionado(o)}
+                                    className="btn btn-outline-warning btn-sm me-2"
+                                >
+                                    <i className="bi bi-pencil"></i>
+                                </button>
+
+                                <button 
+                                    onClick={() => eliminarOrden(o.id_orden, o.codigo_orden)}
+                                    className="btn btn-outline-danger btn-sm"
+                                >
+                                    <i className="bi bi-trash"></i>
+                                </button>
+                            </td>
+
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
     )
 }
 
