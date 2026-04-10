@@ -7,7 +7,9 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
     apellido: "",
     correo_usuario: "",
     telefono_usuario: "",
-    id_tipo_usuario: ""
+    id_tipo_usuario: "",
+    contrasena: "",
+    confirmarContrasena: ""
   });
 
   // Si hay usuario seleccionado, precargar datos
@@ -18,7 +20,9 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
         apellido: idSeleccionado.apellido,
         correo_usuario: idSeleccionado.correo_usuario,
         telefono_usuario: idSeleccionado.telefono_usuario,
-        id_tipo_usuario: idSeleccionado.id_tipo_usuario || ""
+        id_tipo_usuario: idSeleccionado.id_tipo_usuario || "",
+        contrasena: "", // No precargamos la contraseña por seguridad
+        confirmarContrasena: "" // Campo para confirmar contraseña, no se precarga
       });
     } 
   }, [idSeleccionado]);
@@ -39,22 +43,40 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
 
   const handleSave = async () => {
     try {
+        const datosEnviar = { ...usuario };
+
+      // Si la contraseña está vacía, no se envía
+      if (datosEnviar.contrasena) {
+          if (datosEnviar.contrasena !== datosEnviar.confirmarContrasena) {
+          alert("Las contraseñas no coinciden");
+          return; // detiene el envío
+        }
+      }
+
+      // Eliminar campo que no va al backend
+      delete datosEnviar.confirmarContrasena;
+
+      // Si está vacía, no enviarla
+      if (!datosEnviar.contrasena) {
+        delete datosEnviar.contrasena;
+      }
+
       if (idSeleccionado) {
         // Editar
         await axios.put(
           `http://localhost:4000/api/usuarios/modificar/${idSeleccionado.id_usuario}`,
-          usuario
+          datosEnviar
         );
         alert("Usuario actualizado con éxito");
       } else {
         // Agregar
-        await axios.post("http://localhost:4000/api/usuarios/crear", usuario);
+        await axios.post("http://localhost:4000/api/usuarios/crear", datosEnviar);
         alert("Usuario agregado con éxito");
       }
       onSuccess();
       onClose();
     } catch (error) {
-      console.error("Error al guardar:", error);
+      console.error("Error real:", error.response?.data);
       alert("Hubo un error al guardar el usuario");
     }
   };
@@ -107,6 +129,8 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
               />
             </div>
 
+            
+
             <div className="mb-3">
               <label className="form-label">Teléfono</label>
               <input
@@ -115,6 +139,30 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                 name="telefono_usuario"
                 placeholder="Ingrese el teléfono del usuario"
                 value={usuario.telefono_usuario}
+                onChange={handleChange}
+              />
+            </div>
+
+             <div className="mb-3">
+              <label className="form-label">Contraseña</label>
+              <input
+                type="password"
+                className="form-control"
+                name="contrasena"
+                placeholder="Ingrese una contraseña"
+                value={usuario.contrasena}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Confirmar Contraseña</label>
+              <input
+                type="password"
+                className="form-control"
+                name="confirmarContrasena"
+                placeholder="Confirme la contraseña"
+                value={usuario.confirmarContrasena}
                 onChange={handleChange}
               />
             </div>
