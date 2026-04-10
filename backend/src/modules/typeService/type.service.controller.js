@@ -1,6 +1,6 @@
-const typeServices = require('./type.service.model');
+import typeServices from './type.service.model.js';
 
-exports.listarTypeServ = async (req, res) => {
+export const listarTypeServ = async (req, res) => {
     try {
         const typeServ = await typeServices.findAll();
         console.log("Datos obtenidos:", typeServ);
@@ -10,7 +10,7 @@ exports.listarTypeServ = async (req, res) => {
     }
 }
 
-exports.obtenerTypeServ = async (req, res) => {
+export const obtenerTypeServ = async (req, res) => {
     try {
        const typeServ = await typeServices.findById(req.params.id);
        if (!typeServ) return res.status(404).json({ message: "Tipo de servicio no encontrado"})
@@ -20,7 +20,7 @@ exports.obtenerTypeServ = async (req, res) => {
     } 
 }
 
-exports.crearTypeServ = async (req, res) => {
+export const crearTypeServ = async (req, res) => {
     try {
         const {
             codigo_tipo_servicio, nombre_servicio, 
@@ -45,7 +45,7 @@ exports.crearTypeServ = async (req, res) => {
     }
 }
 
-exports.actTypeServ = async (req, res) => {
+export const actTypeServ = async (req, res) => {
     try {
         const actualizado = await typeServices.update(req.params.id, req.body);
 
@@ -58,7 +58,7 @@ exports.actTypeServ = async (req, res) => {
     }
 }
 
-exports.eliminarTypeServ = async (req, res) => {
+export const eliminarTypeServ = async (req, res) => {
     try {
         const eliminado = await typeServices.delete(req.params.id);
         if (!eliminado) 
@@ -71,3 +71,11 @@ exports.eliminarTypeServ = async (req, res) => {
     }
 }
 
+// Exportación por defecto para que el import en las rutas funcione correctamente
+export default {
+    listarTypeServ,
+    obtenerTypeServ,
+    crearTypeServ,
+    actTypeServ,
+    eliminarTypeServ
+};

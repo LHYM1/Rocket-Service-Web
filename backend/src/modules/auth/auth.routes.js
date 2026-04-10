@@ -1,16 +1,14 @@
-const express = require("express");
-const { login, register } = require("./auth.controller")
-const { validarToken } = require("../../middlewares/authMiddleware");
+import express from "express";
+import authController from "./auth.controller.js";
+import { validarToken } from "../../middlewares/authMiddleware.js";
 
+const { login, register } = authController;
 const router = express.Router();
 
-// Ruta login
 router.post("/login", login);
 
-// Ruta register
 router.post("/register", register)
 
-// Ruta protegida solo para admin
 router.get("/admin-data", validarToken(["Administrador"]), (req, res) => {
     res.json({ 
         message: "Bienvenido administrador", 
@@ -18,7 +16,6 @@ router.get("/admin-data", validarToken(["Administrador"]), (req, res) => {
     });
 })
 
-// Ruta protegida para técnico
 router.get("/tec-data", validarToken(["Técnico", "Administrador"]), (req, res) => {
     res.json({ 
         message: "Bienvenido Técnico", 
@@ -26,4 +23,4 @@ router.get("/tec-data", validarToken(["Técnico", "Administrador"]), (req, res) 
     });
 });
 
-module.exports = router;    
+export default router;

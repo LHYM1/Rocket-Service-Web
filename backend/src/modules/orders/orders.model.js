@@ -1,4 +1,4 @@
-const db = require('../../config/db');
+import db from '../../config/db.js';
 
 const OrdenServicio = {
     // Traer todas las órdenes con Nombres de Técnicos y Estados (JOIN)
@@ -74,4 +74,4 @@ const OrdenServicio = {
     }
 };
 
-module.exports = OrdenServicio;
+export default OrdenServicio;

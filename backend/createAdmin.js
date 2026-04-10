@@ -1,21 +1,19 @@
-require('dotenv').config();
-const bcrypt = require("bcrypt");
-const pool = require("./src/config/db"); 
+import 'dotenv/config';
+import bcrypt from 'bcrypt';
+import pool from './src/config/db.js';
 
 const crearAdmin = async () => {
     try {
-        const nombre = "Nicolas";
-        const apellido = "Florez";
-        const correo_usuario = "nicolas@gmail.com";
+        const nombre = "Kevin";
+        const apellido = "Vargas";
+        const correo_usuario = "kevin@gmail.com";
         const telefono_usuario = "3226786545";
-        const contrasena = "123456";
+        const contrasena = "1234";
 
-        const ID_ADMIN = 3; // tipo de usuario administrador
+        const ID_ADMIN = 3; 
 
-        // Encriptar contraseña
         const hashedPassword = await bcrypt.hash(contrasena, 10);
 
-        // Insertar en la BD
         await pool.query(
             `INSERT INTO usuarios 
             (contrasena, nombre, apellido, correo_usuario, telefono_usuario, id_tipo_usuario)

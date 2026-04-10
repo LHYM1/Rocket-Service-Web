@@ -1,15 +1,13 @@
-const jwt = require("jsonwebtoken");
-const pool = require("../../config/db"); // conexion a mysql
-const bcrypt = require("bcrypt");
+import jwt from 'jsonwebtoken';
+import pool from '../../config/db.js';
+import bcrypt from 'bcrypt';
 
-// register
 const register = async (req, res) => {
   const { contrasena, nombre, apellido, correo_usuario, telefono_usuario } = req.body;
 
   try {
     const ID_TECNICO = 2; 
 
-    // Encriptar contraseña
     const hashedPassword = await bcrypt.hash(contrasena, 10);
 
     await pool.query(
@@ -24,8 +22,6 @@ const register = async (req, res) => {
   }
 };
 
-
-// login
 const login = async (req, res) => {
   const { correo_usuario, contrasena } = req.body;
 
@@ -45,7 +41,6 @@ const login = async (req, res) => {
 
     const user = rows[0];
     
-    // Comparar contraseñas encriptadas
     const match = await bcrypt.compare(contrasena, user.contrasena);
     
     if (!match) {
@@ -55,7 +50,7 @@ const login = async (req, res) => {
     const token = jwt.sign (
        { 
         id: user.id_usuario, 
-        role: user.role, // role es alias
+        role: user.role, 
         nombre: user.nombre, 
         apellido: user.apellido 
       },
@@ -71,4 +66,4 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { login, register };
+export default { login, register };

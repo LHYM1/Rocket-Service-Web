@@ -1,12 +1,11 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const controllerTypeServ = require('./type.service.controller');
+import controllerTypeServ from './type.service.controller.js';
 
-// rutas para tipo de servicio
 router.get('/listar', controllerTypeServ.listarTypeServ); 
 router.get('/consultar/:id', controllerTypeServ.obtenerTypeServ);
 router.post('/crear', controllerTypeServ.crearTypeServ);
 router.put('/modificar/:id', controllerTypeServ.actTypeServ);
 router.delete('/eliminar/:id', controllerTypeServ.eliminarTypeServ);
 
-module.exports = router;
+export default router;

@@ -1,16 +1,14 @@
 //configuración .env para JWT
-require('dotenv').config();
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors'; // permite acceso a la API desde el frontend
 
-const express = require('express');
-const mysql = require('mysql2');
-const cors = require('cors'); // permite acceso a la API desde el frontend
-const authRoutes = require('./modules/auth/auth.routes');
-
-const userRoutes = require('./modules/users/usuarios.routes');
-const rolesRoutes = require('./modules/roles/roles.routes');
-const ordersRoutes = require('./modules/orders/orders.routes');
-const typeServRoutes = require('./modules/typeService/type.service.routes');
-const productsRoutes = require('./modules/products/products.routes');
+import authRoutes from './modules/auth/auth.routes.js';
+import userRoutes from './modules/users/usuarios.routes.js';
+import rolesRoutes from './modules/roles/roles.routes.js';
+import ordersRoutes from './modules/orders/orders.routes.js';
+import typeServRoutes from './modules/typeService/type.service.routes.js';
+import productsRoutes from './modules/products/products.routes.js';
 
 
 const app = express();
@@ -37,4 +35,4 @@ app.use('/api/insumos', productsRoutes);
 // Rutas autenticación
 app.use('/api/auth', authRoutes);
 
-module.exports = app;
+export default app;

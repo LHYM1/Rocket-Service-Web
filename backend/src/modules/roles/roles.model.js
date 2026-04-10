@@ -1,4 +1,4 @@
-const db = require('../../config/db');
+import db from '../../config/db.js';
 
 const catUser = {
     findAll: async () => { // Este método sirve para traer toda la tabla de usuarios
@@ -38,4 +38,4 @@ const catUser = {
     }
 };
 
-module.exports = catUser;
+export default catUser;

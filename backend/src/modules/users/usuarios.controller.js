@@ -1,7 +1,7 @@
 // en la constante usuario se guarda los datos de endPoint agregar, eliminar, actualizar y listar de la tabla usuario
-const usuarios = require('./usuarios.model');
+import usuarios from './usuarios.model.js';
 
-exports.listarUsuario = async (req, res) => {
+export const listarUsuario = async (req, res) => {
 
     try {
         const users = await usuarios.findAll();
@@ -12,7 +12,7 @@ exports.listarUsuario = async (req, res) => {
     }
 };
 
-exports.obtenerUsuario = async (req, res) => {
+export const obtenerUsuario = async (req, res) => {
     try {
         const users = await usuarios.findById(req.params.id);
         if (!users) return res.status(404).json({ message: "usuario no encontrado" });
@@ -22,7 +22,7 @@ exports.obtenerUsuario = async (req, res) => {
     }
 };
 
-exports.crearUsuario = async (req, res) => {
+export const crearUsuario = async (req, res) => {
     try {
         const { nombre, apellido, correo_usuario, telefono_usuario, id_tipo_usuario } = req.body; // Campos que se envian desde el frontend
 
@@ -42,7 +42,7 @@ exports.crearUsuario = async (req, res) => {
     }
 };
 
-exports.actualizarUsuario = async (req, res) => {
+export const actualizarUsuario = async (req, res) => {
     try {
         const actualizado = await usuarios.update(req.params.id, req.body);
 
@@ -55,7 +55,7 @@ exports.actualizarUsuario = async (req, res) => {
     }
 };
 
-exports.eliminarUsuario = async (req, res) => {
+export const eliminarUsuario = async (req, res) => {
     try {
         const eliminado = await usuarios.delete(req.params.id);
         if (!eliminado) 
@@ -68,3 +68,10 @@ exports.eliminarUsuario = async (req, res) => {
     }
 };
 
+export default {
+    listarUsuario,
+    obtenerUsuario,
+    crearUsuario,
+    actualizarUsuario,
+    eliminarUsuario
+}

@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const controllerOrders = require('./orders.controller');
+import controllerOrders from './orders.controller.js';
 
 // Rutas para usuarios
 router.get('/listar', controllerOrders.listarOrden);
@@ -9,4 +9,4 @@ router.post('/crear', controllerOrders.crearOrden);
 router.put('/modificar/:id', controllerOrders.actualizarOrden);    
 router.delete('/eliminar/:id', controllerOrders.eliminarOrden);
 
-module.exports = router;
+export default router;

@@ -1,7 +1,7 @@
 // en la constante insumos se guarda los datos de endPoint agregar, eliminar, actualizar y listar de la tabla insumos
-const insumos = require('./products.model');
+import insumos from './products.model.js';
 
-exports.listarInsumo = async (req, res) => {
+export const listarInsumo = async (req, res) => {
 
     try {
         const insm = await insumos.findAll();
@@ -12,7 +12,7 @@ exports.listarInsumo = async (req, res) => {
     }
 };
 
-exports.obtenerInsumo = async (req, res) => {
+export const obtenerInsumo = async (req, res) => {
     try {
         const insm = await insumos.findById(req.params.id);
         if (!insm) return res.status(404).json({ message: "Insumo no encontrado" });
@@ -22,7 +22,7 @@ exports.obtenerInsumo = async (req, res) => {
     }
 };
 
-exports.crearInsumo = async (req, res) => {
+export const crearInsumo = async (req, res) => {
     try {
         const { codigo_insumo, nombre_insumo, precio_base } = req.body; 
 
@@ -42,7 +42,7 @@ exports.crearInsumo = async (req, res) => {
     }
 };
 
-exports.actualizarInsumo = async (req, res) => {
+export const actualizarInsumo = async (req, res) => {
     try {
         const actualizado = await insumos.update(req.params.id, req.body);
 
@@ -55,7 +55,7 @@ exports.actualizarInsumo = async (req, res) => {
     }
 };
 
-exports.eliminarInsumo = async (req, res) => {
+export const eliminarInsumo = async (req, res) => {
     try {
         const eliminado = await insumos.delete(req.params.id);
         if (!eliminado) 
@@ -67,4 +67,12 @@ exports.eliminarInsumo = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export default {
+    listarInsumo,
+    obtenerInsumo,
+    crearInsumo,
+    actualizarInsumo,
+    eliminarInsumo
+}
 

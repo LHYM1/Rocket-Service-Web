@@ -1,4 +1,4 @@
-const db = require('../../config/db');
+import db from '../../config/db.js';
 
 const users = {
     findAll: async () => { // Este método sirve para traer toda la tabla de usuarios
@@ -61,4 +61,4 @@ const users = {
     }
 };
 
-module.exports = users;
+export default users;

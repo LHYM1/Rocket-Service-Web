@@ -1,7 +1,7 @@
 // en la constante usuario se guarda los datos de endPoint agregar, eliminar, actualizar y listar de la tabla usuario
-const ordenes_de_servicio = require('./orders.model');
+import ordenes_de_servicio from './orders.model.js';
 
-exports.listarOrden = async (req, res) => {
+export const listarOrden = async (req, res) => {
 
     try {
         const ordenes = await ordenes_de_servicio.findAll();
@@ -12,7 +12,7 @@ exports.listarOrden = async (req, res) => {
     }
 };
 
-exports.obtenerOrden = async (req, res) => {
+export const obtenerOrden = async (req, res) => {
     try {
         const ordenes = await ordenes_de_servicio.findById(req.params.id);
         if (!ordenes) return res.status(404).json({ message: "orden no encontrada" });
@@ -22,7 +22,7 @@ exports.obtenerOrden = async (req, res) => {
     }
 };
 
-exports.crearOrden = async (req, res) => {
+export const crearOrden = async (req, res) => {
     try {
         const { codigo_orden , id_moto , id_usuario , id_tecnico_asignado, id_tipo_servicio , id_estado_de_servicio, fecha_de_creacion, fecha_finalizacion_estimada, descripcion_del_problema } = req.body; // Campos que se envian desde el frontend
 
@@ -42,7 +42,7 @@ exports.crearOrden = async (req, res) => {
     }
 };
 
-exports.actualizarOrden = async (req, res) => {
+export const actualizarOrden = async (req, res) => {
     try {
         const actualizado = await ordenes_de_servicio.update(req.params.id, req.body);
 
@@ -55,7 +55,7 @@ exports.actualizarOrden = async (req, res) => {
     }
 };
 
-exports.eliminarOrden = async (req, res) => {
+export const eliminarOrden = async (req, res) => {
     try {
         const eliminado = await ordenes_de_servicio.delete(req.params.id);
         if (!eliminado) 
@@ -67,4 +67,13 @@ exports.eliminarOrden = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export default {
+    listarOrden,
+    obtenerOrden,   
+    crearOrden,
+    actualizarOrden,
+    eliminarOrden
+};
+
 

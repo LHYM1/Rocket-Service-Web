@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const controllerRoles = require('./roles.controller');
+import controllerRoles from './roles.controller.js';
 
 // Rutas para usuarios
 router.get('/listar', controllerRoles.listarCatUser);
@@ -9,4 +9,4 @@ router.post('/crear', controllerRoles.crearCatUser);
 router.put('/modificar/:id', controllerRoles.actuaCatUser);
 router.delete('/eliminar/:id', controllerRoles.eliminarCatUser);
 
-module.exports = router;
+export default router;

@@ -1,4 +1,5 @@
-const db = require ('../../config/db');
+// 1. Cambiamos require por import y agregamos el .js
+import db from '../../config/db.js';
 
 const typeService = {
     findAll: async () => { // Listar
@@ -66,4 +67,5 @@ const typeService = {
 
 }; 
 
-module.exports = typeService;
+// 2. Cambiamos module.exports por export default
+export default typeService;

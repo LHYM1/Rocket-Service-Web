@@ -1,7 +1,7 @@
 // en la constante usuario se guarda los datos de endPoint agregar, eliminar, actualizar y listar de la tabla usuario
-const usersCat = require('./roles.model');
+import usersCat from './roles.model.js';
 
-exports.listarCatUser = async (req, res) => {
+export const listarCatUser = async (req, res) => {
 
     try {
         const catUsers = await usersCat.findAll();
@@ -12,7 +12,7 @@ exports.listarCatUser = async (req, res) => {
     }
 };
 
-exports.obtenerCatUser = async (req, res) => {
+export const obtenerCatUser = async (req, res) => {
     try {
         const catUsers = await usersCat.findById(req.params.id);
         if (!catUsers) return res.status(404).json({ message: "categoria de usuario no encontrada" });
@@ -22,7 +22,7 @@ exports.obtenerCatUser = async (req, res) => {
     }
 };
 
-exports.crearCatUser = async (req, res) => {
+export const crearCatUser = async (req, res) => {
     try {
         const { categoria_usuario} = req.body; // Campos que se envian desde el frontend
 
@@ -42,7 +42,7 @@ exports.crearCatUser = async (req, res) => {
     }
 };
 
-exports.actuaCatUser = async (req, res) => {
+export const actuaCatUser = async (req, res) => {
     try {
         const actualizado = await usersCat.update(req.params.id, req.body);
 
@@ -55,7 +55,7 @@ exports.actuaCatUser = async (req, res) => {
     }
 };
 
-exports.eliminarCatUser = async (req, res) => {
+export const eliminarCatUser = async (req, res) => {
     try {
         const eliminado = await usersCat.delete(req.params.id);
         if (!eliminado) 
@@ -67,4 +67,12 @@ exports.eliminarCatUser = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export default {
+    listarCatUser,
+    obtenerCatUser,
+    crearCatUser,
+    actuaCatUser,
+    eliminarCatUser
+}
 

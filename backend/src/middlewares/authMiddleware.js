@@ -1,7 +1,7 @@
-const jwt = require("jsonwebtoken");
+import jwt from 'jsonwebtoken';
 
 // Protección de rutas
-const validarToken = (roles) => {
+export const validarToken = (roles) => {
     return (req, res, next) => {
 
     const authHeader = req.headers['authorization'];
@@ -29,4 +29,4 @@ const validarToken = (roles) => {
   };
 };
 
-module.exports = { validarToken };
+export default { validarToken };
