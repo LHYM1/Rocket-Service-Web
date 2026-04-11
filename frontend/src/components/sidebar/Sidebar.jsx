@@ -28,6 +28,11 @@ const Sidebar = () => {
                 Insumos
             </Link>
 
+             <Link to="/panel/insmUseServ" className="item">
+                <i className="fa-solid fa-box"></i>
+                Insumos usados serv
+            </Link>
+
             <Link to="/panel/orders" className="item">
                 <i className="fa-solid fa-box"></i>
                 Ordenes
