@@ -22,9 +22,12 @@ app.use('/api/usuarios', userRoutes);
 
 // Rutas para clasificación de usuarios
 app.use('/api/clasificacion_de_usuarios', rolesRoutes);
+app.use('/api/registro_actividad', regstActv);
 
 // Ruta para ordenes
 app.use('/api/ordenes_de_servicio', ordersRoutes);
+app.use('/api/estado_orden_de_servicio', ordsServ);
+
 
 // Ruta para tipo de servicio
 app.use('/api/tipo_servicio', typeServRoutes);
@@ -33,7 +36,21 @@ app.use('/api/tipo_servicio', typeServRoutes);
 app.use('/api/insumos', productsRoutes);
 
 // Ruta para insumos usados en servicio
-app.use('/api/insumos_usados_en_servicio', prodtsUseService)
+app.use('/api/insumos_usados_en_servicio', prodtsUseService);
+
+// Ruta para imagenes daños
+app.use('/api/imagenes_danos', imgDanos);
+
+// Ruta para motocicleta
+app.use('api/motocicleta', motocicleta);
+app.use('/api/categoria', categoria);
+
+// Ruta para modelo
+app.use('/api/modelo', modelo);
+
+// Ruta para unidad de medida
+app.use('/api/unidad_de_medida', undMed);
+
 
 
 // Rutas autenticación
