@@ -15,6 +15,7 @@ import RolesPage from './pages/roles/RolesPage';
 import OrdersPage from './pages/orders/OrdersPage';
 import TypeServPage from './pages/typeService/TypeServPage';
 import ProductsPage from './pages/products/productsPage';
+import prodtsUseServ from './pages/prdtsUseServ/prodtsUsServPage.jsx'
 
 function App() {
 
@@ -43,6 +44,7 @@ function App() {
           <Route path="orders" element={<OrdersPage />} />
           <Route path="type-services" element={<TypeServPage />} />
           <Route path="insumos" element={<ProductsPage />}/>
+          <Route path="insmUseServ" element={<prodtsUseServ />} />
         </Route>
            
       </Routes>
