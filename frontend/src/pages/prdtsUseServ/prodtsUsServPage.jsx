@@ -24,9 +24,11 @@ function PrUsServPage() {
   }, []);
 
   // Filtrar usuarios según búsqueda
-  const insSerFiltrados = insUsaServ.filter(ts =>
-    (ts.id_insumos_orden  || "").toLowerCase().includes(busqueda.toLowerCase())
-  );
+  const insSerFiltrados = insUsaServ.filter(ts => {
+    // Convertimos el ID a texto con string 
+    const idTexto = String(ts.id_insumos_orden || "");
+    return idTexto.toLowerCase().includes(busqueda.toLowerCase()); 
+  });
 
   // Calcular usuarios de la página actual
   const inicio = (pagina - 1) * porPagina;

@@ -23,7 +23,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setTipServ({...insUsServicio, [name]: value });
+        setInsUsServ({...insUsServicio, [name]: value });
     }
 
     const handleSave = async () => {
@@ -65,24 +65,24 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
 
                     <div className="modal-body">
                         <div className="mb-3">
-                            <label className="form-label">Insumo</label>
+                            <label className="form-label">Orden</label>
                                 <select
                                     className="form-control"
                                     name="id_orden" // Este es el nombre que recibirá el ID
                                     value={insUsServicio.id_orden}
                                     onChange={handleChange}
                                 >
-                                    <option value="">Seleccione código orden</option>
-                                    <option value="ORD-001">Alambre de cobre para bobinado</option>
-                                    <option value="ORD-002">Manguera de Combustible Universal</option>
-                                    <option value="ORD-003">Cable Eléctrico 18 AWG</option>
-                                    <option value="ORD-004">Aceite de Motor 20W50</option>
-                                    <option value="ORD-005">Pastillas de Freno Delanteras</option>
-                                    <option value="ORD-006">Cinta Aislante Eléctrica</option>
-                                    <option value="ORD-007">Soldadura de Estaño y Plomo 60/40</option>
-                                    <option value="ORD-008">Líquido de Frenos DOT 4</option>
-                                    <option value="ORD-009">Pistón Estándar</option>
-                                    <option value="ORD-010">Retén de Aceite de Suspensión Delantera</option>
+                                    <option value=""></option>
+                                    <option value="1">ORD-001</option>
+                                    <option value="2">ORD-002</option>
+                                    <option value="3">ORD-003</option>
+                                    <option value="4">ORD-004</option>
+                                    <option value="5">ORD-005</option>
+                                    <option value="6">ORD-006</option>
+                                    <option value="7">ORD-007</option>
+                                    <option value="8">ORD-008</option>
+                                    <option value="9">ORD-009</option>
+                                    <option value="10">ORD-010</option>
                                 </select>
                         </div>
 
@@ -112,7 +112,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                             <label className="form-label">Cantidad</label>
 
                             <input
-                                type="numeric"
+                                type="number"
                                 className="form-control"
                                 name="cantidad"
                                 value={insUsServicio.cantidad }
@@ -124,7 +124,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                             <label className="form-label">Precio unitario</label>
 
                             <input
-                                type="precio_unitario"
+                                type="number"
                                 className="form-control"
                                 name="precio_unitario"
                                 value={insUsServicio.precio_unitario }

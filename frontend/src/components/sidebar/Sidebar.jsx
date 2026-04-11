@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import './Sidebar.css';
 
 const Sidebar = () => {
+    
     return <div className="menu">
         <div className="name-company">
             <h2>Rocket Service</h2>
@@ -28,7 +29,7 @@ const Sidebar = () => {
                 Insumos
             </Link>
 
-             <Link to="/panel/insmUseServ" className="item">
+             <Link to="/panel/insumos-usados" className="item">
                 <i className="fa-solid fa-box"></i>
                 Insumos usados serv
             </Link>
