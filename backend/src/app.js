@@ -22,11 +22,11 @@ app.use('/api/usuarios', userRoutes);
 
 // Rutas para clasificación de usuarios
 app.use('/api/clasificacion_de_usuarios', rolesRoutes);
-app.use('/api/registro_actividad', regstActv); // Ruta para registro actividad Tecs
+//app.use('/api/registro_actividad', regstActv); // Ruta para registro actividad Tecs
 
 // Ruta para ordenes
 app.use('/api/ordenes_de_servicio', ordersRoutes);
-app.use('/api/estado_orden_de_servicio', estOrdn); // Ruta estado orden servicio
+//app.use('/api/estado_orden_de_servicio', estOrdn); // Ruta estado orden servicio
 
 
 // Ruta para tipo de servicio
@@ -39,17 +39,17 @@ app.use('/api/insumos', productsRoutes);
 app.use('/api/insumos_usados_en_servicio', prodtsUseService);
 
 // Ruta para imagenes daños
-app.use('/api/imagenes_danos', imgDanos); // Ruta para imagenes daños
+//app.use('/api/imagenes_danos', imgDanos); // Ruta para imagenes daños
 
 // Ruta para motocicleta
-app.use('api/motocicleta', motocicleta); // Ruta motocicleta
-app.use('/api/categoria', categoria); // Ruta para categoria
+//app.use('api/motocicleta', motocicleta); // Ruta motocicleta
+//app.use('/api/categoria', categoria); // Ruta para categoria
 
 // Ruta para modelo
-app.use('/api/modelo', modelo); // Ruta para modelo
+//app.use('/api/modelo', modelo); // Ruta para modelo
 
 // Ruta para unidad de medida
-app.use('/api/unidad_de_medida', undMed); // Ruta para unidad de medida
+// app.use('/api/unidad_de_medida', undMed); // Ruta para unidad de medida
 
 
 
