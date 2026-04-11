@@ -33,7 +33,7 @@ app.use('/api/tipo_servicio', typeServRoutes);
 app.use('/api/insumos', productsRoutes);
 
 // Ruta para insumos usados en servicio
-app.use('api/insumosUsados')
+app.use('api/insumosUsados', prodtsUseService)
 
 
 // Rutas autenticación
