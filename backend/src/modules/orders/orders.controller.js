@@ -1,4 +1,4 @@
-// en la constante usuario se guarda los datos de endPoint agregar, eliminar, actualizar y listar de la tabla usuario
+
 import ordenes_de_servicio from './orders.model.js';
 
 export const listarOrden = async (req, res) => {
@@ -24,9 +24,9 @@ export const obtenerOrden = async (req, res) => {
 
 export const crearOrden = async (req, res) => {
     try {
-        const { codigo_orden , id_moto , id_usuario , id_tecnico_asignado, id_tipo_servicio , id_estado_de_servicio, fecha_de_creacion, fecha_finalizacion_estimada, descripcion_del_problema } = req.body; // Campos que se envian desde el frontend
+        const { codigo_orden , id_moto , id_usuario , id_tecnico_asignado, id_tipo_servicio , id_estado_de_servicio, fecha_finalizacion_estimada, descripcion_del_problema } = req.body; // Campos que se envian desde el frontend
 
-        if (!codigo_orden || !id_moto || !id_usuario || !id_tecnico_asignado, id_tipo_servicio, id_estado_de_servicio, fecha_de_creacion, fecha_finalizacion_estimada, descripcion_del_problema) {
+        if (!codigo_orden || !id_moto || !id_usuario || !id_tecnico_asignado, id_tipo_servicio, id_estado_de_servicio, fecha_finalizacion_estimada, descripcion_del_problema) {
             return res.status(400).json({ 
                 message: "Todos los campos son obligatorios" 
             });
