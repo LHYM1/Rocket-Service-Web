@@ -9,13 +9,20 @@ const ModalOrdenServicio = ({ idSeleccionado, onClose, onSuccess }) => {
     id_tecnico_asignado: "",
     id_tipo_servicio: "",
     id_estado_de_servicio: "",
-    //fecha_de_creacion: "",
     fecha_finalizacion_estimada: "",
     descripcion_del_problema: ""
   });
 
   useEffect(() => {
     if (idSeleccionado) {
+
+      // Función para formatear la fecha al estilo "yyyy-MM-ddThh:mm"
+      const formatFecha = (fechaISO) => {
+        if (!fechaISO) return "";
+        // Cortamos la cadena para eliminar los milisegundos y la Z
+        return fechaISO.substring(0, 16); 
+      }
+
       setOrden({
         codigo_orden: idSeleccionado.codigo_orden,
         id_moto: idSeleccionado.id_moto,
@@ -23,8 +30,7 @@ const ModalOrdenServicio = ({ idSeleccionado, onClose, onSuccess }) => {
         id_tecnico_asignado: idSeleccionado.id_tecnico_asignado,
         id_tipo_servicio: idSeleccionado.id_tipo_servicio,
         id_estado_de_servicio: idSeleccionado.id_estado_de_servicio,
-        fecha_de_creacion: idSeleccionado.fecha_de_creacion,
-        fecha_finalizacion_estimada: idSeleccionado.fecha_finalizacion_estimada,
+        fecha_finalizacion_estimada: formatFecha(idSeleccionado.fecha_finalizacion_estimada),
         descripcion_del_problema: idSeleccionado.descripcion_del_problema,
       });
     }
@@ -76,7 +82,7 @@ const ModalOrdenServicio = ({ idSeleccionado, onClose, onSuccess }) => {
               <div className="col-md-6 mb-3">
                 
                 <label className="form-label">Código Orden</label>
-                <input type="text" className="form-control" name="codigo_orden" value={orden.codigo_orden} onChange={handleChange} />
+                <input type="text" className="form-control" name="codigo_orden" value={orden.codigo_orden} onChange={handleChange} disabled={!!idSeleccionado} />
 
               </div>
 
@@ -88,55 +94,52 @@ const ModalOrdenServicio = ({ idSeleccionado, onClose, onSuccess }) => {
                   name="id_moto" // Este es el nombre que recibirá el ID
                   value={orden.id_moto}
                   onChange={handleChange}
+                  disabled={!!idSeleccionado} // Bloqueo editar
                 >
 
                   <option value="">Seleccione la placa</option>
-                  <option value="1">M001</option>
-                  <option value="2">M002</option>
-                  <option value="3">M003</option>
-                  <option value="4">M004</option>
-                  <option value="5">M005</option>
-                  <option value="6">M006</option>
-                  <option value="7">M007</option>
-                  <option value="8">M008</option>
-                  <option value="9">M009</option>
-                  <option value="10">M010</option>
-                  <option value="11">M011</option>
+                  <option value="1">COZ 89B</option>
+                  <option value="2">YHT 87U</option>
+                  <option value="3">ETY 45P</option>
+                  <option value="4">URT 48M</option>
+                  <option value="5">LRT 64K</option>
+                  <option value="6">MNQ 90D</option>
+                  <option value="7">ABC 01E</option>
+                  <option value="8">DEF 02F</option>
+                  <option value="9">GHI 03G</option>
+                  <option value="10">JKL 04H</option>
+                  <option value="11">IJK 89H</option>
                 </select>
               </div>
 
               {/* usuarios */}
               <div className="col-md-6 mb-3">
-                <label className="form-label">Usuarios</label>
+                <label className="form-label">Cliente</label>
 
                 <select
                     className="form-control"
                     name="id_usuario" // Este es el nombre que recibirá el ID
                     value={orden.id_usuario}
                     onChange={handleChange}
+                    disabled={!!idSeleccionado} // Se desabilita solo cuando estamos editando
                   >
 
-                    <option value="">Seleccione el usuario</option>
+                    <option value="">Seleccione el cliente</option>
                     <option value="1">Juan Pérez</option>
                     <option value="2">Carlos Castañeda</option>
                     <option value="3">Luis Suarez</option>
                     <option value="4">Andrés Órtiz</option>
-                    <option value="5">Juan Cortez</option>
-                    <option value="6">Miguel Valencia</option>
-                    <option value="7">Felipe Ruiz</option>
-                    <option value="8">Camilo Sánchez</option>
                     <option value="9">Armando Espinoza</option>
                     <option value="10">José Garcia</option>
                     <option value="11">Alberto Huertas</option>
                     <option value="12">Tomas Alba</option>
-                    <option value="13">Nicolas Benitez</option>
-                    <option value="14">Juan Vargas</option>
                     <option value="16">Carlos Perez</option>
                     <option value="19">Juan Huertas</option>
-                    <option value="20">Nicolas Florez</option>
-                    <option value="21">Kevin Vargas</option>
-                    <option value="22">Juan Pérez</option>
                   </select>
+
+                  {idSeleccionado && (
+                    <small className="text-muted">El cliente no se puede modificar en una orden existente.</small>
+                  )}
               </div>
 
               <div className="col-md-6 mb-3">
@@ -149,14 +152,13 @@ const ModalOrdenServicio = ({ idSeleccionado, onClose, onSuccess }) => {
                     onChange={handleChange}
                 >
 
-                  <option value="">
+                    <option value="">Seleccione un técnico</option>
                     <option value="5">Juan Cortez</option>
                     <option value="6">Miguel Valencia</option>
                     <option value="7">Felipe Ruiz</option>
                     <option value="8">Camilo Sánchez</option>
                     <option value="13">Nicolas Benitez</option>
                     <option value="22">Juan Pérez</option>
-                  </option>
                 </select>
               </div>
 
@@ -165,7 +167,7 @@ const ModalOrdenServicio = ({ idSeleccionado, onClose, onSuccess }) => {
 
                 <select
                   className="form-control"
-                  name="id_tipo_servicio " // Este es el nombre que recibirá el ID
+                  name="id_tipo_servicio" // Este es el nombre que recibirá el ID
                   value={orden.id_tipo_servicio}
                   onChange={handleChange}
                 >
