@@ -1,6 +1,8 @@
 .menu {
     background-color: rgb(57, 57, 57); 
     flex-direction: column;
+    height: 100vh; 
+    display: flex;
     gap: 2.3rem;
     height: 100%;
     padding: 1rem;   
@@ -18,8 +20,17 @@
 .menu-list {
     width: 100%;
     display: flex;
+    white-space: nowrap; 
+    overflow-y: auto;
     flex-direction: column;
     align-items: flex-start;
+}
+
+.item {
+    flex: 0 0 auto;        
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .menu-list .item {
