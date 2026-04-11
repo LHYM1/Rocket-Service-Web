@@ -9,6 +9,7 @@ import rolesRoutes from './modules/roles/roles.routes.js';
 import ordersRoutes from './modules/orders/orders.routes.js';
 import typeServRoutes from './modules/typeService/type.service.routes.js';
 import productsRoutes from './modules/products/products.routes.js';
+import prodtsUseService from './modules/prodtsUseService/prodtsUseServ.routes.js'
 
 
 const app = express();
@@ -30,6 +31,9 @@ app.use('/api/tipo_servicio', typeServRoutes);
 
 // Ruta para insumos
 app.use('/api/insumos', productsRoutes);
+
+// Ruta para insumos usados en servicio
+app.use('api/insumosUsados')
 
 
 // Rutas autenticación
