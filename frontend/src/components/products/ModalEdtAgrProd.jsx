@@ -30,7 +30,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
     // useEffect para cargar categorias y unidades
     useEffect(() => {
         const fetchData = async () => {
-            const categoria = await axios.get("http://localhost:4000/api/categorias/listar");
+            const categoria = await axios.get("http://localhost:4000/api/categoria/listar");
             setCategorias(categoria.data);
 
             const unidad = await axios.get("http://localhost:4000/api/unidad_de_medida/listar");
