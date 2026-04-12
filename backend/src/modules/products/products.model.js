@@ -5,7 +5,6 @@ const product = {
         const [rows] = await db.query(
             `SELECT 
                 p.id_insumo,
-                p.codigo_insumo,
                 ct.nombre AS categoria,
                 und.nombre AS unidad_de_medida,
                 p.nombre_insumo,
