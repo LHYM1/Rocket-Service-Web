@@ -12,6 +12,7 @@ import productsRoutes from './modules/products/products.routes.js';
 import prodtsUseService from './modules/prodtsUseService/prodtsUseServ.routes.js'
 
 import registActvRoutes from './modules/regstActv/regtAct.routes.js';
+import imagenesDanos from './modules/imgDanos/img.routes.js';
 
 const app = express();
 
@@ -40,7 +41,7 @@ app.use('/api/insumos', productsRoutes);
 app.use('/api/insumos_usados_en_servicio', prodtsUseService);
 
 // Ruta para imagenes daños
-//app.use('/api/imagenes_danos', imgDanos); // Ruta para imagenes daños
+app.use('/api/imagenes_danos', imagenesDanos); 
 
 // Ruta para motocicleta
 //app.use('api/motocicleta', motocicleta); // Ruta motocicleta
