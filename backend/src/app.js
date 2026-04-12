@@ -11,6 +11,7 @@ import typeServRoutes from './modules/typeService/type.service.routes.js';
 import productsRoutes from './modules/products/products.routes.js';
 import prodtsUseService from './modules/prodtsUseService/prodtsUseServ.routes.js'
 
+import registActvRoutes from './modules/regstActv/regtAct.routes.js';
 
 const app = express();
 
@@ -22,7 +23,7 @@ app.use('/api/usuarios', userRoutes);
 
 // Rutas para clasificación de usuarios
 app.use('/api/clasificacion_de_usuarios', rolesRoutes);
-//app.use('/api/registro_actividad', regstActv); // Ruta para registro actividad Tecs
+app.use('/api/registro_actividad', registActvRoutes); // Ruta para registro actividad Tecs
 
 // Ruta para ordenes
 app.use('/api/ordenes_de_servicio', ordersRoutes);
