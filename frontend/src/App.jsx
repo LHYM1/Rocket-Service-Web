@@ -15,7 +15,8 @@ import RolesPage from './pages/roles/RolesPage';
 import OrdersPage from './pages/orders/OrdersPage';
 import TypeServPage from './pages/typeService/TypeServPage';
 import ProductsPage from './pages/products/productsPage';
-import ProdtsUseServ from './pages/prdtsUseServ/prodtsUsServPage.jsx'
+import ProdtsUseServ from './pages/prdtsUseServ/prodtsUsServPage.jsx';
+import RegistActv from './pages/regstActv/regstActvPage.jsx';
 
 function App() {
 
@@ -41,6 +42,7 @@ function App() {
           <Route path="reports" element={<Report />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="roles" element={<RolesPage />} />
+          <Route path="regist-act" element={<RegistActv />} />
           <Route path="orders" element={<OrdersPage />} />
           <Route path="type-services" element={<TypeServPage />} />
           <Route path="insumos" element={<ProductsPage />}/>

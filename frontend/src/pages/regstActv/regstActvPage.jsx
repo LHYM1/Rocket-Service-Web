@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import RegActAgrEdt from "../../components/regstActv/regActAgrEdt";
-import RegstActvTable from "../../components/regstActv/TablePrUSer";
+import regActAgrEdt from "../../components/regstActv/regActAgrEdt";
+import regstActvTable from "../../components/regstActv/TablePrUSer";
 
 function regActPage() {
   const [regstActv, setRegAct] = useState([]);
@@ -62,7 +62,7 @@ function regActPage() {
       </div>
 
       {/* Tabla */}
-      <RegstActvTable
+      <regstActvTable
         regstActv={paginados}
         setIdSeleccionado={(ts) => {
           setIdSeleccionado(ts);
@@ -100,7 +100,7 @@ function regActPage() {
 
       {/* Modal de agregar/editar */}
       {showModal && (
-        <RegActAgrEdt
+        <regActAgrEdt
           idSeleccionado={idSeleccionado}
           regstActv={regstActv}
           onClose={() => setShowModal(false)}

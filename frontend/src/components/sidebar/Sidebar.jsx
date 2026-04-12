@@ -24,6 +24,11 @@ const Sidebar = () => {
                 Roles
             </Link>
 
+            <Link to="/panel/regist-act" className="item">
+                <i class="fa-solid fa-calendar"></i>
+                Registro actividad
+            </Link>
+
             <Link to="/panel/insumos" className="item">
                 <i className="fa-solid fa-box"></i>
                 Insumos
