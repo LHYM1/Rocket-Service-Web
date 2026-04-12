@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import regActAgrEdt from "../../components/regstActv/regActAgrEdt";
-import regstActvTable from "../../components/regstActv/TablePrUSer";
+import RegActAgrEdt from "../../components/regstActv/regActAgrEdt.jsx";
+import RegstActvTable from "../../components/regstActv/regstActvTable.jsx";
 
 function regActPage() {
   const [regstActv, setRegAct] = useState([]);
@@ -24,9 +24,9 @@ function regActPage() {
   }, []);
 
   // Filtrar registros de actividad según búsqueda
-  const regActFiltrados = regstActv.filter(rg => {
-    (rg.estado_disponibilidad || "").toLowerCase().includes(busqueda.toLowerCase()); 
-  });
+  const regActFiltrados = regstActv.filter(rg => 
+    (rg.estado_disponibilidad || "").toLowerCase().includes(busqueda.toLowerCase())
+  );
 
   // Calcular registros de la página actual
   const inicio = (pagina - 1) * porPagina;
@@ -34,7 +34,7 @@ function regActPage() {
   const paginados = regActFiltrados.slice(inicio, fin);
 
   // Número total de páginas
-  const totalPaginas = Math.ceil(insSerFiltrados.length / porPagina);
+  const totalPaginas = Math.ceil(regActFiltrados.length / porPagina);
 
   return (
     <div className="container mt-4">
@@ -62,7 +62,7 @@ function regActPage() {
       </div>
 
       {/* Tabla */}
-      <regstActvTable
+      <RegstActvTable
         regstActv={paginados}
         setIdSeleccionado={(ts) => {
           setIdSeleccionado(ts);
@@ -100,7 +100,7 @@ function regActPage() {
 
       {/* Modal de agregar/editar */}
       {showModal && (
-        <regActAgrEdt
+        <RegActAgrEdt
           idSeleccionado={idSeleccionado}
           regstActv={regstActv}
           onClose={() => setShowModal(false)}

@@ -2,6 +2,7 @@ import axios from 'axios'
 
 function regstActTable ({ regstActv, setIdSeleccionado, getRegAct }) {
 
+
     const nombresTecnicos = {
         "5": "Juan Cortez",
         "6": "Miguel Valencia",
@@ -24,6 +25,11 @@ function regstActTable ({ regstActv, setIdSeleccionado, getRegAct }) {
         "10": "ORD-010"
     }
 
+    const estadoDisponibilidad = {
+        "Disponible": "Disponible",
+        "Realizando servicio": "Realizando servicio",
+        "Fuera de jornada": "Fuera de jornada"
+    }
 
     if (!regstActv || !Array.isArray(regstActv)) {
         return <p>No hay registros de actividad disponibles</p>;
@@ -67,20 +73,25 @@ function regstActTable ({ regstActv, setIdSeleccionado, getRegAct }) {
                         <tr key={reg.id_registro }>
                             <td>{reg.id_registro}</td> 
                             <td>{reg.codigo_registro}</td>
-                            <td>{codigosOrdenes[reg.id_orden] || "Nod definido"}</td>
-                            <td>{nombresTecnicos[reg.id_usuario ] || "No definido"}</td>
-                            <td>{reg.estado_disponibilidad}</td>
-                    
+                            <td>{codigosOrdenes[reg.id_orden] || "No definido"}</td>
+                            <td>{nombresTecnicos[reg.id_usuario ] || "No asignado"}</td>
+                            <td>{estadoDisponibilidad[reg.estado_disponibilidad] || "por definir"}</td>
+
                             <td>
-                                <button onClick={() => setIdSeleccionado(ts)}
-                                    type="button" className="btn btn-warning btn-color">
+                                <button 
+                                    className="btn btn-warning" 
+                                    onClick={() => setIdSeleccionado(reg)}
+                                >
                                     Editar
                                 </button>
-
-                                <button onClick={() => elimRegAct(ts.id_registro)}
+                        
+                                {/**
+                                 * <button onClick={() => elimRegAct(reg.id_registro)}
                                     type="button" className="btn btn-danger btn-color">
                                     Eliminar
                                 </button>
+                                 */}
+                                
                             </td>
                         </tr>                    
                     ))}

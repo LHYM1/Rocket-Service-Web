@@ -54,6 +54,10 @@ function Iniciarsesion() {
             // guardar token
             localStorage.setItem("token", data.token);
 
+            if (data.user && data.user.rol) {
+                localStorage.setItem("rol", data.user.rol); 
+            }
+
             alert("Inicio de sesión exitoso.");
 
             navigate("/panel");

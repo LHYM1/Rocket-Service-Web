@@ -25,7 +25,7 @@ const Sidebar = () => {
             </Link>
 
             <Link to="/panel/regist-act" className="item">
-                <i class="fa-solid fa-calendar"></i>
+                <i className="fa-solid fa-calendar"></i>
                 Registro actividad
             </Link>
 
@@ -40,7 +40,7 @@ const Sidebar = () => {
             </Link>
 
             <Link to="/panel/orders" className="item">
-                <i className="fa-solid fa-box"></i>
+                <i className="fa-solid fa-business-time"></i>
                 Ordenes
             </Link>
 

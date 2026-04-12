@@ -6,14 +6,13 @@ const regActAgrEdt = ({ idSeleccionado, onClose, onSuccess }) => {
         codigo_registro: "",
         id_orden: "",
         id_usuario: "",
-        estado_disponibilidad
+        estado_disponibilidad: ""
     });
 
     // useEffect para precargar datos de DB si hay un idSeleccionado
     useEffect(() => {
         if (idSeleccionado) {
             setRegAct({
-                id_registro: idSeleccionado.id_registro,
                 codigo_registro: idSeleccionado.codigo_registro, 
                 id_orden: idSeleccionado.id_orden,
                 id_usuario: idSeleccionado.id_usuario,
@@ -24,7 +23,7 @@ const regActAgrEdt = ({ idSeleccionado, onClose, onSuccess }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setInsUsServ({...regstActv, [name]: value });
+        setRegAct({...regstActv, [name]: value });
     }
 
     const handleSave = async () => {
@@ -83,7 +82,7 @@ const regActAgrEdt = ({ idSeleccionado, onClose, onSuccess }) => {
                                     className="form-control"
                                     name="id_orden" // Este es el nombre que recibirá el ID
                                     value={regstActv.id_orden}
-                                    onChange={handleChange}
+                                    onChange={handleChange} disabled={!!idSeleccionado}
                                 >
                                     <option value=""></option>
                                     <option value="1">ORD-001</option>
@@ -119,16 +118,21 @@ const regActAgrEdt = ({ idSeleccionado, onClose, onSuccess }) => {
                             </select>
                         </div>
 
-                        <div className="mb-3">
-                            <label className="form-label">Disponibilidad</label>
+                        <div className="col-md-6 mb-3">
+                            <label className="form-label">Estado disponibilidad</label>
 
-                            <input
-                                type="text"
+                            <select
                                 className="form-control"
-                                name="estado_disponibilidad"
+                                name="estado_disponibilidad" // Este es el nombre que recibirá el ID
                                 value={regstActv.estado_disponibilidad }
-                                onChange={handleChange}
-                            />
+                                onChange={handleChange} disabled={!!idSeleccionado}
+                            >
+
+                                <option value="">Seleccione un estado</option>
+                                <option value="Disponible">Disponible</option>
+                                <option value="Fuera de jornada">Fuera de jornada</option>
+                                <option value="Realizando servicio">Realizando servicio</option>
+                            </select>
                         </div>
 
                     </div>
