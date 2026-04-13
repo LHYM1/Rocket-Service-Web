@@ -34,11 +34,9 @@ function TableProdts ({ product, setIdSeleccionado, getProduct }) {
                 <thead className="table-light">
                     <tr>
                         <th>Id</th>
-                        <th>Código</th>
                         <th>Categoria</th>
                         <th>Medida</th>
-                        <th>Nombre</th>
-                        <th>Precio</th>
+                        <th>Nombre insumo</th>
                         
                         <th>Acciones</th>
                     </tr>
@@ -48,13 +46,10 @@ function TableProdts ({ product, setIdSeleccionado, getProduct }) {
                     {product.map((p) => (
                         <tr key={p.id_insumo}>
                             <td>{p.id_insumo}</td>
-                            <td>{p.codigo_insumo}</td>
                             <td>{p.categoria }</td> 
                             <td>{p.unidad_de_medida}</td>
                             <td>{p.nombre_insumo}</td>
-                            <td>{p.precio_base}</td>
-                        
-
+                    
                             <td>
                                 <button onClick={() => setIdSeleccionado(p)}
                                     type="button" className="btn btn-warning btn-color">

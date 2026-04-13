@@ -3,11 +3,9 @@ import axios from "axios";
 
 const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
     const [ insumo, setInsumo ] = useState({
-        codigo_insumo: "",
         id_categoria : "",
         id_unidad : "",
         nombre_insumo: "",
-        precio_base: ""
     });
 
     // Para cargar categorías y unidades en los select
@@ -18,11 +16,9 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
     useEffect(() => {
         if (idSeleccionado) {
             setInsumo({
-                codigo_insumo: idSeleccionado.codigo_insumo,
                 id_categoria: idSeleccionado.id_categoria, 
                 id_unidad: idSeleccionado.id_unidad,
                 nombre_insumo: idSeleccionado.nombre_insumo,
-                precio_base: idSeleccionado.precio_base
             })
         }
     }, [idSeleccionado]);
@@ -44,12 +40,13 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
         setInsumo({...insumo, [name]: value });
     }
 
+
     const handleSave = async () => {
         try {
             if (idSeleccionado) {
                 // Editar
                 await axios.put(
-                    `http://localhost:4000/api/insumos/modificar/${idSeleccionado.id_insumo  }`, insumo
+                    `http://localhost:4000/api/insumos/modificar/${idSeleccionado.id_insumo}`, insumo
                 );
                 alert("Insumo actualizado con éxito");
             } else {
@@ -63,7 +60,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
             onSuccess();
             onClose();
         } catch (error) {
-            console.error("Error al guardar:", error);
+            console.error("Detalle del error:", error.response ? error.response.data : error.message);
             alert("Hubo un error al guardar el insumo");
         }
     };
@@ -82,18 +79,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                 </div>
 
                 <div className="modal-body">
-                    <div className="mb-3">
-                        <label className="form-label">Código Insumo</label>
-
-                        <input
-                            type="text"
-                            className="form-control"
-                            name="codigo_insumo"
-                            value={insumo.codigo_insumo}
-                            onChange={handleChange}
-                        />
-                    </div>
-
+    
                     { /* Seleccionar categoria tabla categoria  */ }
                     <div className="mb-3">
                         <label className="form-label">Categoria</label>
@@ -105,7 +91,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                             required
                         >
 
-                            {/* Seleccionar técnico */}
+                            {/* Seleccionar categoria */}
                             <option value="">Seleccione una categoria</option>
                             {categorias.map((cat) => (
                                 <option key={cat.id_categoria} value={cat.id_categoria}>
@@ -121,7 +107,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                         <select 
                             className="form-select" 
                             name="id_unidad" 
-                            value={insumo.id_unidad } 
+                            value={insumo.id_unidad} 
                             onChange={handleChange} 
                             required
                         >
@@ -130,7 +116,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                             <option value="">Seleccione una unidad de medida</option>
                             {unidades.map((ins) => (
                                 <option key={ins.id_unidad} value={ins.id_unidad}>
-                                 {ins.nombre} {ins.simbolo} 
+                                 {ins.nombre}
                                 </option>
                                 
                             ))}
@@ -144,17 +130,6 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                             className="form-control"
                             name="nombre_insumo"
                             value={insumo.nombre_insumo}
-                            onChange={handleChange}
-                        />
-                    </div>
-
-                     <div className="mb-3">
-                        <label className="form-label">Precio base</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            name="nombre_insumo"
-                            value={insumo.precio_base}
                             onChange={handleChange}
                         />
                     </div>
