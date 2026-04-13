@@ -15,6 +15,7 @@ import registActvRoutes from './modules/regstActv/regtAct.routes.js';
 import imagenesDanos from './modules/imgDanos/img.routes.js';
 import moto from './modules/motocicleta/moto.routes.js';
 import modeloMot from './modules/modelo/modeloMot.routes.js';
+import estadoOrden from './modules/estOrdn/estadoOrdn.routes.js';
 
 const app = express();
 
@@ -30,7 +31,7 @@ app.use('/api/registro_actividad', registActvRoutes); // Ruta para registro acti
 
 // Ruta para ordenes
 app.use('/api/ordenes_de_servicio', ordersRoutes);
-//app.use('/api/estado_orden_de_servicio', estOrdn); // Ruta estado orden servicio
+app.use('/api/estado_de_orden_de_servicio', estadoOrden); // Ruta estado orden servicio
 
 
 // Ruta para tipo de servicio
