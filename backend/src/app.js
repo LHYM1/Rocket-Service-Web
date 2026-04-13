@@ -16,6 +16,7 @@ import imagenesDanos from './modules/imgDanos/img.routes.js';
 import moto from './modules/motocicleta/moto.routes.js';
 import modeloMot from './modules/modelo/modeloMot.routes.js';
 import estadoOrden from './modules/estOrdn/estadoOrdn.routes.js';
+import categoriaInsumos from './modules/categoria/categoriaProd.routes.js';
 
 const app = express();
 
@@ -49,7 +50,7 @@ app.use('/uploads', express.static('uploads'));
 
 // Ruta para motocicleta
 app.use('/api/motocicleta', moto); // Ruta motocicleta
-//app.use('/api/categoria', categoria); // Ruta para categoria
+app.use('/api/categoria', categoriaInsumos); // Ruta para categoria insumos
 
 // Ruta para modelo motocicleta
 app.use('/api/modelo', modeloMot); // Ruta para modelo

@@ -1,7 +1,7 @@
 
 import motocicleta from './model.motocicleta.js';
 
-export const litarMotocicleta = async (req, res) => {
+export const listarMotocicleta = async (req, res) => {
 
     try {
         const moto = await motocicleta.findAll();
@@ -70,7 +70,7 @@ export const eliminarMoto = async (req, res) => {
 };
 
 export default {
-    litarMotocicleta,
+    listarMotocicleta,
     obtenerMoto,   
     crearMoto,
     actualizarMot,
