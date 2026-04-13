@@ -50,7 +50,7 @@ app.use('/api/imagenes_danos', imagenesDanos)
 app.use('/uploads', express.static('uploads'));
 
 // Ruta para motocicleta
-app.use('/api/motocicleta', moto); // Ruta motocicleta
+app.use('/api/motocicleta', moto); 
 app.use('/api/categoria', categoriaInsumos); // Ruta para categoria insumos
 
 // Ruta para modelo motocicleta
