@@ -17,6 +17,7 @@ import moto from './modules/motocicleta/moto.routes.js';
 import modeloMot from './modules/modelo/modeloMot.routes.js';
 import estadoOrden from './modules/estOrdn/estadoOrdn.routes.js';
 import categoriaInsumos from './modules/categoria/categoriaProd.routes.js';
+import unidadMedida from './modules/undMed/undMed.routes.js';   
 
 const app = express();
 
@@ -56,8 +57,7 @@ app.use('/api/categoria', categoriaInsumos); // Ruta para categoria insumos
 app.use('/api/modelo', modeloMot); // Ruta para modelo
 
 // Ruta para unidad de medida
-// app.use('/api/unidad_de_medida', undMed); // Ruta para unidad de medida
-
+app.use('/api/unidad_de_medida', unidadMedida); 
 
 
 // Rutas autenticación
