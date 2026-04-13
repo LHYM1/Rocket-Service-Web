@@ -17,6 +17,7 @@ import TypeServPage from './pages/typeService/TypeServPage';
 import ProductsPage from './pages/products/productsPage';
 import ProdtsUseServ from './pages/prdtsUseServ/prodtsUsServPage.jsx';
 import RegistActv from './pages/regstActv/regstActvPage.jsx';
+import ImagDanos from './pages/imgDanos/PageImg.jsx';
 
 function App() {
 
@@ -47,6 +48,20 @@ function App() {
           <Route path="type-services" element={<TypeServPage />} />
           <Route path="insumos" element={<ProductsPage />}/>
           <Route path="insumos-usados" element={<ProdtsUseServ />} />
+          <Route path="imagenes-danos" element={<ImagDanos />} />
+        
+        </Route>
+
+        <Route 
+          path="/panel" 
+          element={
+            <ProtectedRoute allowedRoles={["Téccnico"]}>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+
+          <Route path="imagenes-danos" element={<ImagDanos />} />
         </Route>
            
       </Routes>

@@ -34,6 +34,11 @@ const Sidebar = () => {
                 Insumos
             </Link>
 
+            <Link to="/panel/imagenes-danos" className="item">
+                <i className="fa-solid fa-photo-film"></i>
+                Imagenes
+            </Link>
+
              <Link to="/panel/insumos-usados" className="item">
                 <i className="fa-solid fa-box"></i>
                 Insumos usados serv
