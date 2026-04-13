@@ -23,12 +23,10 @@ export const obtenerTypeServ = async (req, res) => {
 export const crearTypeServ = async (req, res) => {
     try {
         const {
-            codigo_tipo_servicio, nombre_servicio, 
-            descripcion_servicio, costo_servicio
+            nombre_servicio, 
         } = req.body;
         
-        if (!codigo_tipo_servicio || !nombre_servicio ||
-            !descripcion_servicio || !costo_servicio) {
+        if (!nombre_servicio) {
             return res.status(400).json({ 
                 message: "Todos los campos son obligatorios" 
             });

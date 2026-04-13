@@ -17,17 +17,15 @@ const typeService = {
     // crear
     create: async (data) => {
         const {
-            codigo_tipo_servicio,
             nombre_servicio,
             descripcion_servicio,
-            costo_servicio
         } = data;
 
         const [result] = await db.query(
-            `INSERT INTO tipo_servicio (codigo_tipo_servicio, nombre_servicio,
-            descripcion_servicio, costo_servicio) VALUES (?, ?, ?, ?)`,
+            `INSERT INTO tipo_servicio (nombre_servicio,
+            descripcion_servicio) VALUES (?, ?)`,
 
-            [codigo_tipo_servicio, nombre_servicio, descripcion_servicio, costo_servicio]
+            [nombre_servicio, descripcion_servicio]
         );
         return result.insertId;
     },
@@ -35,22 +33,18 @@ const typeService = {
     // actualizar
     update : async (id, data) => {
         const {
-            codigo_tipo_servicio,
             nombre_servicio,
-            descripcion_servicio,
-            costo_servicio
+            descripcion_servicio
         } = data;
 
         const [result] = await db.query (
-            `UPDATE tipo_servicio SET codigo_tipo_servicio = ?,
-            nombre_servicio = ?, descripcion_servicio = ?,
-            costo_servicio = ? WHERE id_tipo_servicio = ?`,
+            `UPDATE tipo_servicio SET
+            nombre_servicio = ?, descripcion_servicio = ?
+            WHERE id_tipo_servicio = ?`,
 
             [
-                codigo_tipo_servicio,
                 nombre_servicio,
                 descripcion_servicio,
-                costo_servicio,
                 id
             ]
         );
@@ -67,5 +61,5 @@ const typeService = {
 
 }; 
 
-// 2. Cambiamos module.exports por export default
+// Cambiamos module.exports por export default
 export default typeService;
