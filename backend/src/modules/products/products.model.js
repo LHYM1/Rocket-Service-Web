@@ -6,9 +6,13 @@ const product = {
             `SELECT 
                 p.id_insumo,
                 ct.nombre AS categoria,
+                ct.id_categoria,
+
                 und.nombre AS unidad_de_medida,
-                p.nombre_insumo,
-                p.precio_base
+                und.id_unidad,
+            
+                p.nombre_insumo
+
             FROM insumos p
             LEFT JOIN categoria ct ON p.id_categoria = ct.id_categoria
             LEFT JOIN unidad_de_medida und ON p.id_unidad = und.id_unidad
@@ -26,16 +30,16 @@ const product = {
     // crear
     create: async (data) => {
         const {
-            codigo_insumo,
-            nombre_insumo,
-            precio_base
+            id_categoria,
+            id_unidad,
+            nombre_insumo
         } = data;
 
         const [result] = await db.query(
-            `INSERT INTO insumos (codigo_insumo, nombre_insumo,
-            precio_base) VALUES (?, ?, ?)`,
+            `INSERT INTO insumos (id_categoria, id_unidad,
+            nombre_insumo) VALUES (?, ?, ?)`,
 
-            [codigo_insumo, nombre_insumo, precio_base]
+            [id_categoria, id_unidad, nombre_insumo]
         );
         return result.insertId;
     },
@@ -43,25 +47,19 @@ const product = {
     // actualizar
     update : async (id, data) => {
         const {
-            codigo_insumo,
             id_categoria, 
             id_unidad,
             nombre_insumo,
-            precio_base
         } = data;
 
         const [result] = await db.query (
-            `UPDATE insumos SET codigo_insumo = ?,
-            id_categoria = ?, id_unidad = ?,
-            nombre_insumo = ?, precio_base 
-            WHERE id_insumo = ?`,
+            `UPDATE insumos SET id_categoria = ?,
+            id_unidad = ?, nombre_insumo = ? WHERE id_insumo = ?`,
 
             [
-                codigo_insumo,
                 id_categoria,
                 id_unidad,
                 nombre_insumo,
-                precio_base,
                 id
             ]
         );
@@ -71,7 +69,7 @@ const product = {
     // eliminar
     delete: async (id) => {
         const [result] = await db.query(
-            `DELETE FROM insumos WHERE id_insumo  = ?`, [id]
+            `DELETE FROM insumos WHERE id_insumo = ?`, [id]
         );
         return result.affectedRows > 0;
     }

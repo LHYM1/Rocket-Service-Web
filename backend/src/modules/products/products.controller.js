@@ -1,4 +1,4 @@
-// en la constante insumos se guarda los datos de endPoint agregar, eliminar, actualizar y listar de la tabla insumos
+
 import insumos from './products.model.js';
 
 export const listarInsumo = async (req, res) => {
@@ -24,15 +24,15 @@ export const obtenerInsumo = async (req, res) => {
 
 export const crearInsumo = async (req, res) => {
     try {
-        const { codigo_insumo, nombre_insumo, precio_base } = req.body; 
+        const { id_categoria , id_unidad, nombre_insumo } = req.body; 
 
-        if (!codigo_insumo || !nombre_insumo || !precio_base) {
+        if (!id_categoria || !id_unidad || !nombre_insumo ) {
             return res.status(400).json({ 
                 message: "Todos los campos son obligatorios" 
             });
         }
         
-        const id = await usuarios.create(req.body);
+        const id = await insumos.create(req.body);
 
         res.status(201).json({ 
             message: "Insumo creado correctamente",
