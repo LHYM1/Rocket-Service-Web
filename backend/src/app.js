@@ -14,6 +14,7 @@ import prodtsUseService from './modules/prodtsUseService/prodtsUseServ.routes.js
 import registActvRoutes from './modules/regstActv/regtAct.routes.js';
 import imagenesDanos from './modules/imgDanos/img.routes.js';
 import moto from './modules/motocicleta/moto.routes.js';
+import modeloMot from './modules/modelo/modeloMot.routes.js';
 
 const app = express();
 
@@ -49,8 +50,8 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/motocicleta', moto); // Ruta motocicleta
 //app.use('/api/categoria', categoria); // Ruta para categoria
 
-// Ruta para modelo
-//app.use('/api/modelo', modelo); // Ruta para modelo
+// Ruta para modelo motocicleta
+app.use('/api/modelo', modeloMot); // Ruta para modelo
 
 // Ruta para unidad de medida
 // app.use('/api/unidad_de_medida', undMed); // Ruta para unidad de medida
