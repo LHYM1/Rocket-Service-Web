@@ -20,42 +20,47 @@ export const ObtenerImgDanos = async (req, res) => {
     } 
 }
 
-export const crearImgDanos = async (req, res) => {
-    console.log("Datos recibidos en el server", req.body);
+export const crearImagenDanos = async (req, res) => {
     try {
-
-        const {
-            id_orden, 
-            descripcion, 
-            url_imagen
-        } = req.body;
+        const { id_orden, descripcion } = req.body;
         
-        if (!id_orden || !descripcion) {
-            return res.status(400).json({ 
-                message: "Todos los campos son obligatorios" 
-            });
+        // Si no hay archivo, avisamos
+        if (!req.file) {
+            return res.status(400).json({ message: "No se seleccionó ninguna imagen" });
         }
 
-        const id = await imgDanosModel.create(req.body);
+        // Guardamos la ruta relativa a la carpeta uploads
+        const nombreArchivo = req.file.filename;
+        const url_imagen = `/uploads/${nombreArchivo}`;
 
-        res.status(201).json({ 
-            message: "Imagen de daño creada exitosamente",
-        }); 
+        const nuevoRegistro = await ImagenDano.create({
+            id_orden,
+            descripcion,
+            url_imagen: url_imagen // Esto es lo que se guarda en la DB
+        });
 
+        res.status(201).json(nuevoRegistro);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: error.message });
     }
-}
+};
 
 export const actImgDanos = async (req, res) => {
     try {
-        const actualizado = await imgDanosModel.update(req.params.id, req.body);
+        const { id } = req.params;
+        const { id_orden, descripcion } = req.body;
+        
+        let datosActualizar = { id_orden, descripcion };
 
-        if (!actualizado) {
-            return res.status(404).json({ message: "Imagen daño no encontrada" });
+        // Solo si el usuario subió una foto nueva, actualizamos la ruta
+        if (req.file) {
+            datosActualizar.url_imagen = `/uploads/${req.file.filename}`;
         }
-        res.json({ message: "Imagen daño actualizada correctamente" });
+
+        await modelo.update(datosActualizar, { where: { id_imagen: id } });
+        res.json({ message: "Actualizado con éxito" });
     } catch (error) {
+        
         res.status(500).json({ error: error.message });
     }
 }
@@ -77,7 +82,7 @@ export const eliminarImgDano = async (req, res) => {
 export default {
     listarImgDanos,
     ObtenerImgDanos,
-    crearImgDanos,
+    crearImagenDanos,
     actImgDanos,
     eliminarImgDano
 };

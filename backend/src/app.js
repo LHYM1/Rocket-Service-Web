@@ -41,7 +41,9 @@ app.use('/api/insumos', productsRoutes);
 app.use('/api/insumos_usados_en_servicio', prodtsUseService);
 
 // Ruta para imagenes daños
-app.use('/api/imagenes_danos', imagenesDanos); 
+
+app.use('/api/imagenes_danos', imagenesDanos)
+app.use('/uploads', express.static('uploads'));
 
 // Ruta para motocicleta
 //app.use('api/motocicleta', motocicleta); // Ruta motocicleta
