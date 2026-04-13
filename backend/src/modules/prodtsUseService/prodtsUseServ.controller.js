@@ -25,11 +25,11 @@ export const crearInsUsedServ = async (req, res) => {
         const {
             id_orden , 
             id_insumo, 
-            cantidad, precio_unitario
+            cantidad
         } = req.body;
         
         if (!id_orden || !id_insumo ||
-            !cantidad || !precio_unitario) {
+            !cantidad) {
             return res.status(400).json({ 
                 message: "Todos los campos son obligatorios" 
             });

@@ -19,15 +19,14 @@ const prodtsUsedServ = {
         const {
             id_orden,
             id_insumo ,
-            cantidad,
-            precio_unitario
+            cantidad
         } = data;
 
         const [result] = await db.query(
             `INSERT INTO insumos_usados_en_servicio (id_orden, id_insumo,
-            cantidad, precio_unitario) VALUES (?, ?, ?, ?)`,
+            cantidad) VALUES (?, ?, ?)`,
 
-            [id_orden, id_insumo, cantidad, precio_unitario]
+            [id_orden, id_insumo, cantidad]
         );
         return result.insertId;
     },
@@ -38,19 +37,16 @@ const prodtsUsedServ = {
             id_orden,
             id_insumo,
             cantidad,
-            precio_unitario
         } = data;
 
         const [result] = await db.query (
             `UPDATE insumos_usados_en_servicio SET id_orden = ?,
-            id_insumo = ?, cantidad = ?,
-            precio_unitario = ? WHERE id_insumos_orden = ?`,
+            id_insumo = ?, cantidad = ? WHERE id_insumos_orden = ?`,
 
             [
                 id_orden,
                 id_insumo,
                 cantidad,
-                precio_unitario,
                 id
             ]
         );
