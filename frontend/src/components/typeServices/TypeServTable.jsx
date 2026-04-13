@@ -32,10 +32,8 @@ function TypeServTable ({ tipServ, setIdSeleccionado, getTipoServicio }) {
                 <thead className="table-light">
                     <tr>
                         <th>Id</th>
-                        <th>Código</th>
                         <th>Nombre</th>
                         <th>Descripción</th>
-                        <th>Costo servicio</th>
                         
                         <th>Acciones</th>
                     </tr>
@@ -45,12 +43,9 @@ function TypeServTable ({ tipServ, setIdSeleccionado, getTipoServicio }) {
                     {tipServ.map((ts) => (
                         <tr key={ts.id_tipo_servicio }>
                             <td>{ts.id_tipo_servicio}</td>
-                            <td>{ts.codigo_tipo_servicio}</td>
                             <td>{ts.nombre_servicio}</td>
                             <td>{ts.descripcion_servicio}</td>
-                            <td>{ts.costo_servicio}</td>
                         
-
                             <td>
                                 <button onClick={() => setIdSeleccionado(ts)}
                                     type="button" className="btn btn-warning btn-color">

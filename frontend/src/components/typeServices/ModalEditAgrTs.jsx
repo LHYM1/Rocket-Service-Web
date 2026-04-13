@@ -3,20 +3,16 @@ import axios from "axios";
 
 const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
     const [ tipoServicio, setTipServ ] = useState({
-        codigo_tipo_servicio: "",
         nombre_servicio: "",
         descripcion_servicio: "",
-        costo_servicio: ""
     });
 
     // useEffect para precargar datos de DB si hay un idSeleccionado
     useEffect(() => {
         if (idSeleccionado) {
             setTipServ({
-                codigo_tipo_servicio: idSeleccionado.codigo_tipo_servicio,
                 nombre_servicio: idSeleccionado.nombre_servicio, 
                 descripcion_servicio: idSeleccionado.descripcion_servicio,
-                costo_servicio: idSeleccionado.costo_servicio
             })
         }
     }, [idSeleccionado]);
@@ -64,23 +60,13 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                 </div>
 
                 <div className="modal-body">
+                    
                     <div className="mb-3">
-                        <label className="form-label">Código servicio</label>
-
+                        <label className="form-label">Nombre servicio</label>
                         <input
                             type="text"
                             className="form-control"
-                            name="codigo_tipo_servicio"
-                            value={tipoServicio.codigo_tipo_servicio}
-                            onChange={handleChange}
-                        />
-                    </div>
-
-                    <div className="mb-3">
-                        <label className="form-label">Servicio</label>
-                        <input
-                            type="text"
-                            className="form-control"
+                            placeholder="Escribe el nombre del servicio"
                             name="nombre_servicio"
                             value={tipoServicio.nombre_servicio}
                             onChange={handleChange}
@@ -95,19 +81,8 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                             name="descripcion_servicio"
                             rows="4"
                             cols="50"
-                            placeholder="Describe el servicio aquí.."
+                            placeholder="Describe el servicio aquí.. (Es opcional)"
                             value={tipoServicio.descripcion_servicio}
-                            onChange={handleChange}
-                        />
-                    </div>
-
-                    <div className="mb-3">
-                        <label className="form-label">Costo servicio</label>
-                        <input
-                            type="number"
-                            className="form-control"
-                            name="costo_servicio"
-                            value={tipoServicio.costo_servicio}
                             onChange={handleChange}
                         />
                     </div>
