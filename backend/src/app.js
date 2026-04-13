@@ -13,6 +13,7 @@ import prodtsUseService from './modules/prodtsUseService/prodtsUseServ.routes.js
 
 import registActvRoutes from './modules/regstActv/regtAct.routes.js';
 import imagenesDanos from './modules/imgDanos/img.routes.js';
+import moto from './modules/motocicleta/moto.routes.js';
 
 const app = express();
 
@@ -41,12 +42,11 @@ app.use('/api/insumos', productsRoutes);
 app.use('/api/insumos_usados_en_servicio', prodtsUseService);
 
 // Ruta para imagenes daños
-
 app.use('/api/imagenes_danos', imagenesDanos)
 app.use('/uploads', express.static('uploads'));
 
 // Ruta para motocicleta
-//app.use('api/motocicleta', motocicleta); // Ruta motocicleta
+app.use('/api/motocicleta', moto); // Ruta motocicleta
 //app.use('/api/categoria', categoria); // Ruta para categoria
 
 // Ruta para modelo
