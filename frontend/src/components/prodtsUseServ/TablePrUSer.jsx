@@ -60,7 +60,6 @@ function TablePrUser ({ insUsaServ, setIdSeleccionado, getInsUsServ }) {
                         <th>Orden</th>
                         <th>Insumo</th>
                         <th>Cantidad</th>
-                        <th>Precio unitario</th>
     
                         <th>Acciones</th>
                     </tr>
@@ -73,7 +72,6 @@ function TablePrUser ({ insUsaServ, setIdSeleccionado, getInsUsServ }) {
                             <td>{codigosOrdenes[ts.id_orden] || "Nod definido"}</td>
                             <td>{nombresInsumos[ts.id_insumo] || "No definido"}</td>
                             <td>{ts.cantidad}</td>
-                            <td>{ts.precio_unitario}</td>
                     
                             <td>
                                 <button onClick={() => setIdSeleccionado(ts)}

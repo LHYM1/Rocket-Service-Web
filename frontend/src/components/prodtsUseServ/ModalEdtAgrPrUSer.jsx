@@ -6,7 +6,6 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
         id_orden: "",
         id_insumo: "",
         cantidad: "",
-        precio_unitario: ""
     });
 
     // useEffect para precargar datos de DB si hay un idSeleccionado
@@ -15,8 +14,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
             setInsUsServ({
                 id_orden: idSeleccionado.id_orden,
                 id_insumo: idSeleccionado.id_insumo, 
-                cantidad: idSeleccionado.cantidad,
-                precio_unitario: idSeleccionado.precio_unitario
+                cantidad: idSeleccionado.cantidad
             })
         }
     }, [idSeleccionado]);
@@ -72,7 +70,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                                     value={insUsServicio.id_orden}
                                     onChange={handleChange}
                                 >
-                                    <option value=""></option>
+                                    <option value="">Seleccione la orden</option>
                                     <option value="1">ORD-001</option>
                                     <option value="2">ORD-002</option>
                                     <option value="3">ORD-003</option>
@@ -109,25 +107,13 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                         </div>
 
                         <div className="mb-3">
-                            <label className="form-label">Cantidad</label>
+                            <label className="form-label">Digite la cantidad utilizada</label>
 
                             <input
                                 type="number"
                                 className="form-control"
                                 name="cantidad"
                                 value={insUsServicio.cantidad }
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        <div className="mb-3">
-                            <label className="form-label">Precio unitario</label>
-
-                            <input
-                                type="number"
-                                className="form-control"
-                                name="precio_unitario"
-                                value={insUsServicio.precio_unitario }
                                 onChange={handleChange}
                             />
                         </div>
