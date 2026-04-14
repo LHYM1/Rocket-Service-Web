@@ -24,9 +24,9 @@ export const obtenerCatgInsm = async (req, res) => {
 
 export const crearCatgInsm = async (req, res) => {
     try {
-        const { nombre, Descripcion } = req.body; 
+        const { nombre } = req.body; 
 
-        if (!nombre || !Descripcion) {
+        if (!nombre) {
             return res.status(400).json({ 
                 message: "Todos los campos son obligatorios" 
             });
