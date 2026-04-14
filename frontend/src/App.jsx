@@ -20,6 +20,7 @@ import RegistActv from './pages/regstActv/regstActvPage.jsx';
 import ImagDanos from './pages/imgDanos/PageImg.jsx';
 import Motocicleta from './pages/motocicleta/PageMoto.jsx';
 import Modelo from './pages/modelo/PageModMoto.jsx';
+import EstadoOrdenPage from './pages/estOrdn/PageEstadoOrd.jsx';
 
 function App() {
 
@@ -34,7 +35,7 @@ function App() {
         <Route 
           path="/panel" 
           element={
-            <ProtectedRoute allowedRoles={["Administrador"]}>
+            <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
               <DashboardLayout />
             </ProtectedRoute>
           }
@@ -53,19 +54,8 @@ function App() {
           <Route path="imagenes-danos" element={<ImagDanos />} />
           <Route path="moto" element={<Motocicleta />} />
           <Route path="modelo" element={<Modelo />} />
+          <Route path="est-ord" element={<EstadoOrdenPage />} />
         
-        </Route>
-
-        <Route 
-          path="/panel" 
-          element={
-            <ProtectedRoute allowedRoles={["Téccnico"]}>
-              <DashboardLayout />
-            </ProtectedRoute>
-          }
-        >
-
-          <Route path="imagenes-danos" element={<ImagDanos />} />
         </Route>
            
       </Routes>

@@ -49,6 +49,11 @@ const Sidebar = () => {
                 Ordenes
             </Link>
 
+            <Link to="/panel/est-ord" className="item">
+                <i className="fa-solid fa-business-time"></i>
+                Estado orden
+            </Link>
+
             <Link to="/panel/moto" className="item">
                 <i className="fa-solid fa-motorcycle"></i>
                 Motocicleta
@@ -64,11 +69,12 @@ const Sidebar = () => {
                 Tipo servicio
             </Link>
 
-
-            <Link to="/panel/reports" className="item">
+            {/** 
+             * <Link to="/panel/reports" className="item">
                 <i className="fa-solid fa-chart-column"></i>
                 Reportes
             </Link>
+            */}
             
             <Link to="#" className="item">
                 <i className="fa-solid fa-circle-question"></i>
