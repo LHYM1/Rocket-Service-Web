@@ -22,6 +22,7 @@ import Motocicleta from './pages/motocicleta/PageMoto.jsx';
 import Modelo from './pages/modelo/PageModMoto.jsx';
 import EstadoOrdenPage from './pages/estOrdn/PageEstadoOrd.jsx';
 import Categoria from './pages/categoria/PageCategoria.jsx';
+import UnidadMedPage from './pages/undMed/PageUnidadMed.jsx';
 
 function App() {
 
@@ -57,6 +58,7 @@ function App() {
           <Route path="modelo" element={<Modelo />} />
           <Route path="est-ord" element={<EstadoOrdenPage />} />
           <Route path="categoria" element={<Categoria />} />
+          <Route path="unidad" element={<UnidadMedPage />} />
         
         </Route>
            
