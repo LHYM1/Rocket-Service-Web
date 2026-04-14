@@ -1,0 +1,116 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+import EdtAgrCategoria from "../../components/categoryMot/EdtAgrCategory";
+import TableCategory from "../../components/categoryMot/TableCategory";
+
+function CategoryMotPage () {
+  const [categoria, setCategoria] = useState([]);
+  const [idSeleccionado, setIdSeleccionado] = useState(null);
+  const [busqueda, setBusqueda] = useState("");
+  const [showModal, setShowModal] = useState(false);
+
+   // Paginación
+  const [pagina, setPagina] = useState(1);
+  const porPagina = 4;
+
+  const getCategoria = () => {
+    axios.get("http://localhost:4000/api/categoria/listar")
+      .then(res => setCategoria(res.data))
+      .catch(err => console.error(err));
+  };
+
+  useEffect(() => {
+    getCategoria();
+  }, []);
+
+  // Filtrar categorias según búsqueda
+  const catgFiltrados = categoria.filter(categoria => {
+    // Convertimos el ID a texto con string 
+    const idTexto = String(categoria.nombre || "");
+    return idTexto.toLowerCase().includes(busqueda.toLowerCase()); 
+  });
+
+  // Calcular usuarios de la página actual
+  const inicio = (pagina - 1) * porPagina;
+  const fin = inicio + porPagina;
+  const paginados = catgFiltrados.slice(inicio, fin);
+
+  // Número total de páginas
+  const totalPaginas = Math.ceil(catgFiltrados.length / porPagina);
+
+  return (
+    <div className="container mt-4">
+      <h2>Gestión categorias Insumos</h2>
+
+      {/* Barra de acciones */}
+      <div className="d-flex justify-content-between mb-3">
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            setIdSeleccionado(null);
+            setShowModal(true);
+          }}
+        >
+          Agregar 
+        </button>
+
+        <input
+          type="text"
+          className="form-control w-50"
+          placeholder="Buscar categoria por nombre"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+        />
+      </div>
+
+      {/* Tabla */}
+      <TableCategory
+        categoria={paginados}
+        setIdSeleccionado={(cat) => {
+          setIdSeleccionado(cat);
+          setShowModal(true);
+        }}
+        getCategoria={getCategoria}
+      />
+
+      {/* Paginador */}
+      <div className="d-flex justify-content-center mt-3">
+        <nav>
+          <ul className="pagination">
+            <li className={`page-item ${pagina === 1 ? "disabled" : ""}`}>
+              <button className="page-link" onClick={() => setPagina(pagina - 1)}>
+                Anterior
+              </button>
+            </li>
+
+            {Array.from({ length: totalPaginas }, (_, i) => (
+              <li key={i} className={`page-item ${pagina === i + 1 ? "active" : ""}`}>
+                <button className="page-link" onClick={() => setPagina(i + 1)}>
+                  {i + 1}
+                </button>
+              </li>
+            ))}
+
+            <li className={`page-item ${pagina === totalPaginas ? "disabled" : ""}`}>
+              <button className="page-link" onClick={() => setPagina(pagina + 1)}>
+                Siguiente
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      {/* Modal de agregar/editar */}
+      {showModal && (
+        <EdtAgrCategoria
+          idSeleccionado={idSeleccionado}
+          getCategoria={getCategoria}
+          onClose={() => setShowModal(false)}
+          onSuccess={() => getCategoria()}
+        />
+      )}
+    </div>
+  );
+}
+
+export default CategoryMotPage;
