@@ -19,6 +19,7 @@ import ProdtsUseServ from './pages/prdtsUseServ/prodtsUsServPage.jsx';
 import RegistActv from './pages/regstActv/regstActvPage.jsx';
 import ImagDanos from './pages/imgDanos/PageImg.jsx';
 import Motocicleta from './pages/motocicleta/PageMoto.jsx';
+import Modelo from './pages/modelo/PageModMoto.jsx';
 
 function App() {
 
@@ -51,6 +52,7 @@ function App() {
           <Route path="insumos-usados" element={<ProdtsUseServ />} />
           <Route path="imagenes-danos" element={<ImagDanos />} />
           <Route path="moto" element={<Motocicleta />} />
+          <Route path="modelo" element={<Modelo />} />
         
         </Route>
 

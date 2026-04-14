@@ -54,6 +54,11 @@ const Sidebar = () => {
                 Motocicleta
             </Link>
 
+            <Link to="/panel/modelo" className="item">
+                <i className="fa-solid fa-motorcycle"></i>
+                    Modelo
+            </Link>
+
             <Link to="/panel/type-services" className="item">
                 <i className="fa-solid fa-box"></i>
                 Tipo servicio
