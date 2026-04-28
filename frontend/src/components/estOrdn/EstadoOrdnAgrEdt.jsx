@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const editarAgrEstOrd = ({ idSeleccionado, onClose, onSuccess }) => {
+const EditarAgrEstOrd = ({ idSeleccionado, onClose, onSuccess }) => {
     const [ estadoOrd, setEstadoOrden ] = useState({
         nombre_estado: ""
     });
@@ -87,4 +87,4 @@ const editarAgrEstOrd = ({ idSeleccionado, onClose, onSuccess }) => {
     );
 
 }
-export default editarAgrEstOrd;
+export default EditarAgrEstOrd;

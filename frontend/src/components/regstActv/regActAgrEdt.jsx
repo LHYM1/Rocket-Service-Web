@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const regActAgrEdt = ({ idSeleccionado, onClose, onSuccess }) => {
+const RegActAgrEdt = ({ idSeleccionado, onClose, onSuccess }) => {
     const [ regstActv, setRegAct ] = useState({
         codigo_registro: "",
         id_orden: "",
@@ -142,7 +142,7 @@ const regActAgrEdt = ({ idSeleccionado, onClose, onSuccess }) => {
                         </button>
                         <button className="btn btn-primary" onClick={handleSave}>
                         {idSeleccionado ? "Actualizar" : "Guardar"}
-                        </button>
+                        </button>    
                     </div>
                 </div>
             </div>
@@ -150,4 +150,4 @@ const regActAgrEdt = ({ idSeleccionado, onClose, onSuccess }) => {
     );
 
 }
-export default regActAgrEdt;
+export default RegActAgrEdt;

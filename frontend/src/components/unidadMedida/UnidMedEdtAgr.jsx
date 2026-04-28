@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const unidadMedEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
+const UnidadMedEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
     const [ undMed, setUnidadMed ] = useState({
         nombre: ""
     });
@@ -87,4 +87,4 @@ const unidadMedEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
     );
 
 }
-export default unidadMedEditAgr;
+export default UnidadMedEditAgr;

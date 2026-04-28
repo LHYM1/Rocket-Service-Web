@@ -3,7 +3,7 @@ import axios from "axios";
 import RegActAgrEdt from "../../components/regstActv/regActAgrEdt.jsx";
 import RegstActvTable from "../../components/regstActv/regstActvTable.jsx";
 
-function regActPage() {
+function RegActPage() {
   const [regstActv, setRegAct] = useState([]);
   const [idSeleccionado, setIdSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState("");
@@ -111,4 +111,4 @@ function regActPage() {
   );
 }
 
-export default regActPage;
+export default RegActPage;

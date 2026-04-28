@@ -1,0 +1,71 @@
+import { BrowserRouter as Router, Routes, Route } 
+from 'react-router-dom';
+import Login from "./pages/login/login.jsx";
+import Register from './pages/register/Register.jsx';
+import DashboardLayout from './layouts/DashboardLayout.jsx';
+import Dashboard from './pages/dashboard/Dashboard.jsx';
+import Report from './pages/reports/Report.jsx';
+import ProtectedRoute from './components/proctRoute/ProctectedRoute.jsx';
+
+
+import Content from './components/content/Content.jsx';
+import Profile from './components/profile/Profile.jsx';
+import UsersPage from './pages/users/UsersPage.jsx';
+import RolesPage from './pages/roles/RolesPage.jsx';
+import OrdersPage from './pages/orders/OrdersPage.jsx';
+import TypeServPage from './pages/typeService/TypeServPage.jsx';
+import ProductsPage from './pages/products/productsPage.jsx';
+import ProdtsUseServ from './pages/prdtsUseServ/prodtsUsServPage.jsx';
+import RegistActv from './pages/regstActv/regstActvPage.jsx';
+import ImagDanos from './pages/imgDanos/PageImg.jsx';
+import Motocicleta from './pages/motocicleta/PageMoto.jsx';
+import Modelo from './pages/modelo/PageModMoto.jsx';
+import EstadoOrdenPage from './pages/estOrdn/PageEstadoOrd.jsx';
+import Categoria from './pages/categoria/PageCategoria.jsx';
+import UnidadMedPage from './pages/undMed/PageUnidadMed.jsx';
+
+function App() {
+
+  return (
+    <Router>
+      <Routes>
+
+        <Route path="/" element={<Login />} /> 
+        <Route path="/register" element={<Register />} />
+
+
+        <Route 
+          path="/panel" 
+          element={
+            <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Dashboard />} /> 
+          <Route path="content" element={<Content />} />
+          <Route path="profile" element={<Profile />} /> 
+          <Route path="reports" element={<Report />} />
+          <Route path="users" element={<UsersPage />} />
+          <Route path="roles" element={<RolesPage />} />
+          <Route path="regist-act" element={<RegistActv />} />
+          <Route path="orders" element={<OrdersPage />} />
+          <Route path="type-services" element={<TypeServPage />} />
+          <Route path="insumos" element={<ProductsPage />}/>
+          <Route path="insumos-usados" element={<ProdtsUseServ />} />
+          <Route path="imagenes-danos" element={<ImagDanos />} />
+          <Route path="moto" element={<Motocicleta />} />
+          <Route path="modelo" element={<Modelo />} />
+          <Route path="est-ord" element={<EstadoOrdenPage />} />
+          <Route path="categoria" element={<Categoria />} />
+          <Route path="unidad" element={<UnidadMedPage />} />
+        
+        </Route>
+           
+      </Routes>
+    </Router>  
+  
+  );
+}
+
+export default App;

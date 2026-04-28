@@ -1,4 +1,4 @@
-import TableCard from '../../components/tableCard/tableCard';
+import TableCard from '../../components/tableCard/TableCard';
 
 const Reports = () => {
     const orders = [

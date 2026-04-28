@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const categoriaEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
+const CategoriaEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
     const [ categoria, setCategoria ] = useState({
         nombre: "",
         Descripcion: ""
@@ -107,4 +107,4 @@ const categoriaEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
     );
 
 }
-export default categoriaEditAgr;
+export default CategoriaEditAgr;
