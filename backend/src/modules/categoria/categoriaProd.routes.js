@@ -1,12 +1,13 @@
 import express from 'express';
 const router = express.Router();
 import categoriaInsumo from './categoriaProd.controller.js';
+import { validarToken, verificarRol } from '../../middlewares/authMiddleware.js';
 
 // Rutas para registro de actividad 
-router.get('/listar', categoriaInsumo.listarCatInsumo);
-router.get('/consultar/:id', categoriaInsumo.obtenerCatgInsm); 
-router.post('/crear', categoriaInsumo.crearCatgInsm);
-router.put('/modificar/:id', categoriaInsumo.actualizarCatInsumo);    
-router.delete('/eliminar/:id', categoriaInsumo.eliminarCatgInsm);
+router.get('/listar', validarToken, verificarRol(['Administrador']), categoriaInsumo.listarCatInsumo);
+router.get('/consultar/:id', validarToken, verificarRol(['Administrador']), categoriaInsumo.obtenerCatgInsm); 
+router.post('/crear', validarToken, verificarRol(['Administrador']), categoriaInsumo.crearCatgInsm);
+router.put('/modificar/:id', validarToken, verificarRol(['Administrador']), categoriaInsumo.actualizarCatInsumo);    
+router.delete('/eliminar/:id', validarToken, verificarRol(['Administrador']), categoriaInsumo.eliminarCatgInsm);
 
 export default router;

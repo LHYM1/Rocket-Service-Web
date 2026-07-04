@@ -3,7 +3,6 @@ import typeServices from './type.service.model.js';
 export const listarTypeServ = async (req, res) => {
     try {
         const typeServ = await typeServices.findAll();
-        console.log("Datos obtenidos:", typeServ);
         res.json(typeServ);
     } catch (error) {
         res.status(500).json({ error: error.message });

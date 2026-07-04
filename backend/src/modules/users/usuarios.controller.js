@@ -125,11 +125,43 @@ export const restaurarUsuario = async (req, res) => {
     }
 };
 
+// Listar usuarios sin moto 
+
+export const listarUsuariosSinMoto = async (req, res) => {
+    try {
+        const users = await usuarios.findUsuariosSinMoto();
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al listar usuarios sin moto' });
+    }
+};
+
+export const listarTecnicosSinOrden = async (req, res) => {
+    try {
+        const tecnicos = await usuarios.findTecnicosSinOrden();
+        res.json(tecnicos);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al listar técnicos sin orden' });
+    }
+};
+
+export const listarClientesConMoto = async (req, res) => {
+    try {
+        const clientes = await usuarios.findClientesConMoto();
+        res.json(clientes);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al listar clientes con moto' });
+    }
+};
+
 export default {
     listarUsuario,
     obtenerUsuario,
     crearUsuario,
     actualizarUsuario,
     eliminarUsuario,
-    restaurarUsuario
+    restaurarUsuario,
+    listarUsuariosSinMoto,
+    listarTecnicosSinOrden,  
+    listarClientesConMoto 
 };

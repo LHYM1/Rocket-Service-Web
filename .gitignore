@@ -1,0 +1,17 @@
+# Variables de entorno - NUNCA subir
+backend/.env
+frontend/.env
+.env
+
+# Dependencias
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Archivos temporales
+backend/uploads/
+*.log
+
+# Build
+frontend/build/
+frontend/dist/

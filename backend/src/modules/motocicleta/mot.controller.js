@@ -24,18 +24,18 @@ export const obtenerMoto = async (req, res) => {
 
 export const crearMoto = async (req, res) => {
     try {
-        const { placa, id_modelo , kilometraje_actual } = req.body; // Campos que se envian desde el frontend
+        const { placa, id_modelo, kilometraje_actual, id_usuario } = req.body;
 
-        if (!placa || !id_modelo || !kilometraje_actual) {
+        if (!placa || !id_modelo || !kilometraje_actual || !id_usuario) {
             return res.status(400).json({ 
                 message: "Todos los campos son obligatorios" 
             });
         }
         
-        const id = await motocicleta.create(req.body);
+        await motocicleta.create(req.body);
 
         res.status(201).json({ 
-            message: "Registo de motocicleta creado correctamente",
+            message: "Registro de motocicleta creado correctamente"
         }); 
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -69,12 +69,23 @@ export const eliminarMoto = async (req, res) => {
     }
 };
 
+export const obtenerMotoPorUsuario = async (req, res) => {
+    try {
+        const moto = await motocicleta.findByUsuario(req.params.idUsuario);
+        if (!moto) return res.status(404).json({ message: "Moto no encontrada" });
+        res.json(moto);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 export default {
     listarMotocicleta,
     obtenerMoto,   
     crearMoto,
     actualizarMot,
-    eliminarMoto
+    eliminarMoto,
+    obtenerMotoPorUsuario
 };
 
 

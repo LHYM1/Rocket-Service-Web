@@ -1,6 +1,31 @@
 import db from '../../config/db.js';
 
 const registroActv = {
+
+    findDisponibilidadByTecnico: async (idUsuario) => {
+    const [rows] = await db.query(
+        `SELECT estado_disponibilidad 
+         FROM registro_actividad 
+         WHERE id_usuario = ? 
+         ORDER BY id_registro DESC 
+         LIMIT 1`,
+        [idUsuario]
+    );
+    return rows[0];
+    },
+
+    updateDisponibilidad: async (idUsuario, estado) => {
+    const [result] = await db.query(
+        `UPDATE registro_actividad 
+         SET estado_disponibilidad = ?
+         WHERE id_usuario = ?
+         ORDER BY id_registro DESC
+         LIMIT 1`,
+        [estado, idUsuario]
+    );
+    return result.affectedRows > 0;
+    },
+
     // Traer todas las órdenes con Nombres de Técnicos y Estados (JOIN)
     findAll: async () => {
         const query = ('SELECT * FROM registro_actividad');
@@ -64,6 +89,8 @@ const registroActv = {
         const [result] = await db.query('DELETE FROM registro_actividad WHERE id_registro = ?', [id]);
         return result.affectedRows > 0;
     }
+
+    
 };
 
 export default registroActv;

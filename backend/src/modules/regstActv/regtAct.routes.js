@@ -1,12 +1,18 @@
 import express from 'express';
 const router = express.Router();
 import controllerRegActv from './regActv.controller.js';
+import { validarToken, verificarRol } from '../../middlewares/authMiddleware.js';
 
-// Rutas para registro de actividad 
-router.get('/listar', controllerRegActv.listarRegAct);
-router.get('/consultar/:id', controllerRegActv.obtenerRegAct);
-router.post('/crear', controllerRegActv.crearRegAct);
-router.put('/modificar/:id', controllerRegActv.actualizarRegAct);    
-router.delete('/eliminar/:id', controllerRegActv.eliminarRegAct);
+// Técnico y Admin pueden ver
+router.get('/listar', validarToken, verificarRol(['Administrador', 'Técnico']), controllerRegActv.listarRegAct); 
+router.get('/consultar/:id', validarToken, verificarRol(['Administrador', 'Técnico']), controllerRegActv.obtenerRegAct);
+
+// Solo Admin puede modificar
+router.post('/crear', validarToken, verificarRol(['Administrador']), controllerRegActv.crearRegAct);
+router.put('/modificar/:id', validarToken, verificarRol(['Administrador']), controllerRegActv.actualizarRegAct);
+router.delete('/eliminar/:id', validarToken, verificarRol(['Administrador']), controllerRegActv.eliminarRegAct);
+router.put('/actualizar-disponibilidad/:idUsuario', validarToken, verificarRol(['Técnico']), controllerRegActv.actualizarDisponibilidad);
+
+router.get('/disponibilidad/:idUsuario', validarToken, verificarRol(['Técnico', 'Administrador']), controllerRegActv.obtenerDisponibilidad);
 
 export default router;

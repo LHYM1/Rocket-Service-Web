@@ -1,6 +1,27 @@
 
 import registroActv from './regtActv.models.js';
 
+export const obtenerDisponibilidad = async (req, res) => {
+    try {
+        const disponibilidad = await registroActv.findDisponibilidadByTecnico(req.params.idUsuario);
+        if (!disponibilidad) return res.status(404).json({ message: "No encontrado" });
+        res.json(disponibilidad);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const actualizarDisponibilidad = async (req, res) => {
+    try {
+        const { estado_disponibilidad } = req.body;
+        const actualizado = await registroActv.updateDisponibilidad(req.params.idUsuario, estado_disponibilidad);
+        if (!actualizado) return res.status(404).json({ message: "Registro no encontrado" });
+        res.json({ message: "Disponibilidad actualizada" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 export const listarRegAct = async (req, res) => {
 
     try {
@@ -74,7 +95,9 @@ export default {
     obtenerRegAct,   
     crearRegAct,
     actualizarRegAct,
-    eliminarRegAct
+    eliminarRegAct,
+    actualizarDisponibilidad,
+    obtenerDisponibilidad
 };
 
 

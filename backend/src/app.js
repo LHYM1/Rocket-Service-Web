@@ -8,7 +8,7 @@ import userRoutes from './modules/users/usuarios.routes.js';
 import rolesRoutes from './modules/roles/roles.routes.js';
 import ordersRoutes from './modules/orders/orders.routes.js';
 import typeServRoutes from './modules/typeService/type.service.routes.js';
-import productsRoutes from './modules/products/products.routes.js';
+import insumosRoutes from './modules/insumos/insumos.routes.js';
 import prodtsUseService from './modules/prodtsUseService/prodtsUseServ.routes.js'
 
 import registActvRoutes from './modules/regstActv/regtAct.routes.js';
@@ -40,7 +40,7 @@ app.use('/api/estado_de_orden_de_servicio', estadoOrden); // Ruta estado orden s
 app.use('/api/tipo_servicio', typeServRoutes);
 
 // Ruta para insumos
-app.use('/api/insumos', productsRoutes);
+app.use('/api/insumos', insumosRoutes);
 
 // Ruta para insumos usados en servicio
 app.use('/api/insumos_usados_en_servicio', prodtsUseService);

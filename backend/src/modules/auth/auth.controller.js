@@ -55,10 +55,10 @@ const login = async (req, res) => {
         apellido: user.apellido 
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1min" }
+      { expiresIn: "8h" }
     );
 
-    res.json({ token });
+    res.json({ token, role: user.role});
 
     } catch (error) {
       console.error(error);

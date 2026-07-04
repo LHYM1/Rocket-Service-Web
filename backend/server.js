@@ -4,7 +4,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerDocumentation from './swagger.json' with {type: 'json'};
 
 // Configuración de swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocumentation)) ;
+app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerDocumentation)) ;
 
 // Documentación apis con swagger
 app.get("/private", (req, res) => {

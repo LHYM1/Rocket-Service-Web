@@ -1,11 +1,15 @@
 import express from 'express';
 const router = express.Router();
 import controllerTypeServ from './type.service.controller.js';
+import { validarToken, verificarRol } from '../../middlewares/authMiddleware.js';
 
-router.get('/listar', controllerTypeServ.listarTypeServ); 
-router.get('/consultar/:id', controllerTypeServ.obtenerTypeServ);
-router.post('/crear', controllerTypeServ.crearTypeServ);
-router.put('/modificar/:id', controllerTypeServ.actTypeServ);
-router.delete('/eliminar/:id', controllerTypeServ.eliminarTypeServ);
+// Técnico y Admin pueden ver
+router.get('/listar', validarToken, verificarRol(['Administrador', 'Técnico']), controllerTypeServ.listarTypeServ); 
+router.get('/consultar/:id', validarToken, verificarRol(['Administrador', 'Técnico']), controllerTypeServ.obtenerTypeServ);
+
+// Solo Admin puede modificar
+router.post('/crear', validarToken, verificarRol(['Administrador']), controllerTypeServ.crearTypeServ);
+router.put('/modificar/:id', validarToken, verificarRol(['Administrador', 'Técnico']), controllerTypeServ.actTypeServ);
+router.delete('/eliminar/:id', validarToken, verificarRol(['Administrador']), controllerTypeServ.eliminarTypeServ);
 
 export default router;

@@ -2,6 +2,33 @@ import db from '../../config/db.js';
 
 const users = {
 
+    findClientesConMoto: async () => {
+    const [rows] = await db.query(`
+        SELECT DISTINCT u.id_usuario, u.nombre, u.apellido
+        FROM usuarios u
+        INNER JOIN motocicleta m ON u.id_usuario = m.id_usuario
+        WHERE u.id_tipo_usuario = 1
+          AND u.estado = 1
+    `);
+    return rows;
+    },
+
+    findTecnicosSinOrden: async () => {
+    const [rows] = await db.query(`
+        SELECT u.id_usuario, u.nombre, u.apellido
+        FROM usuarios u
+        WHERE u.id_tipo_usuario = 2
+          AND u.estado = 1
+          AND u.id_usuario NOT IN (
+              SELECT id_tecnico_asignado 
+              FROM ordenes_de_servicio 
+              WHERE id_estado_de_servicio NOT IN (3, 4, 7)
+              AND id_tecnico_asignado IS NOT NULL
+          )
+    `);
+    return rows;
+    },
+
     // Traer TODOS (activos e inactivos)
     findAll: async () => {
         const query = (`
@@ -24,6 +51,20 @@ const users = {
         const [rows] = await db.query(query);
         return rows;
     },
+
+        // Solo usuarios (id_tipo_usuario=1) que NO tienen moto registrada, esto trae usuarios que no tienen una moto registrada en el sistema.
+            findUsuariosSinMoto: async () => {
+            const [rows] = await db.query(`
+            SELECT u.id_usuario, u.nombre, u.apellido
+            FROM usuarios u
+            WHERE u.id_tipo_usuario = 1
+            AND u.estado = 1
+            AND u.id_usuario NOT IN (
+                SELECT id_usuario FROM motocicleta WHERE id_usuario IS NOT NULL
+            )
+        `);
+        return rows;
+},
 
     findById: async (id) => {
         const [rows] = await db.query(
