@@ -1,13 +1,10 @@
-import { BrowserRouter as Router, Routes, Route } 
-from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from "./pages/login/login.jsx";
 import Register from './pages/register/Register.jsx';
 import DashboardLayout from './layouts/DashboardLayout.jsx';
 import Dashboard from './pages/dashboard/Dashboard.jsx';
 import Report from './pages/reports/Report.jsx';
 import ProtectedRoute from './components/proctRoute/ProctectedRoute.jsx';
-
-
 import Content from './components/content/Content.jsx';
 import Profile from './components/profile/Profile.jsx';
 import UsersPage from './pages/users/UsersPage.jsx';
@@ -24,47 +21,126 @@ import EstadoOrdenPage from './pages/estOrdn/PageEstadoOrd.jsx';
 import Categoria from './pages/categoria/PageCategoria.jsx';
 import UnidadMedPage from './pages/undMed/PageUnidadMed.jsx';
 
-function App() {
 
+// Componente que redirige según rol
+const RedirigirPorRol = () => {
+    const rol = localStorage.getItem("rol");
+    if (rol === "Administrador") return <Navigate to="/panel/dashboard" replace />;
+    if (rol === "Técnico") return <Navigate to="/panel/orders" replace />;
+    return <Navigate to="/" replace />;
+};
+
+function App() {
   return (
     <Router>
       <Routes>
-
-        <Route path="/" element={<Login />} /> 
+        <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-
-        <Route 
-          path="/panel" 
+        <Route
+          path="/panel"
           element={
             <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
               <DashboardLayout />
             </ProtectedRoute>
           }
         >
-          <Route index element={<Dashboard />} /> 
+          {/* Redirección inteligente según rol */}
+          <Route index element={<RedirigirPorRol />} />
+
+          {/* Ruta dashboard solo admin */}
+          <Route path="dashboard" element={
+            <ProtectedRoute allowedRoles={["Administrador"]}>
+              <Dashboard />
+            </ProtectedRoute>
+          }/>
+
+          <Route path="users" element={
+            <ProtectedRoute allowedRoles={["Administrador"]}>
+              <UsersPage />
+            </ProtectedRoute>
+          }/>
+
+          <Route path="roles" element={
+            <ProtectedRoute allowedRoles={["Administrador"]}>
+              <RolesPage />
+            </ProtectedRoute>
+          }/>
+
+          <Route path="est-ord" element={
+            <ProtectedRoute allowedRoles={["Administrador"]}>
+              <EstadoOrdenPage />
+            </ProtectedRoute>
+          }/>
+
+          <Route path="insumos" element={
+            <ProtectedRoute allowedRoles={["Administrador"]}>
+              <ProductsPage />
+            </ProtectedRoute>
+          }/>
+
+          <Route path="categoria" element={
+            <ProtectedRoute allowedRoles={["Administrador"]}>
+              <Categoria />
+            </ProtectedRoute>
+          }/>
+
+          <Route path="unidad" element={
+            <ProtectedRoute allowedRoles={["Administrador"]}>
+              <UnidadMedPage />
+            </ProtectedRoute>
+          }/>
+
+          <Route path="moto" element={
+            <ProtectedRoute allowedRoles={["Administrador"]}>
+              <Motocicleta />
+            </ProtectedRoute>
+          }/>
+
+          <Route path="modelo" element={
+            <ProtectedRoute allowedRoles={["Administrador"]}>
+              <Modelo />
+            </ProtectedRoute>
+          }/>
+
+          {/* Admin y Técnico */}
+          <Route path="orders" element={
+            <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
+              <OrdersPage />
+            </ProtectedRoute>
+          }/>
+
+          <Route path="regist-act" element={
+            <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
+              <RegistActv />
+            </ProtectedRoute>
+          }/>
+
+          <Route path="insumos-usados" element={
+            <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
+              <ProdtsUseServ />
+            </ProtectedRoute>
+          }/>
+
+          <Route path="imagenes-danos" element={
+            <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
+              <ImagDanos />
+            </ProtectedRoute>
+          }/>
+
+          <Route path="type-services" element={
+            <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
+              <TypeServPage />
+            </ProtectedRoute>
+          }/>
+
           <Route path="content" element={<Content />} />
-          <Route path="profile" element={<Profile />} /> 
+          <Route path="profile" element={<Profile />} />
           <Route path="reports" element={<Report />} />
-          <Route path="users" element={<UsersPage />} />
-          <Route path="roles" element={<RolesPage />} />
-          <Route path="regist-act" element={<RegistActv />} />
-          <Route path="orders" element={<OrdersPage />} />
-          <Route path="type-services" element={<TypeServPage />} />
-          <Route path="insumos" element={<ProductsPage />}/>
-          <Route path="insumos-usados" element={<ProdtsUseServ />} />
-          <Route path="imagenes-danos" element={<ImagDanos />} />
-          <Route path="moto" element={<Motocicleta />} />
-          <Route path="modelo" element={<Modelo />} />
-          <Route path="est-ord" element={<EstadoOrdenPage />} />
-          <Route path="categoria" element={<Categoria />} />
-          <Route path="unidad" element={<UnidadMedPage />} />
-        
+
         </Route>
-           
       </Routes>
-    </Router>  
-  
+    </Router>
   );
 }
 

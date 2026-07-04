@@ -1,9 +1,11 @@
-import axios from 'axios'
+import axios from '../../axiosConfig'
 
 // la prop tipServ viene del padre page, es arreglo que muestra la tabla
 // la prop setIdSeleccionado viene del padre page
 // la prop getTipoServicio viene del padre page
-function TypeServTable ({ tipServ, setIdSeleccionado, getTipoServicio }) {
+// la prop esAdmin viene del padre page
+
+function TypeServTable ({ tipServ, setIdSeleccionado, getTipoServicio, esAdmin }) {
     if (!tipServ || !Array.isArray(tipServ)) {
         return <p>No hay tipos de servicio disponibles</p>;
     }
@@ -31,32 +33,33 @@ function TypeServTable ({ tipServ, setIdSeleccionado, getTipoServicio }) {
             <table className="table table-hover" border="1">
                 <thead className="table-light">
                     <tr>
-                        <th>Id</th>
+                        {esAdmin && <th>Id</th>}
                         <th>Nombre</th>
                         <th>Descripción</th>
-                        
-                        <th>Acciones</th>
+                        {esAdmin && <th>Acciones</th>}
                     </tr>
                 </thead>
 
                 <tbody>
                     {tipServ.map((ts) => (
                         <tr key={ts.id_tipo_servicio }>
-                            <td>{ts.id_tipo_servicio}</td>
+                            {esAdmin && <td>{ts.id_tipo_servicio}</td>}
                             <td>{ts.nombre_servicio}</td>
                             <td>{ts.descripcion_servicio}</td>
-                        
-                            <td>
-                                <button onClick={() => setIdSeleccionado(ts)}
-                                    type="button" className="btn btn-warning btn-color">
-                                    Editar
-                                </button>
 
-                                <button onClick={() => eliminarTipServ(ts.id_tipo_servicio)}
-                                    type="button" className="btn btn-danger btn-color">
-                                    Eliminar
-                                </button>
-                            </td>
+                        {esAdmin && ( 
+                                <td>
+                                    <button onClick={() => setIdSeleccionado(ts)}
+                                        type="button" className="btn btn-warning btn-color">
+                                        Editar
+                                    </button>
+
+                                    <button onClick={() => eliminarTipServ(ts.id_tipo_servicio)}
+                                        type="button" className="btn btn-danger btn-color">
+                                        Eliminar
+                                    </button>
+                                </td>
+                            )}
                         </tr>                    
                     ))}
                     

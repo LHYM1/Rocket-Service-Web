@@ -1,6 +1,6 @@
-import axios from 'axios'
+import axios from '../../axiosConfig'
 
-function TableImg ({ imgDanos, setIdSeleccionado, getImgDanos }) {
+function TableImg ({ imgDanos, setIdSeleccionado, getImgDanos, esAdmin }) {
     
     const codigosOrdenes = {
         "1": "ORD-001",
@@ -42,23 +42,24 @@ function TableImg ({ imgDanos, setIdSeleccionado, getImgDanos }) {
             <table className="table table-hover" border="1">
                 <thead className="table-light">
                     <tr>
-                        <th>Id</th>
+                        {esAdmin && <th>Id</th>}
                         <th>Orden</th>
                         <th>Descripción</th>
                         <th>Imagen</th>
     
-                        <th>Acciones</th>
+                        {esAdmin && <th>Acciones</th>}
                     </tr>
                 </thead>
 
                 <tbody>
                     {imgDanos.map((img) => (
                         <tr key={img.id_imagen}>
-                            <td>{img.id_imagen}</td>
+                            {esAdmin && <td>{img.id_imagen}</td>}
                             <td>{codigosOrdenes[img.id_orden] || "No definido"}</td>      
                             <td>{img.descripcion}</td>
                             <td>{img.url_imagen}</td>
-                    
+
+                         {esAdmin && (  
                             <td>
                                 <button onClick={() => setIdSeleccionado(img)}
                                     type="button" className="btn btn-warning btn-color">
@@ -70,6 +71,7 @@ function TableImg ({ imgDanos, setIdSeleccionado, getImgDanos }) {
                                     Eliminar
                                 </button>
                             </td>
+                            )} 
                         </tr>                    
                     ))}
                     

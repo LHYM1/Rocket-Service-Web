@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import TypeServTable from "../../components/typeServices/TypeServTable";
 import ModalEditAgrTs from "../../components/typeServices/ModalEditAgrTs";
+import { useAuth } from "../../context/AuthContext";
 
 function TypeServPage() {
+   const { esAdmin } = useAuth();
   const [tipServ, setTipServ] = useState([]);
   const [idSeleccionado, setIdSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState("");
@@ -38,19 +40,17 @@ function TypeServPage() {
 
   return (
     <div className="container mt-4">
-      <h2>Gestión de Tipo servicio</h2>
+      <h2>Gestión de Tipo servicio</h2> 
 
       {/* Barra de acciones */}
       <div className="d-flex justify-content-between mb-3">
-        <button
-          className="btn btn-primary"
-          onClick={() => {
-            setIdSeleccionado(null);
-            setShowModal(true);
-          }}
-        >
-          Agregar tipo servicio
-        </button>
+
+        {/* Botón solo Admin */}
+        {esAdmin && (
+          <button className="btn btn-primary" onClick={() => { setIdSeleccionado(null); setShowModal(true); }}>
+            Agregar tipo servicio
+          </button>
+        )}
 
         <input
           type="text"
@@ -66,8 +66,8 @@ function TypeServPage() {
         tipServ={tipServPaginados}
         setIdSeleccionado={(ts) => {
           setIdSeleccionado(ts);
-          setShowModal(true);
-        }}
+          setShowModal(true); }}
+        esAdmin={esAdmin}
         getTipoServicio={getTipoServicio}
       />
 
@@ -99,7 +99,7 @@ function TypeServPage() {
       </div>
 
       {/* Modal de agregar/editar */}
-      {showModal && (
+      {showModal && esAdmin && (
         <ModalEditAgrTs
           idSeleccionado={idSeleccionado}
           getTipoServicio={getTipoServicio}

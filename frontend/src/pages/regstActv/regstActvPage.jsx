@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import RegActAgrEdt from "../../components/regstActv/regActAgrEdt.jsx";
 import RegstActvTable from "../../components/regstActv/regstActvTable.jsx";
+import { useAuth } from "../../context/AuthContext";
 
 function RegActPage() {
   const [regstActv, setRegAct] = useState([]);
   const [idSeleccionado, setIdSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const { esAdmin } = useAuth();
+  
 
    // Paginación
   const [pagina, setPagina] = useState(1);
@@ -40,17 +43,13 @@ function RegActPage() {
     <div className="container mt-4">
       <h2>Gestión de registros de actividad</h2>
 
-      {/* Barra de acciones */}
-      <div className="d-flex justify-content-between mb-3">
-        <button
-          className="btn btn-primary"
-          onClick={() => {
-            setIdSeleccionado(null);
-            setShowModal(true);
-          }}
-        >
-          Agregar 
-        </button>
+        {/* Botón solo Admin */}
+        <div className="d-flex justify-content-between mb-3">
+        {esAdmin && (
+          <button className="btn btn-primary" onClick={() => { setIdSeleccionado(null); setShowModal(true); }}>
+            Agregar
+          </button>
+        )}
 
         <input
           type="text"
@@ -61,14 +60,12 @@ function RegActPage() {
         />
       </div>
 
-      {/* Tabla */}
+      {/* Pasar esAdmin a la tabla */}
       <RegstActvTable
         regstActv={paginados}
-        setIdSeleccionado={(ts) => {
-          setIdSeleccionado(ts);
-          setShowModal(true);
-        }}
+        setIdSeleccionado={(ts) => { setIdSeleccionado(ts); setShowModal(true); }}
         getRegAct={getRegAct}
+        esAdmin={esAdmin}
       />
 
       {/* Paginador */}
@@ -98,8 +95,8 @@ function RegActPage() {
         </nav>
       </div>
 
-      {/* Modal de agregar/editar */}
-      {showModal && (
+       {/* Modal solo Admin */}
+      {showModal && esAdmin && (
         <RegActAgrEdt
           idSeleccionado={idSeleccionado}
           regstActv={regstActv}

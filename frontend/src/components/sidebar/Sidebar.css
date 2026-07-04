@@ -1,55 +1,151 @@
 .menu {
-    background-color: rgb(57, 57, 57); 
-    flex-direction: column;
-    height: 100vh; 
+    background-color: #0a0a0a;
+    height: 100vh;
+    min-height: 100vh; /* ← agregar */
     display: flex;
-    gap: 2.3rem;
-    height: 100%;
-    padding: 1rem;   
-    border-radius: 0 20px 20px 0;
+    flex-direction: column;
+    padding: 1rem 0.8rem;
+    border-right: 2px solid #ff8c0030;
     flex-shrink: 0;
+    transition: width 0.3s ease;
+    z-index: 100;
+    overflow: visible;
+    position: sticky; /* ← cambiar a sticky */
+    top: 0;
 }
 
+.menu-abierto {
+    width: 280px;
+}
+
+.menu-cerrado {
+    width: 65px;
+}
+
+/* Botón toggle */
+.menu-toggle {
+    position: absolute;
+    top: 1.2rem;
+    right: -14px;
+    width: 28px;
+    height: 28px;
+    background: #ff8c00;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200; /* ← aumentar */
+    box-shadow: 0 2px 8px rgba(255,140,0,0.4);
+    transition: transform 0.2s ease;
+}
+
+.menu-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Nombre empresa */
 .name-company {
     display: flex;
-    margin-bottom: 1rem; /*Separación vértical nombre empresa y menu-list*/
-    font-weight: 200;
-    color: white;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+    padding-top: 0.3rem;
+    margin-top: 3.1rem;
+    padding: 0 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
+.name-company h2 {
+    color: white;
+    font-weight: 800;
+    font-size: 1.1rem;
+    white-space: nowrap;
+}
+
+/* Lista */
 .menu-list {
     width: 100%;
     display: flex;
-    white-space: nowrap; 
-    overflow-y: auto;
     flex-direction: column;
-    align-items: flex-start;
+    gap: 0.2rem;
+    overflow-y: auto;
+    overflow-x: visible;
+    flex: 1;
 }
 
-.item {
-    flex: 0 0 auto;        
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+.menu-list::-webkit-scrollbar {
+    width: 3px;
 }
 
+.menu-list::-webkit-scrollbar-thumb {
+    background: #ff8c0050;
+    border-radius: 3px;
+}
+
+/* Items */
 .menu-list .item {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 1rem;
+    gap: 0.8rem;
     width: 100%;
-    text-align: left;
-    padding: 12px 11px; 
-    font-size: 1.1rem;
+    padding: 10px 12px;
+    font-size: 0.9rem;
     text-decoration: none;
     border-radius: 10px;
-    transition: 0.3s ease-in-out;
-    color: #F0EAE9;
+    transition: all 0.2s ease;
+    color: #aaaaaa;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
+.menu-list .item i {
+    font-size: 1rem;
+    min-width: 20px;
+    text-align: center;
+    color: #aaaaaa;
+    transition: color 0.2s ease;
+}
+
+.menu-list .item span {
+    font-weight: 500;
+}
 
 .menu-list .item:hover {
-    background: #E3712B;
-    color: #F0EAE9;
+    background: #ff8c0015;
+    color: #ff8c00;
+}
+
+.menu-list .item:hover i {
+    color: #ff8c00;
+}
+
+/* Botón cerrar sesión */
+.btn-cerrar-sesion {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    margin-top: auto;
+}
+
+/* Separador antes de cerrar sesión */
+.btn-cerrar-sesion {
+    border-top: 1px solid #ffffff15;
+    margin-top: 0.5rem;
+    padding-top: 0.8rem !important;
+    color: #ff4444 !important;
+}
+
+.btn-cerrar-sesion i {
+    color: #ff4444 !important;
+}
+
+.btn-cerrar-sesion:hover {
+    background: #ff444415 !important;
+    color: #ff4444 !important;
 }

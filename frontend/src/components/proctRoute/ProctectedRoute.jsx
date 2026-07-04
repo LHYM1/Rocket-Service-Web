@@ -1,25 +1,18 @@
-// Protección de rutas
 import { Navigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
+    const rol = localStorage.getItem("rol");
 
-  if (!token) {
-    return <Navigate to="/login" />;
-  }
+    if (!token || !rol) {
+        return <Navigate to="/" replace />;
+    }
 
-  const user = jwtDecode(token);
+    if (allowedRoles && !allowedRoles.includes(rol)) {
+        return <Navigate to="/" replace />;
+    }
 
-  // Validación de rol
-  if (!allowedRoles.includes(user.role)) {
-    alert(
-        "Inicio de sesión exitoso. Pero tu panel y rutas están en construcción 😢"
-    );
-    return <Navigate to="/" />;
-  }
-
-  return children;
+    return children;
 };
 
 export default ProtectedRoute;

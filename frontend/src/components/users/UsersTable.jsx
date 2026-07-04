@@ -1,5 +1,4 @@
-import axios from 'axios'
-
+import axios from '../../axiosConfig'
 function UsersTable ({ user, setIdSeleccionado, getUsuarios}) {
 
     const eliminarUsuario = async (id) => {

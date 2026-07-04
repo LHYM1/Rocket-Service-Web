@@ -3,8 +3,11 @@ import Navbar from "../components/navbar/navbar.jsx";
 import "./DashboardLayout.css"; /*Estilos globales dashboard, profile y content*/
 import { Outlet } from "react-router-dom";
 
+
 const DashboardLayout = () => { 
   return (
+
+    
 
     <div className="dashboard">
       <Sidebar />

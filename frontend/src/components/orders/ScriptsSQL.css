@@ -1,0 +1,21 @@
+/* 
+UPDATE ordenes_de_servicio 
+SET 
+  id_estado_de_servicio = 1,
+  descripcion_del_problema = NULL,
+  fecha_finalizacion_estimada = NULL,
+  id_tipo_servicio = NULL
+WHERE id_orden = 3;
+
+UPDATE registro_actividad SET estado_disponibilidad = 'Disponible' WHERE id_usuario = 25;
+
+DELETE FROM insumos_usados_en_servicio WHERE id_orden = 3;
+*/
+
+
+/*  Probar funciionalidad.
+
+UPDATE ordenes_de_servicio SET id_estado_de_servicio = 1, id_tipo_servicio = NULL, descripcion_del_problema = NULL, fecha_finalizacion_estimada = NULL WHERE id_orden = 3;
+UPDATE registro_actividad SET estado_disponibilidad = 'Disponible' WHERE id_usuario = 25;
+DELETE FROM insumos_usados_en_servicio WHERE id_orden = 3;
+DELETE FROM imagenes_danos WHERE id_orden = 3; 

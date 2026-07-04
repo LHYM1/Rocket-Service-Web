@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from '../../axiosConfig'
 
 // la prop product viene del padre page. Page es arreglo que muestra la tabla
 // la prop setIdSeleccionado viene del padre page

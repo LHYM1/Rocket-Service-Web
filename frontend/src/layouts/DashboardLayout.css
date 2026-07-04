@@ -1,7 +1,7 @@
 .dashboard {
     display: flex;
-    background-color: #f4f6f8; /* blanco suave */
-    height: 100%;
+    min-height: 100vh; /* ← min-height en vez de height */
+    background-color: #f4f6f8;
     width: 100%;
 }
 
@@ -23,4 +23,6 @@
     padding: 2rem;
     overflow-y: auto;
     padding-left: 0.5rem;
+    overflow-y: auto;
+    height: calc(100vh - 60px); /* ajusta según el alto del navbar */
 }

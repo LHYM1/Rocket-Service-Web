@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from '../../axiosConfig'
 
 function RolesTable ({ roles, setIdSeleccionado, getRoles}) {
     if (!roles || !Array.isArray(roles)) {
