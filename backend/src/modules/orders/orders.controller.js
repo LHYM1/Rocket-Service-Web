@@ -1,5 +1,6 @@
 
 import ordenes_de_servicio from './orders.model.js';
+import db from '../../config/db.js';
 
 export const terminarRevision = async (req, res) => {
     try {
@@ -64,17 +65,27 @@ export const crearOrden = async (req, res) => {
             id_estado_de_servicio, fecha_finalizacion_estimada 
         } = req.body;
 
-        // Solo estos campos son obligatorios al crear
         if (!id_moto || !id_usuario || !id_tecnico_asignado || !id_estado_de_servicio || !fecha_finalizacion_estimada) {
             return res.status(400).json({ 
                 message: "Todos los campos son obligatorios" 
             });
         }
 
-        const id = await ordenes_de_servicio.create(req.body);
+        // Generar código automático ORD-001, ORD-002...
+        const [rows] = await db.query(
+            'SELECT COUNT(*) as total FROM ordenes_de_servicio'
+        );
+        const total = rows[0].total + 1;
+        const codigo_orden = `ORD-${String(total).padStart(3, '0')}`;
+
+        const id = await ordenes_de_servicio.create({ 
+            ...req.body, 
+            codigo_orden 
+        });
 
         res.status(201).json({ 
             message: "Orden creada correctamente",
+            codigo_orden
         }); 
     } catch (error) {
         res.status(500).json({ error: error.message });

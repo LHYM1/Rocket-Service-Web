@@ -139,6 +139,14 @@ const users = {
         return result.affectedRows > 0;
     },
 
+    findByEmail: async (correo) => {
+    const [rows] = await db.query(
+        'SELECT * FROM usuarios WHERE correo_usuario = ?',
+        [correo]
+    );
+    return rows[0];
+    },
+
     // Desactivar softDelete 
     remove: async (id) => {
         const [result] = await db.query(
@@ -147,6 +155,8 @@ const users = {
         );
         return result.affectedRows > 0;
     }
+
+    
 };
 
 export default users;

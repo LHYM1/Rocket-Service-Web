@@ -16,11 +16,7 @@ export const listarUsuario = async (req, res) => {
 export const obtenerUsuario = async (req, res) => {
     try {
         const user = await usuarios.findById(req.params.id);
-
-        if (!user) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
-        }
-
+        if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
         res.json(user);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -32,31 +28,25 @@ export const crearUsuario = async (req, res) => {
     try {
         const { nombre, apellido, correo_usuario, telefono_usuario, contrasena, id_tipo_usuario } = req.body;
 
-        // Validación
         if (!nombre || !apellido || !correo_usuario || !telefono_usuario || !contrasena || !id_tipo_usuario) {
-            return res.status(400).json({ 
-                message: "Todos los campos son obligatorios" 
-            });
+            return res.status(400).json({ message: "Todos los campos son obligatorios" });
         }
 
-        // Encriptar contraseña
+        // Validar correo duplicado
+        const existente = await usuarios.findByEmail(correo_usuario);
+        if (existente) {
+            return res.status(409).json({ message: "Ya existe un usuario con ese correo electrónico" });
+        }
+
         const salt = await bcrypt.genSalt(10);
         const contrasenaEncriptada = await bcrypt.hash(contrasena, salt);
 
-        const nuevoUsuario = {
-            nombre,
-            apellido,
-            correo_usuario,
-            telefono_usuario,
-            contrasena: contrasenaEncriptada,
-            id_tipo_usuario
-        };
-
-        await usuarios.create(nuevoUsuario);
-
-        res.status(201).json({ 
-            message: "Usuario creado correctamente"
+        await usuarios.create({
+            nombre, apellido, correo_usuario,
+            telefono_usuario, contrasena: contrasenaEncriptada, id_tipo_usuario
         });
+
+        res.status(201).json({ message: "Usuario creado correctamente" });
 
     } catch (error) {
         console.error("ERROR CREAR:", error);
@@ -69,7 +59,14 @@ export const actualizarUsuario = async (req, res) => {
     try {
         let datosAActualizar = { ...req.body };
 
-        // Si viene contraseña → encriptar
+        // Validar correo duplicado al actualizar
+        if (req.body.correo_usuario) {
+            const existente = await usuarios.findByEmail(req.body.correo_usuario);
+            if (existente && existente.id_usuario !== parseInt(req.params.id)) {
+                return res.status(409).json({ message: "Ya existe un usuario con ese correo electrónico" });
+            }
+        }
+
         if (req.body.contrasena) {
             const salt = await bcrypt.genSalt(10);
             datosAActualizar.contrasena = await bcrypt.hash(req.body.contrasena, salt);
@@ -78,10 +75,7 @@ export const actualizarUsuario = async (req, res) => {
         }
 
         const actualizado = await usuarios.update(req.params.id, datosAActualizar);
-
-        if (!actualizado) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
-        }
+        if (!actualizado) return res.status(404).json({ message: "Usuario no encontrado" });
 
         res.json({ message: "Usuario actualizado correctamente" });
 
@@ -95,13 +89,8 @@ export const actualizarUsuario = async (req, res) => {
 export const eliminarUsuario = async (req, res) => {
     try {
         const eliminado = await usuarios.remove(req.params.id);
-
-        if (!eliminado) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
-        }
-
+        if (!eliminado) return res.status(404).json({ message: "Usuario no encontrado" });
         res.json({ message: "Usuario desactivado correctamente" });
-
     } catch (error) {
         console.error("ERROR DESACTIVAR:", error);
         res.status(500).json({ error: error.message });
@@ -112,20 +101,13 @@ export const eliminarUsuario = async (req, res) => {
 export const restaurarUsuario = async (req, res) => {
     try {
         const restaurado = await usuarios.restaurar(req.params.id);
-
-        if (!restaurado) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
-        }
-
+        if (!restaurado) return res.status(404).json({ message: "Usuario no encontrado" });
         res.json({ message: "Usuario activado correctamente" });
-
     } catch (error) {
         console.error("ERROR ACTIVAR:", error);
         res.status(500).json({ error: error.message });
     }
 };
-
-// Listar usuarios sin moto 
 
 export const listarUsuariosSinMoto = async (req, res) => {
     try {
@@ -162,6 +144,6 @@ export default {
     eliminarUsuario,
     restaurarUsuario,
     listarUsuariosSinMoto,
-    listarTecnicosSinOrden,  
-    listarClientesConMoto 
+    listarTecnicosSinOrden,
+    listarClientesConMoto
 };
