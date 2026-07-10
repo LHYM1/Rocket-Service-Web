@@ -1,8 +1,12 @@
 import { Navigate } from "react-router-dom";
+import { desencriptar } from "../../utils/crypto";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-    const token = localStorage.getItem("token");
-    const rol = localStorage.getItem("rol");
+    const tokenEncriptado = localStorage.getItem("token");
+    const rolEncriptado = localStorage.getItem("rol");
+
+    const token = desencriptar(tokenEncriptado || "");
+    const rol = desencriptar(rolEncriptado || "");
 
     if (!token || !rol) {
         return <Navigate to="/" replace />;

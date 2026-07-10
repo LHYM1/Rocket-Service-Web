@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import './login.css';
 import GoogleButton from "../../components/btnLogin/googleButton";
 import { useToast } from "../../context/ToastContext";
+import { encriptar } from "../../utils/crypto";
 
 function Iniciarsesion() {
     const navigate = useNavigate();
@@ -51,11 +52,13 @@ function Iniciarsesion() {
             }
 
             const payload = JSON.parse(atob(data.token.split('.')[1]));
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("rol", data.role);
-            localStorage.setItem("userId", payload.id);
-            window.dispatchEvent(new CustomEvent('authChanged'));
 
+            // Guardar encriptado en localStorage
+            localStorage.setItem("token", encriptar(data.token));
+            localStorage.setItem("rol", encriptar(data.role));
+            localStorage.setItem("userId", encriptar(String(payload.id)));
+
+            window.dispatchEvent(new CustomEvent('authChanged'));
             mostrarToast("¡Bienvenido! Iniciando sesión...", "success");
             setTimeout(() => navigate("/panel"), 1500);
 

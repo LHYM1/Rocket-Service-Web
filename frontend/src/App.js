@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { desencriptar } from "./utils/crypto";
 import Login from "./pages/login/login.jsx";
 import Register from './pages/register/Register.jsx';
 import DashboardLayout from './layouts/DashboardLayout.jsx';
@@ -24,7 +25,7 @@ import UnidadMedPage from './pages/undMed/PageUnidadMed.jsx';
 
 // Componente que redirige según rol
 const RedirigirPorRol = () => {
-    const rol = localStorage.getItem("rol");
+    const rol = desencriptar(localStorage.getItem("rol") || "");
     if (rol === "Administrador") return <Navigate to="/panel/dashboard" replace />;
     if (rol === "Técnico") return <Navigate to="/panel/orders" replace />;
     return <Navigate to="/" replace />;
