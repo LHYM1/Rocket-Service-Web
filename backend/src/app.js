@@ -22,7 +22,16 @@ import unidadMedida from './modules/undMed/undMed.routes.js';
 const app = express();
 
 app.use(express.json());
-app.use(cors()); // permite acceso a la API desde el frontend
+
+app.use(cors({
+    origin: [
+        'http://localhost:3000',  // frontend web
+        'http://10.0.2.2:3000'   // emulador Android
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
 
 // Rutas usuario
 app.use('/api/usuarios', userRoutes);
