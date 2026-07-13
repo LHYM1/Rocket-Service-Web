@@ -38,7 +38,6 @@ const OrdenServicio = {
     const [rows] = await db.query(`
         SELECT 
             o.id_orden,
-            o.codigo_orden,
             o.descripcion_del_problema,
             o.fecha_de_creacion,
             o.fecha_finalizacion_estimada,
@@ -70,7 +69,6 @@ const OrdenServicio = {
     const [rows] = await db.query(`
         SELECT 
             o.id_orden,
-            o.codigo_orden,
             o.descripcion_del_problema,
             o.fecha_de_creacion,
             o.fecha_finalizacion_estimada,
