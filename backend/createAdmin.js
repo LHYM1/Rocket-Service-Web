@@ -4,11 +4,11 @@ import pool from './src/config/db.js';
 
 const crearAdmin = async () => {
     try {
-        const nombre = "Kevin";
-        const apellido = "Vargas";
-        const correo_usuario = "kevin@gmail.com";
-        const telefono_usuario = "3226786545";
-        const contrasena = "1234";
+        const nombre =  process.env.ADMIN_NOMBRE;
+        const apellido = process.env.ADMIN_APELLIDO;
+        const correo_usuario = process.env.ADMIN_EMAIL;
+        const telefono_usuario = process.env.ADMIN_TELEFONO;
+        const contrasena  = process.env.ADMIN_PASSWORD;
 
         const ID_ADMIN = 3; 
 
@@ -17,7 +17,8 @@ const crearAdmin = async () => {
         await pool.query(
             `INSERT INTO usuarios 
             (contrasena, nombre, apellido, correo_usuario, telefono_usuario, id_tipo_usuario)
-            VALUES (?, ?, ?, ?, ?, ?)`,
+            VALUES (?, ?, ?, ?, ?, ?),
+            ONDUPLICATE KET UPDATE id_tipo_usuario = VALUES(id_tipo_usuario)`,
             [hashedPassword, nombre, apellido, correo_usuario, telefono_usuario, ID_ADMIN]
         );
 

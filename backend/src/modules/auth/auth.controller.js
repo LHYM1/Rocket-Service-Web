@@ -8,6 +8,19 @@ const register = async (req, res) => {
   try {
     const ID_TECNICO = 2; 
 
+    // Verificar si el correo ya existe en la base de datos
+    const [existente] = await pool.query(
+      `SELECT * FROM usuarios WHERE correo_usuario = ?`,
+      [correo_usuario]
+    );
+
+    if (existente.length > 0) {
+      return res.status(409).json({ 
+        message: "Este correo ya está registrado, por favor usa otro."
+      })
+    }
+    
+    // Si no hay correo duplicado, continuar con el registro
     const hashedPassword = await bcrypt.hash(contrasena, 10);
 
     await pool.query(
@@ -17,8 +30,39 @@ const register = async (req, res) => {
     );
 
     res.json({ message: "Usuario registrado correctamente" });
+    
   } catch (error) {
-    res.status(500).json({ message: "Error al registrar usuario", error });
+    // Red de seguridad (Si por alguna razón falla el UNIQUE "correo_usuario" en MySQL)
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ 
+        message: "Este correo ya está registrado, por favor usa otro." 
+      });
+    }
+    
+    console.error("Error real al registrar:", error);
+    res.status(500).json({ message: "Error al registrar usuario", error: error.message });
+  }
+};
+
+// Verificación del correo en tiempo real (usada por el front mietras el usuario escribe)
+const checkEmail = async (req, res) => {
+  const { correo_usuario } = req.query;
+
+  if (!correo_usuario) {
+    return res.status(400).json({ message: "Correo no proporcionado" });
+  } 
+
+  try {
+    const [existente] = await pool.query(
+      `SELECT id_usuario FROM usuarios WHERE correo_usuario = ?`,
+      [correo_usuario]
+    );
+
+    res.json({ exists: existente.length > 0 });
+
+  } catch (error) {
+    console.error("Error al verificar correo:", error);
+    res.status(500).json({ message: "Error al verificar correo" });
   }
 };
 
@@ -66,4 +110,4 @@ const login = async (req, res) => {
     }
 };
 
-export default { login, register };
+export default { login, register, checkEmail };

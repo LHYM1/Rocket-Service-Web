@@ -1,0 +1,148 @@
+.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    padding: 2rem 1rem; /* por si el contenido crece en pantallas pequeñas */
+}
+
+.register-form-container {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 640px; /* un poco más ancho para que quepan bien las 2 columnas */
+    box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+}
+
+.register-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin-bottom: 0.3rem;
+}
+
+/* NUEVO: fila de dos columnas */
+.register-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.register-field {
+    margin-bottom: 1.2rem;
+    min-width: 0; /* evita que un input largo rompa el grid */
+}
+
+.register-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.4rem;
+}
+
+.register-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+    outline: none;
+    background: #f8f9fa;
+    box-sizing: border-box; /* asegura que el padding no desborde el ancho de la columna */
+}
+
+.register-input:focus {
+    border-color: #ff8c00;
+    background: white;
+}
+
+.register-input-error {
+    border-color: #dc3545 !important;
+    background: #fff5f5;
+    animation: shake 0.3s ease;
+}
+
+.register-error-msg {
+    color: #dc3545;
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+    display: block;
+}
+
+.register-forgot {
+    text-align: right;
+    margin-bottom: 1.5rem;
+}
+
+.register-checking-msg {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #888;
+    margin-left: 8px;
+}
+
+.register-input-success {
+    border-color: #28a745 !important;
+    background: #f5fff7;
+}
+ 
+.register-success-msg {
+    color: #28a745;
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+    display: block;
+}
+
+.fa-check-stack {
+  font-size: 0.6rem; /* ajusta el tamaño total del ícono apilado */
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.check-circle-bg {
+  color: #28a745; /* verde para el círculo de fondo */
+}
+
+.check-icon-fg {
+  color: #ffffff; /* blanco para el check que va encima */
+}
+
+/* Botón registrar */
+.register-btn {
+    display: block;
+    width: 100%;
+    max-width: 345px; /* Controla el ancho real del botón */
+    margin: 0 auto 1rem;     /* Lo centra horizontalmente */
+    padding: 13px;
+    background: linear-gradient(135deg, #ff8c00, #ff6b00);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    size: 30px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 1rem;
+}
+
+.register-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+}
+
+.register-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Responsive: en pantallas pequeñas, apilar en una sola columna */
+@media (max-width: 480px) {
+    .register-row {
+        grid-template-columns: 1fr;
+    }
+}

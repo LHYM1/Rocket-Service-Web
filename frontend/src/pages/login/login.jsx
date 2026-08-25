@@ -156,7 +156,7 @@ function Iniciarsesion() {
                             <a href="forgotPassword" className="login-link">¿Olvidaste tu contraseña?</a>
                         </div>
 
-                        <button className="login-btn" disabled={cargando}>
+                        <button type="submit" className="login-btn" disabled={cargando}>
                             {cargando
                                 ? <><i className="fa-solid fa-spinner fa-spin me-2"></i>Iniciando...</>
                                 : <><i className="fa-solid fa-right-to-bracket me-2"></i>Iniciar Sesión</>
