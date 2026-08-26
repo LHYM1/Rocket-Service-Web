@@ -270,7 +270,7 @@ const ModalOrdenServicio = ({ idSeleccionado, onClose, onSuccess }) => {
                             ) : (
                                 <div className="col-md-6">
                                     <label className="form-label fw-semibold">
-                                        <i className="bi bi-flag me-1"></i>Estado
+                                        <i className="bi bi-flag me-1"></i>Estado de orden de Servicio
                                     </label>
                                     <div className="form-control bg-light d-flex align-items-center gap-2">
                                         {orden.id_tecnico_asignado ? (

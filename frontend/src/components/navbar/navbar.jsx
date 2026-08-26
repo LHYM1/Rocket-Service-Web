@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from '../../axiosConfig';
 import './Navbar.css';
 import { useAuth } from '../../context/AuthContext';
+import { desencriptar } from '../../utils/crypto';
 
 const Navbar = () => {
     const { esTecnico, userId } = useAuth();
@@ -10,8 +11,10 @@ const Navbar = () => {
     const [showDropdown, setShowDropdown] = useState(false);
 
     // Obtener nombre del usuario del token
-    const token = localStorage.getItem("token");
-    const rol = localStorage.getItem("rol");
+    const tokenEncriptado = localStorage.getItem("token");
+    const token = desencriptar(tokenEncriptado || "");
+    const rolEncriptado = localStorage.getItem("rol");
+    const rol = desencriptar(rolEncriptado || "");
 
     let nombreUsuario = "";
     if (token) {
@@ -20,7 +23,7 @@ const Navbar = () => {
             nombreUsuario = `${payload.nombre || ""} ${payload.apellido || ""}`.trim();
         } catch (e) {}
     }
-
+    
      // Saludo según hora
     const getSaludo = () => {
         const hora = new Date().getHours();

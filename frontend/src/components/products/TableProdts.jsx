@@ -46,8 +46,8 @@ function TableProdts ({ product, setIdSeleccionado, getProduct }) {
                     {product.map((p) => (
                         <tr key={p.id_insumo}>
                             <td>{p.id_insumo}</td>
-                            <td>{p.categoria }</td> 
-                            <td>{p.unidad_de_medida}</td>
+                            <td>{p.nombre_categoria}</td>
+                            <td>{p.nombre_unidad}</td>
                             <td>{p.nombre_insumo}</td>
                     
                             <td>

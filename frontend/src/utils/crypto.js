@@ -1,6 +1,6 @@
 import CryptoJS from 'crypto-js';
 
-const SECRET_KEY = 'rocket_service_2025_key';
+const SECRET_KEY = process.env.REACT_APP_CRYPTO_KEY;
 
 export const encriptar = (valor) => {
     return CryptoJS.AES.encrypt(valor, SECRET_KEY).toString();
