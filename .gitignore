@@ -8,10 +8,47 @@ node_modules/
 backend/node_modules/
 frontend/node_modules/
 
+# Archivos generados por pruebas
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+coverage/
+backend/coverage/
+frontend/coverage/
+.jest/
+.vitest/
+
+
 # Archivos temporales
 backend/uploads/
 *.log
 
+# Administrador
+backend/createAdmin.js
+
 # Build
 frontend/build/
 frontend/dist/
+
+# Archivos generados por Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+frontend/playwright-report/
+playwright-report/
+
+# Logs y temporales de Selenium
+*.log
+chromedriver.log
+geckodriver.log
+selenium-reports/
+
+# Grabaciones de video de pruebas
+test-results/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
