@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../context/ToastContext";
+import  TokenInput from "../../components/TokenInput/TokenInput";
+import '../../components/TokenInput/TokenInput.css';
 import './register.css'
 
 function Registro() {
@@ -8,6 +10,7 @@ function Registro() {
   const { mostrarToast } = useToast();
 
   const [form, setForm] = useState({
+    tokenRegistro: "",
     contrasena: "",
     confirmarContrasena: "",
     nombre: "",
@@ -17,6 +20,7 @@ function Registro() {
   });
 
   const [errores, setErrores] = useState({
+    tokenRegistro: false,
     contrasena: false,
     confirmarContrasena: false,
     nombre: false,
@@ -86,8 +90,8 @@ function Registro() {
     }
 
     // Validación básica
-    if (!form.contrasena || !form.confirmarContrasena || !form.nombre || !form.apellido 
-      || !form.correo_usuario || !form.telefono_usuario) {
+    if (!form.tokenRegistro ||!form.contrasena || !form.confirmarContrasena || !form.nombre 
+      || !form.apellido || !form.correo_usuario || !form.telefono_usuario) {
 
       setErrores({
         contrasena: form.contrasena === "",
@@ -318,6 +322,7 @@ function Registro() {
                   setErrores(prev => ({ ...prev, confirmarContrasena: false }));
                 }}
               />  
+
               {errores.confirmarContrasena && (
                 <small className="register-error-msg">
                   <i className="fa-solid fa-circle-exclamation me-1"></i>
@@ -327,6 +332,31 @@ function Registro() {
             </div>
 
           </div>
+          
+          {/** Código (token) de autenticación **/}
+          <div className="register-field" style={{ width: "100%" }}>
+            <label className="register-label" style={{ textAlign: "center", display: "block" }}>
+              <i className="fa-solid fa-key me-2"></i>Dígita el código de Activación (Token)
+            </label>
+
+            <TokenInput
+              value={form.tokenRegistro}
+              onChange={(newToken) => {
+                setForm(prev => ({ ...prev, tokenRegistro: newToken }));
+                setErrores(prev => ({ ...prev, tokenRegistro: false }));
+              }}
+                error={errores.tokenRegistro}
+            />
+
+            {errores.tokenRegistro && (
+              <small className="register-error-msg" style={{ textAlign: "center", display: "block" }}>
+                <i className="fa-solid fa-circle-exclamation me-1"></i>
+                  Ingresa el código de activación enviado a tu correo
+              </small>
+              )}
+          </div>
+
+
           <button type="submit" className="register-btn" disabled={cargando}>
               {cargando
                 ? <><i className="fa-solid fa-spinner fa-spin me-2"></i>Registrando...</>

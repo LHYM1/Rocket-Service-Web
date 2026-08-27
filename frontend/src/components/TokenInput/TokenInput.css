@@ -1,0 +1,49 @@
+/* Contenedor principal de las casillas */
+.token-otp-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 15px 0;
+}
+
+.token-otp-container {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* Estilo individual de cada casilla */
+.token-otp-box {
+  width: 45px;
+  height: 52px;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a202c;
+  background-color: #f8fafc;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+  text-transform: uppercase;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Estado Focus (al seleccionar la casilla) */
+.token-otp-box:focus {
+  border-color: #007bff;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.18);
+  transform: translateY(-2px);
+}
+
+/* Estado cuando la casilla tiene un caracter escrito */
+.token-otp-box.token-otp-filled {
+  border-color: #007bff;
+  background-color: #f0f7ff;
+}
+
+/* Estado de Error (si la validación falla) */
+.token-otp-box.token-otp-error {
+  border-color: #dc3545;
+  background-color: #fff5f5;
+}
