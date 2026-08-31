@@ -3,20 +3,19 @@
 -- Depende de: 009_create_motocicleta, 005_create_usuarios, 
 --             008_create_tipo_servicio, 003_create_estado_orden_servicio
 -- NOTA (pendiente, ya identificado en documentación): id_tecnico_asignado 
--- es VARCHAR(20) y debería ser INT con FK a usuarios.id_usuario. Se deja 
--- igual que el dump actual para reconstrucción fiel; corregir en una 
--- migración posterior (ver sección de mejoras).
+-- es VARCHAR(20) y debería ser INT con FK a usuarios.id_usuario. 
 
 CREATE TABLE ordenes_de_servicio (
   id_orden INT(11) NOT NULL AUTO_INCREMENT,
   id_moto INT(10) NOT NULL,
   id_usuario INT(11) NOT NULL,
-  id_tecnico_asignado VARCHAR(20) NOT NULL,
+  id_tecnico_asignado INT(11) NOT NULL,
   id_tipo_servicio INT(11) NOT NULL,
   id_estado_de_servicio INT(11) NOT NULL,
-  fecha_de_creacion DATE NOT NULL,
-  fecha_finalizacion_estimada DATE DEFAULT NULL,
-  descripcion_del_problema VARCHAR(200) DEFAULT NULL,
+  fecha_de_creacion DATETIME NOT NULL,
+  fecha_finalizacion_estimada DATETIME NOT NULL,
+  fecha_finalizacion DATETIME NOT NULL,
+  descripcion_del_problema VARCHAR(200) NOT NULL,
   PRIMARY KEY (id_orden),
   KEY fK_relacion_id_moto (id_moto),
   KEY fk_relacion_id_usuario (id_usuario),

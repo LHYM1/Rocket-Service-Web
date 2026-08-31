@@ -14,5 +14,8 @@ CREATE TABLE registro_actividad (
   id_orden INT(11) NOT NULL,
   id_usuario INT(11) NOT NULL,
   estado_disponibilidad VARCHAR(40) DEFAULT NULL,
+  fecha_hora DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id_registro)
+  CONSTRAINT fk_registro_orden FOREIGN KEY (id_orden) REFERENCES ordenes_de_servicio (id_orden),
+  CONSTRAINT fk_registro_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

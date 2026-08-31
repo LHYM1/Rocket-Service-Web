@@ -7,6 +7,7 @@ CREATE TABLE insumos_usados_en_servicio (
   id_orden INT(11) NOT NULL,
   id_insumo INT(11) NOT NULL,
   cantidad INT(11) NOT NULL,
+  precio_unitario_registrado DECIMAL(10,2) NOT NULL DEFAULT 0,
   PRIMARY KEY (id_insumos_orden),
   KEY fk_relacion_orden (id_orden),
   KEY fk_relacion_insumo (id_insumo),

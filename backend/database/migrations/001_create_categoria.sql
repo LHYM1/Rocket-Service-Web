@@ -1,9 +1,11 @@
 -- Migración: 001_create_categoria
 -- Descripción: Crea el catálogo de categorías de insumos.
+-- Estados: 1 = Activa y 0 = inactiva
 
 CREATE TABLE categoria (
   id_categoria INT(11) NOT NULL AUTO_INCREMENT,
-  nombre VARCHAR(20) NOT NULL,
-  Descripcion TEXT DEFAULT 'Aceites de motor, grasas y liquidos que aseguran el buen funcionamiento.',
+  nombre VARCHAR(50) NOT NULL,
+  Descripcion TEXT DEFAULT NULL,
+  estado TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1: activa, 0: inactiva',
   PRIMARY KEY (id_categoria)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) 

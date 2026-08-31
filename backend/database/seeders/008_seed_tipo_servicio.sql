@@ -10,5 +10,4 @@ INSERT INTO tipo_servicio (id_tipo_servicio, nombre_servicio, descripcion_servic
 (8, 'Instalación de Sistemas de Escape', 'Retiro del sistema de escape de fábrica e instalación de un sistema \nde alto rendimiento.'),
 (9, 'Alineación y Balanceo de Ruedas', 'Balanceo de Ruedas\tAjuste de la tensión de los radios, alineación de la rueda y \nbalanceo dinámico para garantizar una rodadura suave.'),
 (10, 'Limpieza Ultrasónica de Componentes', 'Limpieza profunda de piezas de precisión como \ninyectores, carburadores o cuerpos de aceleración, para eliminar residuos y óxido.'),
-(13, 'mantenimiento', 'reparación de frenos'),
-(17, 'Mantenimiento preventivoo', '....');
+(13, 'mantenimiento', 'reparación de frenos');

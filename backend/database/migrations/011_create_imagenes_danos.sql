@@ -9,5 +9,7 @@ CREATE TABLE imagenes_danos (
   id_orden VARCHAR(20) NOT NULL,
   url_imagen VARCHAR(255) DEFAULT NULL,
   tipo_evidencia ENUM('ingreso','entrega') NOT NULL,
-  PRIMARY KEY (id_imagen)
+  PRIMARY KEY (id_imagen),
+  KEY fk_imagenes_orden (id_orden),
+  CONSTRAINT fk_imagenes_orden FOREIGN KEY (id_orden) REFERENCES ordenes_de_servicio (id_orden)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
