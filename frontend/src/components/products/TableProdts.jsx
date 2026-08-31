@@ -1,74 +1,120 @@
-import axios from '../../axiosConfig'
+import axios from '../../axiosConfig';
+import { useToast } from '../../context/ToastContext';
 
-// la prop product viene del padre page. Page es arreglo que muestra la tabla
-// la prop setIdSeleccionado viene del padre page
-// la prop getProduct viene del padre page
+function TableProdts({ product, setIdSeleccionado, getProduct }) {
+    const { mostrarToast } = useToast();
 
-function TableProdts ({ product, setIdSeleccionado, getProduct }) {
     if (!product || !Array.isArray(product)) {
-        return <p>No hay insumos disponibles</p>;
+        return (
+            <div className="rs-empty">
+                <i className="fa-solid fa-box-open rs-empty-icon"></i>
+                <p className="rs-empty-text">No hay insumos disponibles.</p>
+            </div>
+        );
     }
 
-    // constante eliminar insumo
-    const eliminarIns= (id) => {
-        
-        if (window.confirm("¿Estás seguro de eliminar este Insumo?")) {
-            axios.delete(`http://localhost:4000/api/insumos/eliminar/${id}`)
-            .then(() => {
-                alert("Insumo eliminado con éxito");
-                getProduct(); // función que viene del padre page
-            })
-            .catch(err =>  {
-                console.error(err);
-                alert("No se pudo eliminar el insumo");
-            }); 
-        } else {
-            alert("El Insumo no fue eliminado");
-        }
-           
+    if (product.length === 0) {
+        return (
+            <div className="rs-empty">
+                <i className="fa-solid fa-magnifying-glass rs-empty-icon"></i>
+                <p className="rs-empty-text">No se encontraron insumos.</p>
+            </div>
+        );
     }
+
+    const desactivarInsumo = async (id) => {
+        if (window.confirm("¿Estás seguro de desactivar este insumo?")) {
+            try {
+                await axios.patch(`http://localhost:4000/api/insumos/desactivar/${id}`);
+                mostrarToast("Insumo desactivado correctamente.", "success");
+                getProduct();
+            } catch (error) {
+                const msg = error.response?.data?.message || "No se pudo desactivar el insumo.";
+                mostrarToast(msg, "error");
+            }
+        }
+    };
+
+    const reactivarInsumo = async (id) => {
+        try {
+            await axios.patch(`http://localhost:4000/api/insumos/reactivar/${id}`);
+            mostrarToast("Insumo reactivado correctamente.", "success");
+            getProduct();
+        } catch (error) {
+            const msg = error.response?.data?.message || "No se pudo reactivar el insumo.";
+            mostrarToast(msg, "error");
+        }
+    };
 
     return (
-        <div>
-            <table className="table table-hover" border="1">
-                <thead className="table-light">
+        <div className="rs-table-wrapper">
+            <table className="rs-table rs-table-sm">
+                <thead>
                     <tr>
-                        <th>Id</th>
-                        <th>Categoria</th>
-                        <th>Medida</th>
                         <th>Nombre insumo</th>
-                        
+                        <th>Categoría</th>
+                        <th>Unidad</th>
+                        <th>Stock</th>
+                        <th>Precio unitario</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     {product.map((p) => (
                         <tr key={p.id_insumo}>
-                            <td>{p.id_insumo}</td>
-                            <td>{p.categoria }</td> 
+                            <td style={{ color: '#1a1a2e', fontWeight: '500' }}>{p.nombre_insumo}</td>
+                            <td><span className="rs-cat-badge">{p.categoria}</span></td>
                             <td>{p.unidad_de_medida}</td>
-                            <td>{p.nombre_insumo}</td>
-                    
                             <td>
-                                <button onClick={() => setIdSeleccionado(p)}
-                                    type="button" className="btn btn-warning btn-color">
-                                    Editar
-                                </button>
-
-                                <button onClick={() => eliminarIns(p.id_insumo)}
-                                    type="button" className="btn btn-danger btn-color">
-                                    Eliminar
-                                </button>
+                                {p.cantidad_disponible === 0
+                                    ? <span className="rs-badge rs-badge-danger">No disponible</span>
+                                    : <span className="rs-badge rs-badge-success">{p.cantidad_disponible}</span>
+                                }
                             </td>
-                        </tr>                    
+                            <td className="rs-precio">
+                                ${Number(p.precio_unitario).toLocaleString('es-CO')}
+                            </td>
+                            <td>
+                                {p.estado === 1
+                                    ? <span className="rs-badge rs-badge-success">Activo</span>
+                                    : <span className="rs-badge rs-badge-muted">Inactivo</span>
+                                }
+                            </td>
+                            <td>
+                                <div className="rs-actions">
+                                    <button
+                                        onClick={() => setIdSeleccionado(p)}
+                                        className="rs-btn rs-btn-icon rs-btn-edit"
+                                        title="Editar"
+                                    >
+                                        <i className="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    {p.estado === 1 ? (
+                                        <button
+                                            onClick={() => desactivarInsumo(p.id_insumo)}
+                                            className="rs-btn rs-btn-icon rs-btn-delete"
+                                            title="Desactivar"
+                                        >
+                                            <i className="fa-solid fa-trash"></i>
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => reactivarInsumo(p.id_insumo)}
+                                            className="rs-btn rs-btn-icon rs-btn-reactivate"
+                                            title="Reactivar"
+                                        >
+                                            <i className="fa-solid fa-arrows-rotate"></i>
+                                        </button>
+                                    )}
+                                </div>
+                            </td>
+                        </tr>
                     ))}
-                    
                 </tbody>
             </table>
-        </div> 
-    )
+        </div>
+    );
 }
 
 export default TableProdts;
-  

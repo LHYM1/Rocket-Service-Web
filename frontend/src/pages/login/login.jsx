@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import './login.css';
-import GoogleButton from "../../components/btnLogin/googleButton";
+// import GoogleButton from "../../components/btnLogin/googleButton";
 import { useToast } from "../../context/ToastContext";
 
 function Iniciarsesion() {
@@ -48,11 +48,12 @@ function Iniciarsesion() {
                 setForm({ ...form, contrasena: "" });
                 setCargando(false);
                 return;
+                
             }
 
             const payload = JSON.parse(atob(data.token.split('.')[1]));
             localStorage.setItem("token", data.token);
-            localStorage.setItem("rol", data.role);
+            localStorage.setItem("rol", payload.role);
             localStorage.setItem("userId", payload.id);
             window.dispatchEvent(new CustomEvent('authChanged'));
 
@@ -165,13 +166,13 @@ function Iniciarsesion() {
                             <Link to="/register" className="login-link">Registrarme</Link>
                         </div>
 
-                        <div className="login-divider">
+                        {/* <div className="login-divider">
                             <span>o continúa con</span>
                         </div>
 
                         <div className="login-google">
                             <GoogleButton />
-                        </div>
+                        </div> */}
                     </form>
                 </div>
             </div>

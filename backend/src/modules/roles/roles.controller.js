@@ -5,7 +5,6 @@ export const listarCatUser = async (req, res) => {
 
     try {
         const catUsers = await usersCat.findAll();
-        console.log("Datos obtenidos:", catUsers);
         res.json(catUsers);
     } catch (error) {
         res.status(500).json({ error: error.message });

@@ -1,21 +1,15 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import axios from "../axiosConfig";
 import { useAuth } from "./AuthContext";
 
 const NotifContext = createContext();
 
 export const NotifProvider = ({ children }) => {
     const { esAdmin } = useAuth();
-    const [ordenesEsperando, setOrdenesEsperando] = useState(0);
+    const [ordenesEsperando] = useState(0);
 
     const actualizarNotifs = useCallback(async () => {
         if (esAdmin) return;
-        try {
-            const res = await axios.get("http://localhost:4000/api/imagenes_danos/mis-ordenes");
-            setOrdenesEsperando(res.data.length);
-        } catch (err) {
-            console.error(err);
-        }
+        // TODO: implementar cuando la ruta mis-ordenes esté lista
     }, [esAdmin]);
 
     useEffect(() => {
@@ -24,7 +18,6 @@ export const NotifProvider = ({ children }) => {
         return () => clearInterval(interval);
     }, [actualizarNotifs]);
 
-    // Escuchar cuando el estado de una orden cambia
     useEffect(() => {
         const handler = () => actualizarNotifs();
         window.addEventListener('ordenActualizada', handler);

@@ -1,152 +1,367 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import Select from "react-select";
+import axios from "../../axiosConfig";
+import { useToast } from "../../context/ToastContext";
 
-const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
-    const [ insumo, setInsumo ] = useState({
-        id_categoria : "",
-        id_unidad : "",
+const toTitleCase = (str) => {
+    return str.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
+const limpiarNumero = (valor) => {
+    return parseInt(String(valor).replace(/[.,]/g, '')) || 0;
+};
+
+// Estilos para react-select modo blanco
+const selectStyles = {
+    control: (base, state) => ({
+        ...base,
+        backgroundColor: '#f9fafb',
+        border: `1px solid ${state.isFocused ? '#FF8C00' : '#e5e7eb'}`,
+        borderRadius: '8px',
+        boxShadow: state.isFocused ? '0 0 0 3px rgba(255,140,0,0.1)' : 'none',
+        padding: '2px 4px',
+        fontSize: '14px',
+        fontFamily: 'Poppins, sans-serif',
+        cursor: 'pointer',
+        '&:hover': { borderColor: '#FF8C00' }
+    }),
+    option: (base, state) => ({
+        ...base,
+        backgroundColor: state.isSelected
+            ? '#FF8C00'
+            : state.isFocused ? '#fff3e0' : '#ffffff',
+        color: state.isSelected ? '#ffffff' : '#1a1a2e',
+        fontSize: '14px',
+        fontFamily: 'Poppins, sans-serif',
+        cursor: 'pointer',
+        padding: '10px 14px',
+    }),
+    menu: (base) => ({
+        ...base,
+        borderRadius: '8px',
+        border: '1px solid #e5e7eb',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+        zIndex: 9999,
+    }),
+    placeholder: (base) => ({
+        ...base,
+        color: '#9ca3af',
+        fontSize: '14px',
+    }),
+    singleValue: (base) => ({
+        ...base,
+        color: '#1a1a2e',
+        fontSize: '14px',
+    }),
+    indicatorSeparator: () => ({ display: 'none' }),
+    dropdownIndicator: (base) => ({
+        ...base,
+        color: '#9ca3af',
+        '&:hover': { color: '#FF8C00' }
+    }),
+};
+
+const selectStylesDisabled = {
+    ...selectStyles,
+    control: (base) => ({
+        ...selectStyles.control(base, {}),
+        backgroundColor: '#f3f4f6',
+        cursor: 'not-allowed',
+        opacity: 0.7,
+    }),
+};
+
+const ModalEdtAgrProd = ({ idSeleccionado, onClose, onSuccess }) => {
+    const { mostrarToast } = useToast();
+
+    const [insumo, setInsumo] = useState({
+        id_categoria: "",
+        id_unidad: "",
         nombre_insumo: "",
+        cantidad_disponible: "",
+        precio_unitario: "",
+        cantidad_adicional: ""
     });
 
-    // Para cargar categorías y unidades en los select
+    const [errores, setErrores] = useState({});
     const [categorias, setCategorias] = useState([]);
     const [unidades, setUnidades] = useState([]);
+    const [cargando, setCargando] = useState(false);
 
-    // useEffect para precargar datos de DB si hay un idSeleccionado
     useEffect(() => {
         if (idSeleccionado) {
             setInsumo({
-                id_categoria: idSeleccionado.id_categoria, 
+                id_categoria: idSeleccionado.id_categoria,
                 id_unidad: idSeleccionado.id_unidad,
                 nombre_insumo: idSeleccionado.nombre_insumo,
-            })
+                precio_unitario: idSeleccionado.precio_unitario,
+                cantidad_adicional: ""
+            });
         }
     }, [idSeleccionado]);
 
-    // useEffect para cargar categorias y unidades
     useEffect(() => {
         const fetchData = async () => {
-            const categoria = await axios.get("http://localhost:4000/api/categoria/listar");
-            setCategorias(categoria.data);
-
-            const unidad = await axios.get("http://localhost:4000/api/unidad_de_medida/listar");
-            setUnidades(unidad.data);
+            try {
+                const [catRes, undRes] = await Promise.all([
+                    axios.get("http://localhost:4000/api/categoria/listar"),
+                    axios.get("http://localhost:4000/api/unidad_de_medida/listar")
+                ]);
+                setCategorias(catRes.data.map(c => ({
+                    value: c.id_categoria,
+                    label: c.nombre
+                })));
+                setUnidades(undRes.data.map(u => ({
+                    value: u.id_unidad,
+                    label: u.nombre
+                })));
+            } catch (error) {
+                mostrarToast("Error al cargar datos", "error");
+            }
         };
         fetchData();
     }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setInsumo({...insumo, [name]: value });
-    }
+        let nuevoValor = value;
+        if (name === "nombre_insumo") nuevoValor = toTitleCase(value);
+        setInsumo({ ...insumo, [name]: nuevoValor });
+        if (errores[name]) setErrores({ ...errores, [name]: "" });
+    };
 
+    const handleSelect = (name, selected) => {
+        setInsumo({ ...insumo, [name]: selected ? selected.value : "" });
+        if (errores[name]) setErrores({ ...errores, [name]: "" });
+    };
+
+    const validar = () => {
+        const nuevosErrores = {};
+        if (!idSeleccionado) {
+            if (!insumo.id_categoria) nuevosErrores.id_categoria = "Seleccione una categoría.";
+            if (!insumo.id_unidad) nuevosErrores.id_unidad = "Seleccione una unidad de medida.";
+            if (!insumo.nombre_insumo.trim()) nuevosErrores.nombre_insumo = "El nombre es obligatorio.";
+            if (!insumo.cantidad_disponible) nuevosErrores.cantidad_disponible = "La cantidad inicial es obligatoria.";
+            else if (limpiarNumero(insumo.cantidad_disponible) <= 0)
+                nuevosErrores.cantidad_disponible = "La cantidad inicial debe ser mayor a cero.";
+            if (!insumo.precio_unitario) nuevosErrores.precio_unitario = "El precio es obligatorio.";
+            else if (limpiarNumero(insumo.precio_unitario) < 1000)
+                nuevosErrores.precio_unitario = "El precio unitario debe ser mínimo $1.000.";
+        } else {
+            if (!insumo.nombre_insumo.trim()) nuevosErrores.nombre_insumo = "El nombre es obligatorio.";
+            if (!insumo.precio_unitario) nuevosErrores.precio_unitario = "El precio es obligatorio.";
+            else if (limpiarNumero(insumo.precio_unitario) < 1000)
+                nuevosErrores.precio_unitario = "El precio unitario debe ser mínimo $1.000.";
+            if (insumo.cantidad_adicional !== "" && limpiarNumero(insumo.cantidad_adicional) <= 0)
+                nuevosErrores.cantidad_adicional = "La cantidad a agregar debe ser mayor a cero.";
+        }
+        setErrores(nuevosErrores);
+        return Object.keys(nuevosErrores).length === 0;
+    };
 
     const handleSave = async () => {
+        if (!validar()) return;
         try {
+            setCargando(true);
+            const payload = {
+                ...insumo,
+                precio_unitario: limpiarNumero(insumo.precio_unitario),
+                cantidad_disponible: limpiarNumero(insumo.cantidad_disponible),
+                cantidad_adicional: insumo.cantidad_adicional ? limpiarNumero(insumo.cantidad_adicional) : 0
+            };
             if (idSeleccionado) {
-                // Editar
-                await axios.put(
-                    `http://localhost:4000/api/insumos/modificar/${idSeleccionado.id_insumo}`, insumo
-                );
-                alert("Insumo actualizado con éxito");
+                await axios.put(`http://localhost:4000/api/insumos/modificar/${idSeleccionado.id_insumo}`, payload);
+                mostrarToast("Insumo actualizado correctamente.", "success");
             } else {
-                // Agregar
-                await axios.post(
-                    `http://localhost:4000/api/insumos/crear`, insumo
-                );
-
-                alert("insumo agregado con éxito");
+                await axios.post("http://localhost:4000/api/insumos/crear", payload);
+                mostrarToast("Insumo registrado correctamente.", "success");
             }
             onSuccess();
             onClose();
         } catch (error) {
-            console.error("Detalle del error:", error.response ? error.response.data : error.message);
-            alert("Hubo un error al guardar el insumo");
+            const msg = error.response?.data?.message || "Error al guardar el insumo.";
+            mostrarToast(msg, "error");
+        } finally {
+            setCargando(false);
         }
     };
 
     return (
-    <div className="modal d-block">
-        <div className="modal-dialog">
-            
-            <div className="modal-content">
-                <div className="modal-header">
-                    <h5 className="modal-title">
-                        {idSeleccionado ? "Editar Insumo" : "Registrar Insumo"}
-                    </h5>
-
-                    <button type="button" className="btn-close" onClick={onClose}></button>
+        <div className="rs-modal-overlay">
+            <div className="rs-modal rs-modal-white">
+                {/* Header */}
+                <div className="rs-modal-header">
+                    <div className="rs-modal-header-left">
+                        <div className="rs-modal-icon">
+                            <i className="fa-solid fa-box-open"></i>
+                        </div>
+                        <h5 className="rs-modal-title">
+                            {idSeleccionado ? "Editar Insumo" : "Registrar Insumo"}
+                        </h5>
+                    </div>
+                    <button className="rs-modal-close" onClick={onClose}>
+                        <i className="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
 
-                <div className="modal-body">
-    
-                    { /* Seleccionar categoria tabla categoria  */ }
-                    <div className="mb-3">
-                        <label className="form-label">Categoria</label>
-                        <select 
-                            className="form-select" 
-                            name="id_categoria" 
-                            value={insumo.id_categoria} 
-                            onChange={handleChange} 
-                            required
-                        >
-
-                            {/* Seleccionar categoria */}
-                            <option value="">Seleccione una categoria</option>
-                            {categorias.map((cat) => (
-                                <option key={cat.id_categoria} value={cat.id_categoria}>
-                                 {cat.nombre} 
-                                </option>
-                                
-                            ))}
-                        </select>
+                {/* Body */}
+                <div className="rs-modal-body">
+                    {/* Categoría */}
+                    <div className="rs-field">
+                        <label className="rs-label">
+                            Categoría <span className="rs-required">*</span>
+                        </label>
+                        <Select
+                            options={categorias}
+                            styles={selectStyles}
+                            placeholder="Seleccione una categoría"
+                            value={categorias.find(c => c.value === insumo.id_categoria) || null}
+                            onChange={(selected) => handleSelect("id_categoria", selected)}
+                            isClearable
+                        />
+                        {errores.id_categoria && (
+                            <span className="rs-error-msg">
+                                <i className="fa-solid fa-circle-exclamation"></i>
+                                {errores.id_categoria}
+                            </span>
+                        )}
                     </div>
 
-                    <div className="mb-3">
-                        <label className="form-label">Unidad de medida</label>
-                        <select 
-                            className="form-select" 
-                            name="id_unidad" 
-                            value={insumo.id_unidad} 
-                            onChange={handleChange} 
-                            required
-                        >
-
-                            {/* Seleccionar */}
-                            <option value="">Seleccione una unidad de medida</option>
-                            {unidades.map((ins) => (
-                                <option key={ins.id_unidad} value={ins.id_unidad}>
-                                 {ins.nombre}
-                                </option>
-                                
-                            ))}
-                        </select>
+                    {/* Unidad de medida */}
+                    <div className="rs-field">
+                        <label className="rs-label">
+                            Unidad de medida <span className="rs-required">*</span>
+                        </label>
+                        <Select
+                            options={unidades}
+                            styles={idSeleccionado ? selectStylesDisabled : selectStyles}
+                            placeholder="Seleccione una unidad de medida"
+                            value={unidades.find(u => u.value === insumo.id_unidad) || null}
+                            onChange={(selected) => handleSelect("id_unidad", selected)}
+                            isDisabled={!!idSeleccionado}
+                            isClearable={!idSeleccionado}
+                        />
+                        {idSeleccionado && (
+                            <small className="rs-hint">
+                                <i className="fa-solid fa-lock me-1"></i>
+                                No se puede modificar una vez creado.
+                            </small>
+                        )}
+                        {errores.id_unidad && (
+                            <span className="rs-error-msg">
+                                <i className="fa-solid fa-circle-exclamation"></i>
+                                {errores.id_unidad}
+                            </span>
+                        )}
                     </div>
 
-                    <div className="mb-3">
-                        <label className="form-label">Insumo</label>
+                    {/* Nombre */}
+                    <div className="rs-field">
+                        <label className="rs-label">
+                            Nombre del insumo <span className="rs-required">*</span>
+                        </label>
                         <input
                             type="text"
-                            className="form-control"
+                            className={`rs-input-white ${errores.nombre_insumo ? 'error' : ''}`}
                             name="nombre_insumo"
                             value={insumo.nombre_insumo}
                             onChange={handleChange}
+                            placeholder="Ej: Aceite De Motor 20w50"
                         />
+                        {errores.nombre_insumo && (
+                            <span className="rs-error-msg">
+                                <i className="fa-solid fa-circle-exclamation"></i>
+                                {errores.nombre_insumo}
+                            </span>
+                        )}
                     </div>
 
+                    {/* Precio */}
+                    <div className="rs-field">
+                        <label className="rs-label">
+                            Precio unitario <span className="rs-required">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            className={`rs-input-white ${errores.precio_unitario ? 'error' : ''}`}
+                            name="precio_unitario"
+                            value={insumo.precio_unitario}
+                            onChange={handleChange}
+                            min="1000"
+                            placeholder="Mínimo $1.000"
+                        />
+                        {errores.precio_unitario && (
+                            <span className="rs-error-msg">
+                                <i className="fa-solid fa-circle-exclamation"></i>
+                                {errores.precio_unitario}
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Cantidad */}
+                    {idSeleccionado ? (
+                        <div className="rs-field">
+                            <label className="rs-label">Cantidad a agregar al stock</label>
+                            <input
+                                type="number"
+                                className={`rs-input-white ${errores.cantidad_adicional ? 'error' : ''}`}
+                                name="cantidad_adicional"
+                                value={insumo.cantidad_adicional}
+                                onChange={handleChange}
+                                min="1"
+                                placeholder="Cantidad adicional a sumar"
+                            />
+                            <small className="rs-hint">
+                                <i className="fa-solid fa-cubes me-1"></i>
+                                Stock actual: {idSeleccionado.cantidad_disponible} unidades
+                            </small>
+                            {errores.cantidad_adicional && (
+                                <span className="rs-error-msg">
+                                    <i className="fa-solid fa-circle-exclamation"></i>
+                                    {errores.cantidad_adicional}
+                                </span>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="rs-field">
+                            <label className="rs-label">
+                                Cantidad inicial <span className="rs-required">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                className={`rs-input-white ${errores.cantidad_disponible ? 'error' : ''}`}
+                                name="cantidad_disponible"
+                                value={insumo.cantidad_disponible}
+                                onChange={handleChange}
+                                min="1"
+                                placeholder="Debe ser mayor a cero"
+                            />
+                            {errores.cantidad_disponible && (
+                                <span className="rs-error-msg">
+                                    <i className="fa-solid fa-circle-exclamation"></i>
+                                    {errores.cantidad_disponible}
+                                </span>
+                            )}
+                        </div>
+                    )}
                 </div>
-                <div className="modal-footer">
-                    <button className="btn btn-secondary" onClick={onClose}>
-                    Cancelar
+
+                {/* Footer */}
+                <div className="rs-modal-footer">
+                    <button className="rs-btn rs-btn-secondary" onClick={onClose}>
+                        Cancelar
                     </button>
-                    <button className="btn btn-primary" onClick={handleSave}>
-                    {idSeleccionado ? "Actualizar" : "Guardar"}
+                    <button className="rs-btn rs-btn-primary" onClick={handleSave} disabled={cargando}>
+                        {cargando
+                            ? <><i className="fa-solid fa-spinner fa-spin"></i> Guardando...</>
+                            : <><i className={`fa-solid ${idSeleccionado ? 'fa-pen' : 'fa-plus'}`}></i>
+                                {idSeleccionado ? " Actualizar" : " Guardar"}</>
+                        }
                     </button>
                 </div>
             </div>
         </div>
-    </div>
-  );
+    );
+};
 
-}
-export default ModalEditAgrTs;
+export default ModalEdtAgrProd;
