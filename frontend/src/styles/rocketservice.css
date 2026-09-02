@@ -243,13 +243,13 @@ input[type="number"] {
 }
 
 .rs-table thead tr {
-    background-color: #fff3e0;
-    border-bottom: 1px solid #fed7aa;
+    background-color: var(--rs-bg-secondary);
+    border-bottom: 1px solid var(--rs-bg-secondary);
 }
 
 .rs-table th {
     padding: 12px 16px;
-    color: var(--rs-naranja);
+    color: #ffffff;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -399,6 +399,11 @@ input[type="number"] {
     justify-content: center;
     color: var(--rs-naranja);
     font-size: 16px;
+}
+
+.rs-modal-icon-danger {
+    background-color: var(--rs-danger-light);
+    color: var(--rs-danger);
 }
 
 .rs-modal-title {

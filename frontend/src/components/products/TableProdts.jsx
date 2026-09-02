@@ -1,9 +1,4 @@
-import axios from '../../axiosConfig';
-import { useToast } from '../../context/ToastContext';
-
 function TableProdts({ product, setIdSeleccionado, getProduct }) {
-    const { mostrarToast } = useToast();
-
     if (!product || !Array.isArray(product)) {
         return (
             <div className="rs-empty">
@@ -21,30 +16,6 @@ function TableProdts({ product, setIdSeleccionado, getProduct }) {
             </div>
         );
     }
-
-    const desactivarInsumo = async (id) => {
-        if (window.confirm("¿Estás seguro de desactivar este insumo?")) {
-            try {
-                await axios.patch(`http://localhost:4000/api/insumos/desactivar/${id}`);
-                mostrarToast("Insumo desactivado correctamente.", "success");
-                getProduct();
-            } catch (error) {
-                const msg = error.response?.data?.message || "No se pudo desactivar el insumo.";
-                mostrarToast(msg, "error");
-            }
-        }
-    };
-
-    const reactivarInsumo = async (id) => {
-        try {
-            await axios.patch(`http://localhost:4000/api/insumos/reactivar/${id}`);
-            mostrarToast("Insumo reactivado correctamente.", "success");
-            getProduct();
-        } catch (error) {
-            const msg = error.response?.data?.message || "No se pudo reactivar el insumo.";
-            mostrarToast(msg, "error");
-        }
-    };
 
     return (
         <div className="rs-table-wrapper">
@@ -69,7 +40,9 @@ function TableProdts({ product, setIdSeleccionado, getProduct }) {
                             <td>
                                 {p.cantidad_disponible === 0
                                     ? <span className="rs-badge rs-badge-danger">No disponible</span>
-                                    : <span className="rs-badge rs-badge-success">{p.cantidad_disponible}</span>
+                                    : <span className="rs-badge rs-badge-success">
+                                        {p.cantidad_disponible} {p.simbolo_unidad || ""}
+                                      </span>
                                 }
                             </td>
                             <td className="rs-precio">
@@ -78,7 +51,7 @@ function TableProdts({ product, setIdSeleccionado, getProduct }) {
                             <td>
                                 {p.estado === 1
                                     ? <span className="rs-badge rs-badge-success">Activo</span>
-                                    : <span className="rs-badge rs-badge-muted">Inactivo</span>
+                                    : <span className="rs-badge rs-badge-muted" title="Se reactiva automáticamente al agregar stock desde Editar">Inactivo</span>
                                 }
                             </td>
                             <td>
@@ -90,23 +63,6 @@ function TableProdts({ product, setIdSeleccionado, getProduct }) {
                                     >
                                         <i className="fa-solid fa-pen-to-square"></i>
                                     </button>
-                                    {p.estado === 1 ? (
-                                        <button
-                                            onClick={() => desactivarInsumo(p.id_insumo)}
-                                            className="rs-btn rs-btn-icon rs-btn-delete"
-                                            title="Desactivar"
-                                        >
-                                            <i className="fa-solid fa-trash"></i>
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => reactivarInsumo(p.id_insumo)}
-                                            className="rs-btn rs-btn-icon rs-btn-reactivate"
-                                            title="Reactivar"
-                                        >
-                                            <i className="fa-solid fa-arrows-rotate"></i>
-                                        </button>
-                                    )}
                                 </div>
                             </td>
                         </tr>
