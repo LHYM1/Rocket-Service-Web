@@ -53,13 +53,20 @@ function Iniciarsesion() {
 
             const payload = JSON.parse(atob(data.token.split('.')[1]));
 
-            // Los datos del servidor se validan/sanitizan antes de escribirlos en localStorage:
-            // solo se aceptan los tipos primitivos esperados, cualquier otra cosa se descarta.
-            const tokenSeguro = typeof data.token === "string" ? data.token : "";
-            const rolSeguro = typeof payload.role === "string" ? payload.role : "";
-            const idSeguro = (typeof payload.id === "number" || typeof payload.id === "string")
-                ? String(payload.id)
+            // Sanitización con lista blanca: solo se acepta el valor si cumple
+            // exactamente el patrón/formato esperado. Cualquier otra cosa se descarta.
+            const JWT_PATRON = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
+            const ROLES_VALIDOS = ["Administrador", "Técnico", "Cliente"];
+            const ID_PATRON = /^\d+$/;
+
+            const tokenSeguro = (typeof data.token === "string" && JWT_PATRON.test(data.token))
+                ? data.token
                 : "";
+            const rolSeguro = (typeof payload.role === "string" && ROLES_VALIDOS.includes(payload.role))
+                ? payload.role
+                : "";
+            const idComoTexto = String(payload.id);
+            const idSeguro = ID_PATRON.test(idComoTexto) ? idComoTexto : "";
 
             if (!tokenSeguro || !rolSeguro || !idSeguro) {
                 mostrarToast("Respuesta del servidor inválida", "error");
