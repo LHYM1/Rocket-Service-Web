@@ -129,8 +129,9 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
             <div className="rs-modal-body">
 
                 <div className="rs-field">
-                    <label className="rs-label">Categoria <span className="rs-required">*</span></label>
+                    <label className="rs-label" htmlFor="insumo-categoria">Categoria <span className="rs-required">*</span></label>
                     <select
+                        id="insumo-categoria"
                         className="rs-input-white"
                         name="id_categoria"
                         value={insumo.id_categoria}
@@ -147,11 +148,12 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                 </div>
 
                 <div className="rs-field">
-                    <label className="rs-label">
+                    <label className="rs-label" htmlFor="insumo-unidad">
                         Unidad de medida <span className="rs-required">*</span>
                         {idSeleccionado && <span className="rs-hint"> (no editable)</span>}
                     </label>
                     <select
+                        id="insumo-unidad"
                         className="rs-input-white"
                         name="id_unidad"
                         value={insumo.id_unidad}
@@ -169,8 +171,9 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                 </div>
 
                 <div className="rs-field">
-                    <label className="rs-label">Insumo <span className="rs-required">*</span></label>
+                    <label className="rs-label" htmlFor="insumo-nombre">Insumo <span className="rs-required">*</span></label>
                     <input
+                        id="insumo-nombre"
                         type="text"
                         className="rs-input-white"
                         name="nombre_insumo"
@@ -184,9 +187,10 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                     // Registrar (HU-004.1): cantidad inicial exacta + precio
                     <>
                         <div className="rs-field">
-                            <label className="rs-label">Cantidad inicial <span className="rs-required">*</span></label>
+                            <label className="rs-label" htmlFor="insumo-cantidad-inicial">Cantidad inicial <span className="rs-required">*</span></label>
                             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                 <input
+                                    id="insumo-cantidad-inicial"
                                     type="number"
                                     min="1"
                                     step="1"
@@ -205,8 +209,9 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                         </div>
 
                         <div className="rs-field">
-                            <label className="rs-label">Precio unitario <span className="rs-required">*</span></label>
+                            <label className="rs-label" htmlFor="insumo-precio">Precio unitario <span className="rs-required">*</span></label>
                             <input
+                                id="insumo-precio"
                                 type="text"
                                 inputMode="numeric"
                                 className="rs-input-white"
@@ -220,9 +225,10 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                 ) : (
                     // Actualizar (HU-004.3): cantidad a agregar, opcional, suma al stock actual
                     <div className="rs-field">
-                        <label className="rs-label">Cantidad a agregar</label>
+                        <label className="rs-label" htmlFor="insumo-cantidad-agregar">Cantidad a agregar</label>
                         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                             <input
+                                id="insumo-cantidad-agregar"
                                 type="number"
                                 min="1"
                                 step="1"

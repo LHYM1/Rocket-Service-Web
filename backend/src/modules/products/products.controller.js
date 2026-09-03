@@ -53,7 +53,7 @@ export const crearInsumo = async (req, res) => {
 
         // RN-005 / CA-007: precio unitario mínimo $1.000
         const precio = Number(precio_unitario);
-        if (isNaN(precio) || precio < 1000) {
+        if (Number.isNaN(precio) || precio < 1000) {
             return res.status(400).json({
                 message: "El precio unitario debe ser de al menos $1.000."
             });

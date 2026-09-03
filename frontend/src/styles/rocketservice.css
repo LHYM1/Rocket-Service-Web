@@ -290,22 +290,22 @@ input[type="number"] {
 
 .rs-badge-success {
     background-color: rgba(34, 197, 94, 0.12);
-    color: #16a34a;
+    color: #15803d;
 }
 
 .rs-badge-danger {
     background-color: rgba(255, 68, 68, 0.1);
-    color: #dc2626;
+    color: #b91c1c;
 }
 
 .rs-badge-warning {
     background-color: rgba(245, 158, 11, 0.12);
-    color: #d97706;
+    color: #b45309;
 }
 
 .rs-badge-muted {
     background-color: #f3f4f6;
-    color: #6b7280;
+    color: #4b5563;
 }
 
 .rs-badge-orange {

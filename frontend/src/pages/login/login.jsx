@@ -48,13 +48,28 @@ function Iniciarsesion() {
                 setForm({ ...form, contrasena: "" });
                 setCargando(false);
                 return;
-                
+
             }
 
             const payload = JSON.parse(atob(data.token.split('.')[1]));
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("rol", payload.role);
-            localStorage.setItem("userId", payload.id);
+
+            // Los datos del servidor se validan/sanitizan antes de escribirlos en localStorage:
+            // solo se aceptan los tipos primitivos esperados, cualquier otra cosa se descarta.
+            const tokenSeguro = typeof data.token === "string" ? data.token : "";
+            const rolSeguro = typeof payload.role === "string" ? payload.role : "";
+            const idSeguro = (typeof payload.id === "number" || typeof payload.id === "string")
+                ? String(payload.id)
+                : "";
+
+            if (!tokenSeguro || !rolSeguro || !idSeguro) {
+                mostrarToast("Respuesta del servidor inválida", "error");
+                setCargando(false);
+                return;
+            }
+
+            localStorage.setItem("token", tokenSeguro);
+            localStorage.setItem("rol", rolSeguro);
+            localStorage.setItem("userId", idSeguro);
             window.dispatchEvent(new CustomEvent('authChanged'));
 
             mostrarToast("¡Bienvenido! Iniciando sesión...", "success");
@@ -105,10 +120,11 @@ function Iniciarsesion() {
 
                     <form onSubmit={handleSubmit}>
                         <div className="login-field">
-                            <label className="login-label">
+                            <label className="login-label" htmlFor="login-usuario">
                                 <i className="fa-solid fa-envelope me-2"></i>Correo electrónico
                             </label>
                             <input
+                                id="login-usuario"
                                 className={`login-input ${errores.usuario ? "login-input-error" : ""}`}
                                 type="text"
                                 name="usuario"
@@ -128,10 +144,11 @@ function Iniciarsesion() {
                         </div>
 
                         <div className="login-field">
-                            <label className="login-label">
+                            <label className="login-label" htmlFor="login-contrasena">
                                 <i className="fa-solid fa-lock me-2"></i>Contraseña
                             </label>
                             <input
+                                id="login-contrasena"
                                 className={`login-input ${errores.contrasena ? "login-input-error" : ""}`}
                                 type="password"
                                 name="contrasena"
