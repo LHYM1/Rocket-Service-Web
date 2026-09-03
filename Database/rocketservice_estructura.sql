@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-09-2026 a las 20:28:47
+-- Tiempo de generación: 03-09-2026 a las 18:45:26
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -64,7 +64,7 @@ CREATE TABLE `estado_de_orden_de_servicio` (
 
 CREATE TABLE `imagenes_danos` (
   `id_imagen` int(11) NOT NULL,
-  `id_orden` varchar(20) NOT NULL,
+  `id_orden` int(11) NOT NULL,
   `descripcion` varchar(100) DEFAULT NULL,
   `url_imagen` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -223,7 +223,8 @@ ALTER TABLE `estado_de_orden_de_servicio`
 -- Indices de la tabla `imagenes_danos`
 --
 ALTER TABLE `imagenes_danos`
-  ADD PRIMARY KEY (`id_imagen`);
+  ADD PRIMARY KEY (`id_imagen`),
+  ADD KEY `fk_imagen_orden_idx` (`id_orden`);
 
 --
 -- Indices de la tabla `insumos`
@@ -384,6 +385,12 @@ ALTER TABLE `usuarios`
 --
 
 --
+-- Filtros para la tabla `imagenes_danos`
+--
+ALTER TABLE `imagenes_danos`
+  ADD CONSTRAINT `fk_imagen_orden` FOREIGN KEY (`id_orden`) REFERENCES `ordenes_de_servicio` (`id_orden`);
+
+--
 -- Filtros para la tabla `insumos`
 --
 ALTER TABLE `insumos`
@@ -401,6 +408,7 @@ ALTER TABLE `insumos_usados_en_servicio`
 -- Filtros para la tabla `motocicleta`
 --
 ALTER TABLE `motocicleta`
+  ADD CONSTRAINT `fk_moto_modelo` FOREIGN KEY (`id_modelo`) REFERENCES `modelo` (`id_modelo`),
   ADD CONSTRAINT `fk_moto_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
@@ -412,6 +420,19 @@ ALTER TABLE `ordenes_de_servicio`
   ADD CONSTRAINT `fk_relacion_id_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`),
   ADD CONSTRAINT `fk_tecnico` FOREIGN KEY (`id_tecnico_asignado`) REFERENCES `usuarios` (`id_usuario`),
   ADD CONSTRAINT `relacion_tipo_servicio_fk` FOREIGN KEY (`id_tipo_servicio`) REFERENCES `tipo_servicio` (`id_tipo_servicio`);
+
+--
+-- Filtros para la tabla `registro_actividad`
+--
+ALTER TABLE `registro_actividad`
+  ADD CONSTRAINT `fk_registro_orden` FOREIGN KEY (`id_orden`) REFERENCES `ordenes_de_servicio` (`id_orden`),
+  ADD CONSTRAINT `fk_registro_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`);
+
+--
+-- Filtros para la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD CONSTRAINT `fk_usuario_tipo` FOREIGN KEY (`id_tipo_usuario`) REFERENCES `clasificacion_de_usuarios` (`id_tipo_usuario`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
