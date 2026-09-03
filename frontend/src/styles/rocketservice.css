@@ -1,0 +1,597 @@
+/* ==========================================
+   ROCKET SERVICE — ESTILOS GLOBALES
+   Paleta: Naranja #FF8C00 / Oscuro #1a1a2e
+   ========================================== */
+
+/* Variables */
+:root {
+    --rs-naranja: #FF8C00;
+    --rs-naranja-hover: #e67e00;
+    --rs-naranja-light: rgba(255, 140, 0, 0.15);
+    --rs-naranja-border: rgba(255, 140, 0, 0.3);
+
+    --rs-bg-primary: #0f0f1a;
+    --rs-bg-secondary: #1a1a2e;
+    --rs-bg-card: rgba(255, 255, 255, 0.03);
+    --rs-bg-input: rgba(255, 255, 255, 0.06);
+    --rs-bg-hover: rgba(255, 255, 255, 0.05);
+
+    --rs-border: rgba(255, 255, 255, 0.08);
+    --rs-border-input: rgba(255, 255, 255, 0.12);
+
+    --rs-text-primary: #ffffff;
+    --rs-text-secondary: rgba(255, 255, 255, 0.7);
+    --rs-text-muted: rgba(255, 255, 255, 0.4);
+
+    --rs-success: #22c55e;
+    --rs-success-light: rgba(34, 197, 94, 0.15);
+    --rs-danger: #FF4444;
+    --rs-danger-light: rgba(255, 68, 68, 0.12);
+    --rs-warning: #f59e0b;
+    --rs-warning-light: rgba(245, 158, 11, 0.15);
+
+    --rs-radius-sm: 6px;
+    --rs-radius: 8px;
+    --rs-radius-lg: 12px;
+
+    --rs-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================
+   QUITAR FLECHITAS DE INPUT NUMBER
+   ========================================== */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* ==========================================
+   BOTONES
+   ========================================== */
+.rs-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--rs-radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-family: "Poppins", sans-serif;
+}
+
+.rs-btn-primary {
+    background-color: var(--rs-naranja);
+    color: #ffffff;
+}
+
+.rs-btn-primary:hover {
+    background-color: var(--rs-naranja-hover);
+}
+
+.rs-btn-secondary {
+    background-color: transparent;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+}
+
+.rs-btn-secondary:hover {
+    background-color: #f9fafb;
+}
+
+.rs-btn-icon {
+    padding: 6px 10px;
+    font-size: 13px;
+    border-radius: var(--rs-radius-sm);
+}
+
+.rs-btn-edit {
+    background-color: var(--rs-naranja-light);
+    border: 1px solid var(--rs-naranja-border);
+    color: var(--rs-naranja);
+}
+
+.rs-btn-edit:hover {
+    background-color: rgba(255, 140, 0, 0.25);
+}
+
+.rs-btn-delete {
+    background-color: var(--rs-danger-light);
+    border: 1px solid rgba(255, 68, 68, 0.25);
+    color: var(--rs-danger);
+}
+
+.rs-btn-delete:hover {
+    background-color: rgba(255, 68, 68, 0.2);
+}
+
+.rs-btn-reactivate {
+    background-color: var(--rs-success-light);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    color: var(--rs-success);
+}
+
+.rs-btn-reactivate:hover {
+    background-color: rgba(34, 197, 94, 0.25);
+}
+
+.rs-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ==========================================
+   PÁGINA MODO CLARO (panel blanco)
+   ========================================== */
+.rs-page-light {
+    padding: 24px;
+    min-height: 100%;
+    background-color: transparent;
+}
+
+.rs-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.rs-page-light .rs-page-title {
+    color: #1a1a2e;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.rs-page-light .rs-page-title i {
+    color: var(--rs-naranja);
+    margin-right: 10px;
+}
+
+.rs-page-light .rs-page-subtitle {
+    color: #6b7280;
+    font-size: 13px;
+    margin: 4px 0 0;
+}
+
+/* ==========================================
+   FILTROS MODO CLARO
+   ========================================== */
+.rs-filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.rs-search-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+
+.rs-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 13px;
+    pointer-events: none;
+}
+
+.rs-page-light .rs-search-input {
+    width: 100%;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--rs-radius);
+    padding: 10px 14px 10px 36px;
+    color: #1a1a2e;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: "Poppins", sans-serif;
+}
+
+.rs-page-light .rs-search-input:focus {
+    border-color: var(--rs-naranja);
+    box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
+}
+
+.rs-page-light .rs-search-input::placeholder {
+    color: #9ca3af;
+}
+
+.rs-page-light .rs-select {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--rs-radius);
+    padding: 10px 14px;
+    color: #1a1a2e;
+    font-size: 14px;
+    outline: none;
+    min-width: 160px;
+    font-family: "Poppins", sans-serif;
+    cursor: pointer;
+}
+
+.rs-page-light .rs-select:focus {
+    border-color: var(--rs-naranja);
+}
+
+/* ==========================================
+   TABLA MODO CLARO
+   ========================================== */
+.rs-table-wrapper {
+    background-color: #ffffff;
+    border-radius: var(--rs-radius-lg);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+.rs-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.rs-table thead tr {
+    background-color: var(--rs-bg-secondary);
+    border-bottom: 1px solid var(--rs-bg-secondary);
+}
+
+.rs-table th {
+    padding: 12px 16px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
+}
+
+.rs-table tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.15s;
+}
+
+.rs-table tbody tr:hover {
+    background-color: #fafafa;
+}
+
+.rs-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.rs-table td {
+    padding: 12px 16px;
+    color: #374151;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+/* ==========================================
+   BADGES
+   ========================================== */
+.rs-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.rs-badge-success {
+    background-color: #e4f8ec;
+    color: #15803d;
+}
+
+.rs-badge-danger {
+    background-color: #ffeded;
+    color: #b91c1c;
+}
+
+.rs-badge-warning {
+    background-color: #fef3e2;
+    color: #b45309;
+}
+
+.rs-badge-muted {
+    background-color: #f3f4f6;
+    color: #4b5563;
+}
+
+.rs-badge-orange {
+    background-color: rgba(255, 140, 0, 0.1);
+    color: var(--rs-naranja);
+}
+
+/* ==========================================
+   PAGINADOR
+   ========================================== */
+.rs-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.rs-page-btn {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--rs-radius-sm);
+    color: #374151;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: "Poppins", sans-serif;
+    transition: all 0.2s;
+}
+
+.rs-page-btn:hover {
+    border-color: var(--rs-naranja);
+    color: var(--rs-naranja);
+}
+
+.rs-page-btn.active {
+    background-color: var(--rs-naranja);
+    border-color: var(--rs-naranja);
+    color: #ffffff;
+}
+
+.rs-page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ==========================================
+   MODAL BLANCO
+   ========================================== */
+.rs-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+}
+
+.rs-modal {
+    border-radius: var(--rs-radius-lg);
+    width: 100%;
+    max-width: 500px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.rs-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f0f0f0;
+    border-radius: var(--rs-radius-lg) var(--rs-radius-lg) 0 0;
+    background-color: #ffffff;
+}
+
+.rs-modal-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rs-modal-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--rs-radius);
+    background-color: rgba(255, 140, 0, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--rs-naranja);
+    font-size: 16px;
+}
+
+.rs-modal-icon-danger {
+    background-color: var(--rs-danger-light);
+    color: var(--rs-danger);
+}
+
+.rs-modal-title {
+    color: #1a1a2e;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.rs-modal-close {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--rs-radius-sm);
+    transition: color 0.2s;
+}
+
+.rs-modal-close:hover {
+    color: #1a1a2e;
+}
+
+.rs-modal-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: #ffffff;
+}
+
+.rs-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    background-color: #ffffff;
+    border-radius: 0 0 var(--rs-radius-lg) var(--rs-radius-lg);
+}
+
+/* ==========================================
+   FORMULARIOS MODO CLARO
+   ========================================== */
+.rs-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.rs-label {
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.rs-required {
+    color: var(--rs-naranja);
+}
+
+.rs-input-white {
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--rs-radius);
+    padding: 10px 14px;
+    color: #1a1a2e;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: "Poppins", sans-serif;
+    width: 100%;
+}
+
+.rs-input-white:focus {
+    border-color: var(--rs-naranja);
+    box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
+    background-color: #ffffff;
+}
+
+.rs-input-white::placeholder {
+    color: #9ca3af;
+}
+
+.rs-input-white.error {
+    border-color: #ef4444;
+    background-color: #fff5f5;
+}
+
+.rs-input-white:disabled {
+    background-color: #f3f4f6;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.rs-error-msg {
+    color: #ef4444;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.rs-hint {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+/* ==========================================
+   EMPTY STATE
+   ========================================== */
+.rs-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px;
+    background-color: #ffffff;
+    border-radius: var(--rs-radius-lg);
+    border: 1px solid #e5e7eb;
+}
+
+.rs-empty-icon {
+    font-size: 40px;
+    color: #d1d5db;
+    margin-bottom: 12px;
+}
+
+.rs-empty-text {
+    color: #9ca3af;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* ==========================================
+   ACCIONES Y EXTRAS
+   ========================================== */
+.rs-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.rs-id-badge {
+    background-color: rgba(255, 140, 0, 0.1);
+    color: var(--rs-naranja);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.rs-cat-badge {
+    background-color: #f3f4f6;
+    color: #374151;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.rs-precio {
+    color: var(--rs-naranja);
+    font-weight: 600;
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+@media (max-width: 768px) {
+    .rs-page-light {
+        padding: 16px;
+    }
+
+    .rs-page-header {
+        flex-direction: column;
+    }
+
+    .rs-filters {
+        flex-direction: column;
+    }
+
+    .rs-search-wrapper {
+        min-width: 100%;
+    }
+
+    .rs-select {
+        min-width: 100%;
+    }
+
+    .rs-table-wrapper {
+        overflow-x: auto;
+    }
+}

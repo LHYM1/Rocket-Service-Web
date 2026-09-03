@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import './login.css';
-import GoogleButton from "../../components/btnLogin/googleButton";
+// import GoogleButton from "../../components/btnLogin/googleButton";
 import { useToast } from "../../context/ToastContext";
 
 function Iniciarsesion() {
@@ -48,12 +48,35 @@ function Iniciarsesion() {
                 setForm({ ...form, contrasena: "" });
                 setCargando(false);
                 return;
+
             }
 
             const payload = JSON.parse(atob(data.token.split('.')[1]));
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("rol", data.role);
-            localStorage.setItem("userId", payload.id);
+
+            // Sanitización con lista blanca: solo se acepta el valor si cumple
+            // exactamente el patrón/formato esperado. Cualquier otra cosa se descarta.
+            const JWT_PATRON = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
+            const ROLES_VALIDOS = ["Administrador", "Técnico", "Cliente"];
+            const ID_PATRON = /^\d+$/;
+
+            const tokenSeguro = (typeof data.token === "string" && JWT_PATRON.test(data.token))
+                ? data.token
+                : "";
+            const rolSeguro = (typeof payload.role === "string" && ROLES_VALIDOS.includes(payload.role))
+                ? payload.role
+                : "";
+            const idComoTexto = String(payload.id);
+            const idSeguro = ID_PATRON.test(idComoTexto) ? idComoTexto : "";
+
+            if (!tokenSeguro || !rolSeguro || !idSeguro) {
+                mostrarToast("Respuesta del servidor inválida", "error");
+                setCargando(false);
+                return;
+            }
+
+            localStorage.setItem("token", tokenSeguro);
+            localStorage.setItem("rol", rolSeguro);
+            localStorage.setItem("userId", idSeguro);
             window.dispatchEvent(new CustomEvent('authChanged'));
 
             mostrarToast("¡Bienvenido! Iniciando sesión...", "success");
@@ -104,10 +127,11 @@ function Iniciarsesion() {
 
                     <form onSubmit={handleSubmit}>
                         <div className="login-field">
-                            <label className="login-label">
+                            <label className="login-label" htmlFor="login-usuario">
                                 <i className="fa-solid fa-envelope me-2"></i>Correo electrónico
                             </label>
                             <input
+                                id="login-usuario"
                                 className={`login-input ${errores.usuario ? "login-input-error" : ""}`}
                                 type="text"
                                 name="usuario"
@@ -127,10 +151,11 @@ function Iniciarsesion() {
                         </div>
 
                         <div className="login-field">
-                            <label className="login-label">
+                            <label className="login-label" htmlFor="login-contrasena">
                                 <i className="fa-solid fa-lock me-2"></i>Contraseña
                             </label>
                             <input
+                                id="login-contrasena"
                                 className={`login-input ${errores.contrasena ? "login-input-error" : ""}`}
                                 type="password"
                                 name="contrasena"
@@ -165,13 +190,13 @@ function Iniciarsesion() {
                             <Link to="/register" className="login-link">Registrarme</Link>
                         </div>
 
-                        <div className="login-divider">
+                        {/* <div className="login-divider">
                             <span>o continúa con</span>
                         </div>
 
                         <div className="login-google">
                             <GoogleButton />
-                        </div>
+                        </div> */}
                     </form>
                 </div>
             </div>
