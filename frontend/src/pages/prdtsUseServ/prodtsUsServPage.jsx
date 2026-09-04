@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import axios from "axios";
+import axios from "../../axiosConfig";
 import ModalEdtAgrPrUser from "../../components/prodtsUseServ/ModalEdtAgrPrUSer";
 import TablePrUSer from "../../components/prodtsUseServ/TablePrUSer";
 import { useAuth } from "../../context/AuthContext";
@@ -204,12 +204,14 @@ function PrUsServPage() {
 
     useEffect(() => { getInsUsServ(); }, [getInsUsServ]);
 
-    // ── Admin: filtra por id o nombre de insumo
+    // ── Admin: filtra por id/nombre de insumo, número de orden (CA-003) o técnico (CA-004)
     const insSerFiltrados = insUsaServ.filter(ts => {
         const texto = busqueda.toLowerCase();
         return (
             String(ts.id_insumos_orden || "").includes(texto) ||
-            String(ts.nombre_insumo || "").toLowerCase().includes(texto)
+            String(ts.nombre_insumo || "").toLowerCase().includes(texto) ||
+            String(ts.codigo_orden || "").toLowerCase().includes(texto) ||
+            String(ts.tecnico_nombre || "").toLowerCase().includes(texto)
         );
     });
 
@@ -246,7 +248,7 @@ function PrUsServPage() {
                     <input
                         type="text"
                         className="form-control w-50"
-                        placeholder="Buscar por insumo o ID..."
+                        placeholder="Buscar por insumo, N° orden o técnico..."
                         value={busqueda}
                         onChange={e => { setBusqueda(e.target.value); setPagina(1); }}
                     />
