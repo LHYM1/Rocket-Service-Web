@@ -81,22 +81,33 @@ const Sidebar = () => {
                         {abierto && <span>Usuarios</span>}
                     </Link>
                 )}
-                {esAdmin && (
+
+                {/**
+                 * 
+                 *  {esAdmin && (
                     <Link to="/panel/roles" className="item" title="Roles">
                         <i className="fa-solid fa-shield"></i>
                         {abierto && <span>Roles</span>}
                     </Link>
                 )}
+                 */}
+               
                 <Link to="/panel/orders" className="item" title={esAdmin ? "Ordenes de servicio" : "Mis Órdenes"}>
                     <i className="fa-solid fa-briefcase"></i>
                     {abierto && <span>{esAdmin ? "Ordenes de servicio" : "Mis Órdenes"}</span>}
                 </Link>
-                {esAdmin && (
+
+                {/*
+                
+                 {esAdmin && (
                     <Link to="/panel/est-ord" className="item" title="Estado orden">
                         <i className="fa-solid fa-business-time"></i>
                         {abierto && <span>Estado orden</span>}
                     </Link>
                 )}
+                
+                */}
+                
                 {esAdmin && (
                     <Link to="/panel/regist-act" className="item" title="Registro actividad">
                         <i className="fa-solid fa-calendar"></i>
@@ -115,12 +126,15 @@ const Sidebar = () => {
                         {abierto && <span>Categoria insumos</span>}
                     </Link>
                 )}
-                {esAdmin && (
-                    <Link to="/panel/unidad" className="item" title="Unidad medida">
-                        <i className="fa-solid fa-tags"></i>
-                        {abierto && <span>Unidad medida</span>}
-                    </Link>
-                )}
+
+                {/*
+                    {esAdmin && (
+                        <Link to="/panel/unidad" className="item" title="Unidad medida">
+                            <i className="fa-solid fa-tags"></i>
+                            {abierto && <span>Unidad medida</span>}
+                        </Link>
+                    )}
+                /*}        
 
                 {/* Imagenes — con badge para técnico */}
                 <Link to="/panel/imagenes-danos" className="item" title="Imagenes"

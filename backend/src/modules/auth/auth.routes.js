@@ -6,8 +6,10 @@ const { login, register } = authController;
 const router = express.Router();
 
 router.post("/login", login);
-
 router.post("/register", register)
+
+// Nueva ruta para que el cliente defina su contraseña
+router.post("/establecer-contrasena-cliente", authController.establecerContrasenaCliente);
 
 router.get("/admin-data", validarToken(["Administrador"]), (req, res) => {
     res.json({ 
@@ -22,5 +24,6 @@ router.get("/tec-data", validarToken(["Técnico", "Administrador"]), (req, res) 
         user: req.user 
     });
 });
+
 
 export default router;

@@ -93,6 +93,10 @@
     padding-right: 6px; /* evita que el scrollbar tape contenido */
 }
 
+.card-activa {
+    border: 2px solid #FF8C00;
+}
+
 /* Estilos para scroll bonito */
 .tecnicos-list::-webkit-scrollbar {
     width: 5px;

@@ -23,6 +23,15 @@ const product = {
         return rows;
     },
 
+
+    // Cuenta cuántas veces el insumo aparece usado en órdenes
+    contarUsosEnOrdenes: async (id) => {
+        const [rows] = await db.query(
+            'SELECT COUNT(*) AS total FROM insumos_usados_en_servicio WHERE id_insumo = ?', [id]
+        );
+        return rows[0].total;
+    },    
+
     // Buscar por nombre (para validar duplicados)
     findByNombre: async (nombre_insumo, excludeId = null) => {
         let query = `SELECT * FROM insumos WHERE UPPER(nombre_insumo) = UPPER(?)`;

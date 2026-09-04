@@ -1,9 +1,16 @@
-import styles from'./Card.module.css';
+import styles from './Card.module.css';
 
-function Card({ title, icon, children }) {
+function Card({ title, icon, children, onClick, active }) {
     return (
-        <div className={styles.card}>
-            {title && <h3 className={styles.title}>{title}</h3>}
+        <div
+            className={`${styles.card} ${active ? styles.activa : ''}`}
+            onClick={onClick}
+        >
+            {title && (
+                <h3 className={styles.title}>
+                    {title}
+                </h3>
+            )}
 
             {icon && (
                 <div className={styles.cardIcon}>
@@ -14,7 +21,6 @@ function Card({ title, icon, children }) {
             <h2 className={styles.counter}>
                 {children}
             </h2>
-
         </div>
     );
 }

@@ -6,6 +6,7 @@ router.get('/listar', controllerTypeServ.listarTypeServ);
 router.get('/consultar/:id', controllerTypeServ.obtenerTypeServ);
 router.post('/crear', controllerTypeServ.crearTypeServ);
 router.put('/modificar/:id', controllerTypeServ.actTypeServ);
+router.patch('/estado/:id', controllerTypeServ.cambiarEstadoTypeServ);
 router.delete('/eliminar/:id', controllerTypeServ.eliminarTypeServ);
 
 export default router;

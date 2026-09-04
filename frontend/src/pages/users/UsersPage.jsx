@@ -1,116 +1,151 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../axiosConfig";
 import UsersTable from "../../components/users/UsersTable";
-import UserModalAgr from "../../components/users/ModalEdtMod";
+import ModalEdtMod from "../../components/users/ModalEdtMod";
 
 function UsersPage() {
-  const [usuarios, setUsuarios] = useState([]);
-  const [idSeleccionado, setIdSeleccionado] = useState(null);
-  const [busqueda, setBusqueda] = useState("");
-  const [showModal, setShowModal] = useState(false);
+    const [usuarios, setUsuarios] = useState([]);
+    const [idSeleccionado, setIdSeleccionado] = useState(null);
+    const [busqueda, setBusqueda] = useState("");
+    const [filtroCategoria, setFiltroCategoria] = useState("");
+    const [filtroEstado, setFiltroEstado] = useState("");
+    const [showModal, setShowModal] = useState(false);
+    const [pagina, setPagina] = useState(1);
+    const usuariosPorPagina = 8;
 
-   // Paginación
-  const [pagina, setPagina] = useState(1);
-  const usuariosPorPagina = 5;
+    const getUsuarios = () => {
+        axios.get("http://localhost:4000/api/usuarios/listar")
+            .then(res => setUsuarios(res.data))
+            .catch(err => console.error("Error al obtener usuarios:", err));
+    };
 
-  const getUsuarios = () => {
-    axios.get("http://localhost:4000/api/usuarios/listar")
-      .then(res => setUsuarios(res.data))
-      .catch(err => console.error(err));
-  };
+    useEffect(() => {
+        getUsuarios();
+    }, []);
 
-  useEffect(() => {
-    getUsuarios();
-  }, []);
+    // Filtros combinados
+    const usuariosFiltrados = usuarios.filter(u => {
+        const texto = busqueda.toLowerCase();
+        const coincideBusqueda =
+            u.nombre?.toLowerCase().includes(texto) ||
+            u.apellido?.toLowerCase().includes(texto) ||
+            u.correo_usuario?.toLowerCase().includes(texto);
 
-  // Filtrar usuarios según búsqueda
-  const usuariosFiltrados = usuarios.filter(u =>
-    u.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-    u.apellido.toLowerCase().includes(busqueda.toLowerCase()) ||
-    u.correo_usuario.toLowerCase().includes(busqueda.toLowerCase())
-  );
+        const coincideCategoria = filtroCategoria === "" ||
+            u.categoria_usuario?.toLowerCase() === filtroCategoria.toLowerCase();
 
-  // Calcular usuarios de la página actual
-  const inicio = (pagina - 1) * usuariosPorPagina;
-  const fin = inicio + usuariosPorPagina;
-  const usuariosPaginados = usuariosFiltrados.slice(inicio, fin);
+        const coincideEstado = filtroEstado === "" || String(u.estado) === filtroEstado;
 
-  // Número total de páginas
-  const totalPaginas = Math.ceil(usuariosFiltrados.length / usuariosPorPagina);
+        return coincideBusqueda && coincideCategoria && coincideEstado;
+    });
 
-  return (
-    <div className="container mt-4">
-      <h2>Gestión de Usuarios</h2>
+    const inicio = (pagina - 1) * usuariosPorPagina;
+    const usuariosPaginados = usuariosFiltrados.slice(inicio, inicio + usuariosPorPagina);
+    const totalPaginas = Math.ceil(usuariosFiltrados.length / usuariosPorPagina);
 
-      {/* Barra de acciones */}
-      <div className="d-flex justify-content-between mb-3">
-        <button
-          className="btn btn-primary"
-          onClick={() => {
-            setIdSeleccionado(null);
-            setShowModal(true);
-          }}
-        >
-          Agregar Usuario
-        </button>
+    const categoriasUnicas = [...new Set(usuarios.map(u => u.categoria_usuario).filter(Boolean))];
 
-        <input
-          type="text"
-          className="form-control w-50"
-          placeholder="Buscar usuario..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
-      </div>
-
-      {/* Tabla */}
-      <UsersTable
-        user={usuariosPaginados}
-        setIdSeleccionado={(u) => {
-          setIdSeleccionado(u);
-          setShowModal(true);
-        }}
-        getUsuarios={getUsuarios}
-      />
-
-      {/* Paginador */}
-      <div className="d-flex justify-content-center mt-3">
-        <nav>
-          <ul className="pagination">
-            <li className={`page-item ${pagina === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina - 1)}>
-                Anterior
-              </button>
-            </li>
-
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <li key={i} className={`page-item ${pagina === i + 1 ? "active" : ""}`}>
-                <button className="page-link" onClick={() => setPagina(i + 1)}>
-                  {i + 1}
+    return (
+        <div className="rs-page-light">
+            {/* Header */}
+            <div className="rs-page-header">
+                <div>
+                    <h2 className="rs-page-title">
+                        <i className="fa-solid fa-users"></i>
+                        Gestión de Usuarios
+                    </h2>
+                    <p className="rs-page-subtitle">{usuarios.length} usuarios registrados</p>
+                </div>
+                <button
+                    className="rs-btn rs-btn-primary"
+                    onClick={() => { setIdSeleccionado(null); setShowModal(true); }}
+                >
+                    <i className="fa-solid fa-user-plus"></i>
+                    Agregar Usuario
                 </button>
-              </li>
-            ))}
+            </div>
 
-            <li className={`page-item ${pagina === totalPaginas ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina + 1)}>
-                Siguiente
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
+            {/* Filtros */}
+            <div className="rs-filters">
+                <div className="rs-search-wrapper">
+                    <i className="fa-solid fa-search rs-search-icon"></i>
+                    <input
+                        type="text"
+                        className="rs-search-input"
+                        placeholder="Buscar por nombre, apellido o correo..."
+                        value={busqueda}
+                        onChange={(e) => { setBusqueda(e.target.value); setPagina(1); }}
+                    />
+                </div>
 
-      {/* Modal de agregar/editar */}
-      {showModal && (
-        <UserModalAgr
-          idSeleccionado={idSeleccionado}
-          getUsuarios={getUsuarios}
-          onClose={() => setShowModal(false)}
-          onSuccess={() => getUsuarios()}
-        />
-      )}
-    </div>
-  );
+                <select
+                    className="rs-select"
+                    value={filtroCategoria}
+                    onChange={(e) => { setFiltroCategoria(e.target.value); setPagina(1); }}
+                >
+                    <option value="">Todas las categorías</option>
+                    {categoriasUnicas.map((cat, i) => (
+                        <option key={i} value={cat}>{cat}</option>
+                    ))}
+                </select>
+
+                <select
+                    className="rs-select"
+                    value={filtroEstado}
+                    onChange={(e) => { setFiltroEstado(e.target.value); setPagina(1); }}
+                >
+                    <option value="">Todos los estados</option>
+                    <option value="1">Activo</option>
+                    <option value="0">Inactivo</option>
+                </select>
+            </div>
+
+            {/* Tabla */}
+            <UsersTable
+                user={usuariosPaginados}
+                setIdSeleccionado={(u) => { setIdSeleccionado(u); setShowModal(true); }}
+                getUsuarios={getUsuarios}
+            />
+
+            {/* Paginación */}
+            {totalPaginas > 1 && (
+                <div className="rs-pagination">
+                    <button
+                        className="rs-page-btn"
+                        onClick={() => setPagina(pagina - 1)}
+                        disabled={pagina === 1}
+                    >
+                        <i className="fa-solid fa-chevron-left"></i>
+                    </button>
+                    {Array.from({ length: totalPaginas }, (_, i) => (
+                        <button
+                            key={i}
+                            className={`rs-page-btn ${pagina === i + 1 ? 'active' : ''}`}
+                            onClick={() => setPagina(i + 1)}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+                    <button
+                        className="rs-page-btn"
+                        onClick={() => setPagina(pagina + 1)}
+                        disabled={pagina === totalPaginas}
+                    >
+                        <i className="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            )}
+
+            {/* Modal */}
+            {showModal && (
+                <ModalEdtMod
+                    idSeleccionado={idSeleccionado}
+                    onClose={() => { setShowModal(false); setIdSeleccionado(null); }}
+                    onSuccess={() => getUsuarios()}
+                />
+            )}
+        </div>
+    );
 }
 
 export default UsersPage;

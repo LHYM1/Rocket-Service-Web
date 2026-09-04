@@ -113,8 +113,19 @@ export const actualizarInsumo = async (req, res) => {
 // Desactivar insumo (softDelete)
 export const desactivarInsumo = async (req, res) => {
     try {
-        const desactivado = await insumos.softDelete(req.params.id);
-        if (!desactivado) 
+        const id = req.params.id;
+
+        // Regla de negocio: no se puede desactivar un insumo que ya 
+        // esté asociado a un registro de insumo usado en orden.
+        const totalUsos = await insumos.contarUsosEnOrdenes(id);
+        if (totalUsos > 0) {
+            return res.status(409).json({
+                message: `No es posible desactivar este insumo: está asociado a ${totalUsos} registro(s) de consumo en órdenes.`
+            });
+        }
+
+        const desactivado = await insumos.softDelete(id);
+        if (!desactivado)
             return res.status(404).json({ message: "Insumo no encontrado" });
         res.json({ message: "Insumo desactivado correctamente." });
     } catch (error) {

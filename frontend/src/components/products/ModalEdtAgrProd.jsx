@@ -11,7 +11,6 @@ const limpiarNumero = (valor) => {
     return parseInt(String(valor).replace(/[.,]/g, '')) || 0;
 };
 
-// Estilos para react-select modo blanco
 const selectStyles = {
     control: (base, state) => ({
         ...base,
@@ -43,16 +42,8 @@ const selectStyles = {
         boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
         zIndex: 9999,
     }),
-    placeholder: (base) => ({
-        ...base,
-        color: '#9ca3af',
-        fontSize: '14px',
-    }),
-    singleValue: (base) => ({
-        ...base,
-        color: '#1a1a2e',
-        fontSize: '14px',
-    }),
+    placeholder: (base) => ({ ...base, color: '#9ca3af', fontSize: '14px' }),
+    singleValue: (base) => ({ ...base, color: '#1a1a2e', fontSize: '14px' }),
     indicatorSeparator: () => ({ display: 'none' }),
     dropdownIndicator: (base) => ({
         ...base,
@@ -88,6 +79,12 @@ const ModalEdtAgrProd = ({ idSeleccionado, onClose, onSuccess }) => {
     const [unidades, setUnidades] = useState([]);
     const [cargando, setCargando] = useState(false);
 
+    // Estado para el mini-formulario de "nueva unidad de medida"
+    const [mostrarFormUnidad, setMostrarFormUnidad] = useState(false);
+    const [nuevaUnidad, setNuevaUnidad] = useState({ nombre: "", simbolo: "" });
+    const [errorUnidad, setErrorUnidad] = useState("");
+    const [guardandoUnidad, setGuardandoUnidad] = useState(false);
+
     useEffect(() => {
         if (idSeleccionado) {
             setInsumo({
@@ -100,21 +97,27 @@ const ModalEdtAgrProd = ({ idSeleccionado, onClose, onSuccess }) => {
         }
     }, [idSeleccionado]);
 
+    const cargarUnidades = async () => {
+        try {
+            const res = await axios.get("http://localhost:4000/api/unidad_de_medida/listar");
+            setUnidades(res.data.map(u => ({
+                value: u.id_unidad,
+                label: u.simbolo ? `${u.nombre} (${u.simbolo})` : u.nombre
+            })));
+        } catch {
+            mostrarToast("Error al cargar unidades de medida", "error");
+        }
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [catRes, undRes] = await Promise.all([
-                    axios.get("http://localhost:4000/api/categoria/listar"),
-                    axios.get("http://localhost:4000/api/unidad_de_medida/listar")
-                ]);
+                const catRes = await axios.get("http://localhost:4000/api/categoria/listar");
                 setCategorias(catRes.data.map(c => ({
                     value: c.id_categoria,
                     label: c.nombre
                 })));
-                setUnidades(undRes.data.map(u => ({
-                    value: u.id_unidad,
-                    label: u.nombre
-                })));
+                await cargarUnidades();
             } catch (error) {
                 mostrarToast("Error al cargar datos", "error");
             }
@@ -134,6 +137,39 @@ const ModalEdtAgrProd = ({ idSeleccionado, onClose, onSuccess }) => {
         setInsumo({ ...insumo, [name]: selected ? selected.value : "" });
         if (errores[name]) setErrores({ ...errores, [name]: "" });
     };
+
+    // --- Lógica del mini-formulario de nueva unidad de medida ---
+    const handleChangeUnidad = (e) => {
+        const { name, value } = e.target;
+        setNuevaUnidad({ ...nuevaUnidad, [name]: value });
+        if (errorUnidad) setErrorUnidad("");
+    };
+
+    const handleGuardarUnidad = async () => {
+        if (!nuevaUnidad.nombre.trim()) {
+            setErrorUnidad("El nombre de la unidad es obligatorio.");
+            return;
+        }
+
+        try {
+            setGuardandoUnidad(true);
+            const res = await axios.post("http://localhost:4000/api/unidad_de_medida/crear", nuevaUnidad);
+
+            // Recarga el listado y selecciona automáticamente la nueva unidad
+            await cargarUnidades();
+            setInsumo(prev => ({ ...prev, id_unidad: res.data.id_unidad }));
+
+            mostrarToast("Unidad de medida creada y seleccionada.", "success");
+            setMostrarFormUnidad(false);
+            setNuevaUnidad({ nombre: "", simbolo: "" });
+        } catch (error) {
+            const msg = error.response?.data?.message || "Error al crear la unidad de medida.";
+            setErrorUnidad(msg);
+        } finally {
+            setGuardandoUnidad(false);
+        }
+    };
+    // --- Fin lógica de nueva unidad ---
 
     const validar = () => {
         const nuevosErrores = {};
@@ -189,7 +225,6 @@ const ModalEdtAgrProd = ({ idSeleccionado, onClose, onSuccess }) => {
     return (
         <div className="rs-modal-overlay">
             <div className="rs-modal rs-modal-white">
-                {/* Header */}
                 <div className="rs-modal-header">
                     <div className="rs-modal-header-left">
                         <div className="rs-modal-icon">
@@ -204,9 +239,7 @@ const ModalEdtAgrProd = ({ idSeleccionado, onClose, onSuccess }) => {
                     </button>
                 </div>
 
-                {/* Body */}
                 <div className="rs-modal-body">
-                    {/* Categoría */}
                     <div className="rs-field">
                         <label className="rs-label">
                             Categoría <span className="rs-required">*</span>
@@ -227,35 +260,104 @@ const ModalEdtAgrProd = ({ idSeleccionado, onClose, onSuccess }) => {
                         )}
                     </div>
 
-                    {/* Unidad de medida */}
+                    {/* Unidad de medida + creación embebida */}
                     <div className="rs-field">
-                        <label className="rs-label">
-                            Unidad de medida <span className="rs-required">*</span>
-                        </label>
-                        <Select
-                            options={unidades}
-                            styles={idSeleccionado ? selectStylesDisabled : selectStyles}
-                            placeholder="Seleccione una unidad de medida"
-                            value={unidades.find(u => u.value === insumo.id_unidad) || null}
-                            onChange={(selected) => handleSelect("id_unidad", selected)}
-                            isDisabled={!!idSeleccionado}
-                            isClearable={!idSeleccionado}
-                        />
-                        {idSeleccionado && (
-                            <small className="rs-hint">
-                                <i className="fa-solid fa-lock me-1"></i>
-                                No se puede modificar una vez creado.
-                            </small>
-                        )}
-                        {errores.id_unidad && (
-                            <span className="rs-error-msg">
-                                <i className="fa-solid fa-circle-exclamation"></i>
-                                {errores.id_unidad}
-                            </span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <label className="rs-label">
+                                Unidad de medida <span className="rs-required">*</span>
+                            </label>
+                            {!idSeleccionado && (
+                                <button
+                                    type="button"
+                                    onClick={() => setMostrarFormUnidad(!mostrarFormUnidad)}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: '#FF8C00',
+                                        fontSize: '13px',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                        padding: 0
+                                    }}
+                                >
+                                    <i className={`fa-solid ${mostrarFormUnidad ? 'fa-xmark' : 'fa-plus'} me-1`}></i>
+                                    {mostrarFormUnidad ? 'Cancelar' : 'Nueva unidad'}
+                                </button>
+                            )}
+                        </div>
+
+                        {mostrarFormUnidad ? (
+                            <div style={{
+                                backgroundColor: '#fff3e0',
+                                border: '1px solid #FF8C00',
+                                borderRadius: '8px',
+                                padding: '12px',
+                                marginTop: '6px'
+                            }}>
+                                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                                    <input
+                                        type="text"
+                                        className="rs-input-white"
+                                        name="nombre"
+                                        placeholder="Nombre (Ej: Metro)"
+                                        value={nuevaUnidad.nombre}
+                                        onChange={handleChangeUnidad}
+                                        style={{ flex: 2 }}
+                                    />
+                                    <input
+                                        type="text"
+                                        className="rs-input-white"
+                                        name="simbolo"
+                                        placeholder="Símbolo (Ej: M)"
+                                        value={nuevaUnidad.simbolo}
+                                        onChange={handleChangeUnidad}
+                                        style={{ flex: 1 }}
+                                        maxLength={10}
+                                    />
+                                </div>
+                                {errorUnidad && (
+                                    <span className="rs-error-msg" style={{ display: 'block', marginBottom: '8px' }}>
+                                        <i className="fa-solid fa-circle-exclamation"></i>
+                                        {errorUnidad}
+                                    </span>
+                                )}
+                                <button
+                                    type="button"
+                                    className="rs-btn rs-btn-primary"
+                                    style={{ width: '100%', padding: '8px' }}
+                                    onClick={handleGuardarUnidad}
+                                    disabled={guardandoUnidad}
+                                >
+                                    {guardandoUnidad ? "Guardando..." : "Guardar unidad de medida"}
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <Select
+                                    options={unidades}
+                                    styles={idSeleccionado ? selectStylesDisabled : selectStyles}
+                                    placeholder="Seleccione una unidad de medida"
+                                    value={unidades.find(u => u.value === insumo.id_unidad) || null}
+                                    onChange={(selected) => handleSelect("id_unidad", selected)}
+                                    isDisabled={!!idSeleccionado}
+                                    isClearable={!idSeleccionado}
+                                />
+                                {idSeleccionado && (
+                                    <small className="rs-hint">
+                                        <i className="fa-solid fa-lock me-1"></i>
+                                        No se puede modificar una vez creado.
+                                    </small>
+                                )}
+                                {errores.id_unidad && (
+                                    <span className="rs-error-msg">
+                                        <i className="fa-solid fa-circle-exclamation"></i>
+                                        {errores.id_unidad}
+                                    </span>
+                                )}
+                            </>
                         )}
                     </div>
 
-                    {/* Nombre */}
                     <div className="rs-field">
                         <label className="rs-label">
                             Nombre del insumo <span className="rs-required">*</span>
@@ -276,7 +378,6 @@ const ModalEdtAgrProd = ({ idSeleccionado, onClose, onSuccess }) => {
                         )}
                     </div>
 
-                    {/* Precio */}
                     <div className="rs-field">
                         <label className="rs-label">
                             Precio unitario <span className="rs-required">*</span>
@@ -298,7 +399,6 @@ const ModalEdtAgrProd = ({ idSeleccionado, onClose, onSuccess }) => {
                         )}
                     </div>
 
-                    {/* Cantidad */}
                     {idSeleccionado ? (
                         <div className="rs-field">
                             <label className="rs-label">Cantidad a agregar al stock</label>
@@ -346,7 +446,6 @@ const ModalEdtAgrProd = ({ idSeleccionado, onClose, onSuccess }) => {
                     )}
                 </div>
 
-                {/* Footer */}
                 <div className="rs-modal-footer">
                     <button className="rs-btn rs-btn-secondary" onClick={onClose}>
                         Cancelar

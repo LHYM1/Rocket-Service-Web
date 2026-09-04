@@ -68,12 +68,55 @@ export const eliminarOrden = async (req, res) => {
     }
 };
 
-export default {
-    listarOrden,
-    obtenerOrden,   
-    crearOrden,
-    actualizarOrden,
-    eliminarOrden
+export const listarOrdenesDetalle = async (req, res) => {
+    try {
+        const ordenes = await ordenes_de_servicio.findAllDetalle();
+        res.json(ordenes);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al listar el detalle de órdenes' });
+    }
 };
 
+export const obtenerEstadisticas = async (req, res) => {
+    try {
+        const stats = await ordenes_de_servicio.getEstadisticas();
+        res.json(stats);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener estadísticas' });
+    }
+};
 
+export const asignarTecnico = async (req, res) => {
+    try {
+        const { id_orden } = req.params;
+        const { id_tecnico_asignado } = req.body;
+
+        if (!id_tecnico_asignado) {
+            return res.status(400).json({ message: "Debe indicar el técnico a asignar." });
+        }
+
+        const asignado = await ordenes_de_servicio.asignarTecnico(id_orden, id_tecnico_asignado);
+
+        if (!asignado) {
+            return res.status(404).json({ message: "Orden no encontrada." });
+        }
+
+        res.json({ message: "Técnico asignado correctamente." });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al asignar el técnico' });
+    }
+};
+
+export default {
+    listarOrden,
+    obtenerOrden,
+    crearOrden,
+    actualizarOrden,
+    eliminarOrden,
+    listarOrdenesDetalle,
+    obtenerEstadisticas,
+    asignarTecnico
+};

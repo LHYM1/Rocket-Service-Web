@@ -16,41 +16,38 @@ const ModalEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
     const [nuevoModelo, setNuevoModelo] = useState("");
     const [errorNuevoModelo, setErrorNuevoModelo] = useState("");
 
+    // Carga de usuarios (clientes sin moto para crear, todos si es edición)
     useEffect(() => {
         const endpoint = idSeleccionado
             ? "http://localhost:4000/api/usuarios/listar"
             : "http://localhost:4000/api/usuarios/sin-moto";
         axios.get(endpoint)
-            .then(res => setUsuarios(res.data))
+            .then(res => setUsuarios(Array.isArray(res.data) ? res.data : (res.data?.data || [])))
             .catch(err => console.error("Error al cargar usuarios:", err));
     }, [idSeleccionado]);
 
+    // Carga de modelos
     useEffect(() => {
         axios.get("http://localhost:4000/api/modelo/listar")
-            .then(res => setModelos(res.data))
+            .then(res => setModelos(Array.isArray(res.data) ? res.data : (res.data?.data || [])))
             .catch(err => console.error("Error al cargar modelos:", err));
     }, []);
 
+    // Carga de valores para edición
     useEffect(() => {
         if (idSeleccionado) {
             setMoto({
-                placa: idSeleccionado.placa,
-                id_modelo: idSeleccionado.id_modelo,
-                kilometraje_actual: idSeleccionado.kilometraje_actual,
-                id_usuario: idSeleccionado.id_usuario
+                placa: idSeleccionado.placa || "",
+                id_modelo: idSeleccionado.id_modelo || "",
+                kilometraje_actual: idSeleccionado.kilometraje_actual !== undefined ? idSeleccionado.kilometraje_actual : "",
+                id_usuario: idSeleccionado.id_usuario || ""
             });
         }
     }, [idSeleccionado]);
 
-    // Lógica de placa: mayúsculas + espacio automático + límite
     const formatearPlaca = (valor) => {
-        // Solo letras y números, todo a mayúsculas
         let limpio = valor.toUpperCase().replace(/[^A-Z0-9]/g, "");
-
-        // Límite de 6 caracteres reales (sin contar el espacio)
         if (limpio.length > 6) limpio = limpio.slice(0, 6);
-
-        // Insertar espacio automático después del 3er carácter
         if (limpio.length > 3) {
             return limpio.slice(0, 3) + " " + limpio.slice(3);
         }
@@ -64,17 +61,17 @@ const ModalEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
         if (!moto.placa.trim()) {
             nuevosErrores.placa = "La placa es obligatoria";
         } else if (placaSinEspacio.length !== 6) {
-            nuevosErrores.placa = "La placa debe tener exactamente 6 caracteres (Ej: WUS 28U)";
+            nuevosErrores.placa = "Formato de placa inválido (Ej: WUS 28U)";
         }
 
         if (!moto.id_modelo) {
             nuevosErrores.id_modelo = "Seleccione un modelo";
         }
 
-        if (!moto.kilometraje_actual && moto.kilometraje_actual !== 0) {
+        if (moto.kilometraje_actual === "" || moto.kilometraje_actual === null) {
             nuevosErrores.kilometraje_actual = "El kilometraje es obligatorio";
         } else if (isNaN(moto.kilometraje_actual) || Number(moto.kilometraje_actual) < 0) {
-            nuevosErrores.kilometraje_actual = "El kilometraje debe ser un número positivo";
+            nuevosErrores.kilometraje_actual = "Ingrese un kilometraje válido";
         }
 
         if (!moto.id_usuario) {
@@ -93,7 +90,7 @@ const ModalEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
         }
 
         if (name === "kilometraje_actual") {
-            if (value === "" || /^\d*\.?\d*$/.test(value)) {
+            if (value === "" || /^\d*$/.test(value)) {
                 setMoto({ ...moto, [name]: value });
             }
             return;
@@ -113,15 +110,18 @@ const ModalEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
                 nombre: nuevoModelo.toUpperCase() 
             });
             const res = await axios.get("http://localhost:4000/api/modelo/listar");
-            setModelos(res.data);
-            const modeloCreado = res.data[res.data.length - 1];
-            setMoto({ ...moto, id_modelo: modeloCreado.id_modelo });
+            const nuevosModelos = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+            setModelos(nuevosModelos);
+            if (nuevosModelos.length > 0) {
+                const modeloCreado = nuevosModelos[nuevosModelos.length - 1];
+                setMoto({ ...moto, id_modelo: modeloCreado.id_modelo });
+            }
             setNuevoModelo("");
             setErrorNuevoModelo("");
             setMostrarNuevoModelo(false);
         } catch (error) {
             console.error("Error al crear modelo:", error);
-            setErrorNuevoModelo("Error al guardar el modelo, intenta de nuevo");
+            setErrorNuevoModelo("No se pudo guardar el modelo");
         }
     };
 
@@ -136,7 +136,8 @@ const ModalEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
         try {
             if (idSeleccionado) {
                 await axios.put(
-                    `http://localhost:4000/api/motocicleta/modificar/${idSeleccionado.id_moto}`, moto
+                    `http://localhost:4000/api/motocicleta/modificar/${idSeleccionado.id_moto}`, 
+                    moto
                 );
                 alert("Motocicleta actualizada con éxito");
             } else {
@@ -147,149 +148,147 @@ const ModalEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
             onClose();
         } catch (error) {
             console.error("Error al guardar:", error);
-            alert("Hubo un error al guardar el registro");
+            alert(error.response?.data?.message || "Hubo un error al guardar el registro");
         }
     };
 
     return (
-        <div className="modal d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-            <div className="modal-dialog">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title">
-                            {idSeleccionado ? "Editar moto" : "Registrar moto"}
-                        </h5>
-                        <button type="button" className="btn-close" onClick={onClose}></button>
+        <div className="rs-modal-overlay">
+            <div className="rs-modal">
+                <div className="rs-modal-header">
+                    <div className="rs-modal-header-left">
+                        <div className="rs-modal-icon">
+                            <i className="fas fa-motorcycle"></i>
+                        </div>
+                        <h3 className="rs-modal-title">
+                            {idSeleccionado ? "Editar Motocicleta" : "Registrar Motocicleta"}
+                        </h3>
+                    </div>
+                    <button className="rs-modal-close" onClick={onClose}>
+                        <i className="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div className="rs-modal-body">
+                    {/* Placa */}
+                    <div className="rs-field">
+                        <label className="rs-label">
+                            Placa de la motocicleta <span className="rs-required">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            className={`rs-input-white ${errores.placa ? "error" : ""}`}
+                            name="placa"
+                            value={moto.placa}
+                            onChange={handleChange}
+                            placeholder="WUS 28U"
+                            maxLength={7}
+                        />
+                        {errores.placa && <span className="rs-error-msg">{errores.placa}</span>}
                     </div>
 
-                    <div className="modal-body">
+                    {/* Modelo */}
+                    <div className="rs-field">
+                        <label className="rs-label">
+                            Modelo <span className="rs-required">*</span>
+                        </label>
+                        <select
+                            className={`rs-input-white ${errores.id_modelo ? "error" : ""}`}
+                            name="id_modelo"
+                            value={moto.id_modelo}
+                            onChange={(e) => {
+                                if (e.target.value === "nuevo") {
+                                    setMostrarNuevoModelo(true);
+                                    setMoto({ ...moto, id_modelo: "" });
+                                } else {
+                                    setMostrarNuevoModelo(false);
+                                    handleChange(e);
+                                }
+                            }}
+                        >
+                            <option value="">Seleccione el modelo</option>
+                            {modelos.map(m => (
+                                <option key={m.id_modelo} value={m.id_modelo}>
+                                    {m.nombre}
+                                </option>
+                            ))}
+                            <option value="nuevo">➕ Crear nuevo modelo...</option>
+                        </select>
+                        {errores.id_modelo && <span className="rs-error-msg">{errores.id_modelo}</span>}
 
-                        {/* Placa */}
-                        <div className="mb-3">
-                            <label className="form-label">
-                                Placa de la moto
-                                <span className="text-muted ms-2" style={{ fontSize: "0.8rem" }}>
-                                    (Ej: WUS 28U — 6 caracteres)
-                                </span>
-                            </label>
-                            <input
-                                type="text"
-                                className={`form-control ${errores.placa ? "is-invalid" : ""}`}
-                                name="placa"
-                                value={moto.placa}
-                                onChange={handleChange}
-                                placeholder="WUS 28U"
-                                maxLength={7}
-                            />
-                            {errores.placa && <div className="invalid-feedback">{errores.placa}</div>}
-                        </div>
-
-                        {/* Modelo */}
-                        <div className="mb-3">
-                            <label className="form-label">Modelo de Motocicleta</label>
-                            <select
-                                className={`form-select ${errores.id_modelo ? "is-invalid" : ""}`}
-                                name="id_modelo"
-                                value={moto.id_modelo}
-                                onChange={(e) => {
-                                    if (e.target.value === "nuevo") {
-                                        setMostrarNuevoModelo(true);
-                                        setMoto({ ...moto, id_modelo: "" });
-                                    } else {
+                        {mostrarNuevoModelo && (
+                            <div style={{ marginTop: "10px", padding: "12px", border: "1px solid #e5e7eb", borderRadius: "8px", backgroundColor: "#f9fafb" }}>
+                                <label className="rs-label">Nombre del nuevo modelo</label>
+                                <input
+                                    type="text"
+                                    className={`rs-input-white ${errorNuevoModelo ? "error" : ""}`}
+                                    style={{ marginTop: "6px", marginBottom: "8px" }}
+                                    placeholder="Ej: HONDA CB 150"
+                                    value={nuevoModelo}
+                                    onChange={(e) => setNuevoModelo(e.target.value.toUpperCase())}
+                                />
+                                {errorNuevoModelo && <span className="rs-error-msg" style={{ marginBottom: "8px" }}>{errorNuevoModelo}</span>}
+                                <div style={{ display: "flex", gap: "8px" }}>
+                                    <button type="button" className="rs-btn rs-btn-primary rs-btn-icon" onClick={handleGuardarNuevoModelo}>
+                                        Guardar
+                                    </button>
+                                    <button type="button" className="rs-btn rs-btn-secondary rs-btn-icon" onClick={() => {
                                         setMostrarNuevoModelo(false);
-                                        handleChange(e);
-                                    }
-                                }}
-                            >
-                                <option value="">Seleccione el modelo</option>
-                                {modelos.map(m => (
-                                    <option key={m.id_modelo} value={m.id_modelo}>
-                                        {m.nombre}
-                                    </option>
-                                ))}
-                                <option value="nuevo">➕ Nuevo modelo...</option>
-                            </select>
-                            {errores.id_modelo && <div className="invalid-feedback">{errores.id_modelo}</div>}
-
-                            {mostrarNuevoModelo && (
-                                <div className="mt-2 p-3 border rounded bg-light">
-                                    <label className="form-label fw-bold">Nombre del nuevo modelo</label>
-                                    <input
-                                        type="text"
-                                        className={`form-control mb-2 ${errorNuevoModelo ? "is-invalid" : ""}`}
-                                        placeholder="Ej: HONDA CB 150"
-                                        value={nuevoModelo}
-                                        onChange={(e) => setNuevoModelo(e.target.value.toUpperCase())}
-                                    />
-                                    {errorNuevoModelo && (
-                                        <div className="invalid-feedback d-block">{errorNuevoModelo}</div>
-                                    )}
-                                    <div className="d-flex gap-2">
-                                        <button className="btn btn-success btn-sm" onClick={handleGuardarNuevoModelo}>
-                                            Guardar modelo
-                                        </button>
-                                        <button className="btn btn-secondary btn-sm" onClick={() => {
-                                            setMostrarNuevoModelo(false);
-                                            setNuevoModelo("");
-                                            setErrorNuevoModelo("");
-                                        }}>
-                                            Cancelar
-                                        </button>
-                                    </div>
+                                        setNuevoModelo("");
+                                        setErrorNuevoModelo("");
+                                    }}>
+                                        Cancelar
+                                    </button>
                                 </div>
-                            )}
-                        </div>
-
-                        {/* Kilometraje */}
-                        <div className="mb-3">
-                            <label className="form-label">Kilometraje actual</label>
-                            <input
-                                type="text"
-                                className={`form-control ${errores.kilometraje_actual ? "is-invalid" : ""}`}
-                                name="kilometraje_actual"
-                                value={moto.kilometraje_actual}
-                                onChange={handleChange}
-                                placeholder="Ej: 15000"
-                            />
-                            {errores.kilometraje_actual && (
-                                <div className="invalid-feedback">{errores.kilometraje_actual}</div>
-                            )}
-                        </div>
-
-                        {/* Dueño */}
-                        <div className="mb-3">
-                            <label className="form-label">
-                                Dueño de la moto
-                                {!idSeleccionado && (
-                                    <span className="text-muted ms-2" style={{ fontSize: "0.8rem" }}>
-                                        (solo usuarios sin moto registrada)
-                                    </span>
-                                )}
-                            </label>
-                            <select
-                                className={`form-select ${errores.id_usuario ? "is-invalid" : ""}`}
-                                name="id_usuario"
-                                value={moto.id_usuario}
-                                onChange={handleChange}
-                            >
-                                <option value="">Seleccione el dueño</option>
-                                {usuarios.map(u => (
-                                    <option key={u.id_usuario} value={u.id_usuario}>
-                                        {u.nombre} {u.apellido}
-                                    </option>
-                                ))}
-                            </select>
-                            {errores.id_usuario && <div className="invalid-feedback">{errores.id_usuario}</div>}
-                        </div>
-
+                            </div>
+                        )}
                     </div>
 
-                    <div className="modal-footer">
-                        <button className="btn btn-secondary" onClick={onClose}>Cancelar</button>
-                        <button className="btn btn-primary" onClick={handleSave}>
-                            {idSeleccionado ? "Actualizar" : "Guardar"}
-                        </button>
+                    {/* Kilometraje */}
+                    <div className="rs-field">
+                        <label className="rs-label">
+                            Kilometraje actual <span className="rs-required">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            className={`rs-input-white ${errores.kilometraje_actual ? "error" : ""}`}
+                            name="kilometraje_actual"
+                            value={moto.kilometraje_actual}
+                            onChange={handleChange}
+                            placeholder="Ej: 15000"
+                        />
+                        {errores.kilometraje_actual && <span className="rs-error-msg">{errores.kilometraje_actual}</span>}
                     </div>
+
+                    {/* Dueño */}
+                    <div className="rs-field">
+                        <label className="rs-label">
+                            Dueño / Cliente <span className="rs-required">*</span>
+                        </label>
+                        <select
+                            className={`rs-input-white ${errores.id_usuario ? "error" : ""}`}
+                            name="id_usuario"
+                            value={moto.id_usuario}
+                            onChange={handleChange}
+                        >
+                            <option value="">Seleccione el dueño</option>
+                            {usuarios.map(u => (
+                                <option key={u.id_usuario} value={u.id_usuario}>
+                                    {u.nombre} {u.apellido}
+                                </option>
+                            ))}
+                        </select>
+                        {errores.id_usuario && <span className="rs-error-msg">{errores.id_usuario}</span>}
+                    </div>
+                </div>
+
+                <div className="rs-modal-footer">
+                    <button className="rs-btn rs-btn-secondary" onClick={onClose}>
+                        Cancelar
+                    </button>
+                    <button className="rs-btn rs-btn-primary" onClick={handleSave}>
+                        {idSeleccionado ? "Actualizar" : "Guardar"}
+                    </button>
                 </div>
             </div>
         </div>

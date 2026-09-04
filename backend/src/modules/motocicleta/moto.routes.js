@@ -1,8 +1,8 @@
 import express from 'express';
-const router = express.Router();
 import motController from './mot.controller.js';
 
-// Rutas para registro de actividad 
+const router = express.Router();
+
 router.get('/listar', motController.listarMotocicleta);
 router.get('/consultar/:id', motController.obtenerMoto);
 router.post('/crear', motController.crearMoto);

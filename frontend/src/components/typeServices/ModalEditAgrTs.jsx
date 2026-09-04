@@ -2,104 +2,153 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
-    const [ tipoServicio, setTipServ ] = useState({
+    const [cargando, setCargando] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
+    const [tipoServicio, setTipServ] = useState({
         nombre_servicio: "",
-        descripcion_servicio: "",
+        descripcion_servicio: ""
     });
 
-    // useEffect para precargar datos de DB si hay un idSeleccionado
     useEffect(() => {
         if (idSeleccionado) {
             setTipServ({
-                nombre_servicio: idSeleccionado.nombre_servicio, 
-                descripcion_servicio: idSeleccionado.descripcion_servicio,
-            })
+                nombre_servicio: idSeleccionado.nombre_servicio || "", 
+                descripcion_servicio: idSeleccionado.descripcion_servicio || ""
+            });
+        } else {
+            setTipServ({
+                nombre_servicio: "",
+                descripcion_servicio: ""
+            });
         }
     }, [idSeleccionado]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setTipServ({...tipoServicio, [name]: value });
-    }
+        
+        if (name === "nombre_servicio") {
+            const textoFormateado = value.toUpperCase().replace(/\s+/g, ' ');
+            setTipServ({ ...tipoServicio, [name]: textoFormateado });
+            setErrorMsg("");
+        } else {
+            setTipServ({ ...tipoServicio, [name]: value });
+        }
+    };
 
-    const handleSave = async () => {
+    const handleSave = async (e) => {
+        e.preventDefault();
+
+        const nombreFinal = tipoServicio.nombre_servicio.trim();
+
+        if (!nombreFinal) {
+            setErrorMsg("EL NOMBRE DEL SERVICIO ES REQUERIDO");
+            return;
+        }
+
+        const payload = {
+            ...tipoServicio,
+            nombre_servicio: nombreFinal
+        };
+
+        setCargando(true);
         try {
             if (idSeleccionado) {
-                // Editar
-                await axios.put(
-                    `http://localhost:4000/api/tipo_servicio/modificar/${idSeleccionado.id_tipo_servicio }`, tipoServicio
+                const res = await axios.put(
+                    `http://localhost:4000/api/tipo_servicio/modificar/${idSeleccionado.id_tipo_servicio}`, 
+                    payload
                 );
-                alert("Tipo de servicio actualizado con éxito");
+                alert(res.data.message || "Tipo de servicio actualizado correctamente");
             } else {
-                // Agregar
-                await axios.post(
-                    `http://localhost:4000/api/tipo_servicio/crear`, tipoServicio
-                );
-
-                alert("Tipo de servicio agregado con éxito");
+                const res = await axios.post(`http://localhost:4000/api/tipo_servicio/crear`, payload);
+                alert(res.data.message || "Tipo de servicio creado correctamente");
             }
             onSuccess();
             onClose();
         } catch (error) {
             console.error("Error al guardar:", error);
-            alert("Hubo un error al guardar el tipo de servicio");
+            const msg = error.response?.data?.message || "Ocurrió un error al procesar la solicitud";
+            alert(msg);
+        } finally {
+            setCargando(false);
         }
     };
 
     return (
-    <div className="modal d-block">
-        <div className="modal-dialog">
-            
-            <div className="modal-content">
-                <div className="modal-header">
-                    <h5 className="modal-title">
-                        {idSeleccionado ? "Editar tipo servicio" : "Registrar Servicio"}
-                    </h5>
-
-                    <button type="button" className="btn-close" onClick={onClose}></button>
-                </div>
-
-                <div className="modal-body">
-                    
-                    <div className="mb-3">
-                        <label className="form-label">Nombre servicio</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Escribe el nombre del servicio"
-                            name="nombre_servicio"
-                            value={tipoServicio.nombre_servicio}
-                            onChange={handleChange}
-                        />
+        <div className="rs-modal-overlay">
+            <div className="rs-modal">
+                <div className="rs-modal-header">
+                    <div className="rs-modal-header-left">
+                        <div className="rs-modal-icon">
+                            <i className={`fa-solid ${idSeleccionado ? "fa-pen-to-square" : "fa-plus"}`}></i>
+                        </div>
+                        <h3 className="rs-modal-title">
+                            {idSeleccionado ? "Editar Tipo de Servicio" : "Registrar Servicio"}
+                        </h3>
                     </div>
-
-                    <div className="mb-3">
-                        <label className="form-label">Descripcion servicio</label>
-                        <textarea
-                            id="descripcion_servicio"
-                            className="form-control"
-                            name="descripcion_servicio"
-                            rows="4"
-                            cols="50"
-                            placeholder="Describe el servicio aquí.. (Es opcional)"
-                            value={tipoServicio.descripcion_servicio}
-                            onChange={handleChange}
-                        />
-                    </div>
-
-                </div>
-                <div className="modal-footer">
-                    <button className="btn btn-secondary" onClick={onClose}>
-                    Cancelar
-                    </button>
-                    <button className="btn btn-primary" onClick={handleSave}>
-                    {idSeleccionado ? "Actualizar" : "Guardar"}
+                    <button type="button" className="rs-modal-close" onClick={onClose}>
+                        <i className="fa-solid fa-xmark"></i>
                     </button>
                 </div>
+
+                <form onSubmit={handleSave}>
+                    <div className="rs-modal-body">
+                        <div className="rs-field">
+                            <label className="rs-label">
+                                Nombre del Servicio <span className="rs-required">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                className={`rs-input-white ${errorMsg ? "error" : ""}`}
+                                placeholder="EJ: CAMBIO DE ACEITE Y FILTRO"
+                                name="nombre_servicio"
+                                value={tipoServicio.nombre_servicio}
+                                onChange={handleChange}
+                            />
+                            {errorMsg && (
+                                <span className="rs-error-msg">
+                                    <i className="fa-solid fa-circle-exclamation"></i> {errorMsg}
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="rs-field">
+                            <label className="rs-label">Descripción</label>
+                            <textarea
+                                className="rs-input-white"
+                                name="descripcion_servicio"
+                                rows="3"
+                                placeholder="Describe el alcance del servicio... (Opcional)"
+                                value={tipoServicio.descripcion_servicio}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="rs-modal-footer">
+                        <button 
+                            type="button" 
+                            className="rs-btn rs-btn-secondary" 
+                            onClick={onClose} 
+                            disabled={cargando}
+                        >
+                            Cancelar
+                        </button>
+                        <button 
+                            type="submit" 
+                            className="rs-btn rs-btn-primary" 
+                            disabled={cargando}
+                        >
+                            {cargando ? (
+                                <><i className="fa-solid fa-spinner fa-spin"></i> Guardando...</>
+                            ) : (
+                                <><i className="fa-solid fa-floppy-disk"></i> {idSeleccionado ? "Actualizar" : "Guardar"}</>
+                            )}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
-  );
+    );
+};
 
-}
 export default ModalEditAgrTs;
