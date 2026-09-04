@@ -40,6 +40,8 @@ const login = async (req, res) => {
     }
 
     const user = rows[0];
+
+    console.log('DEBUG BACKEND user.role:', JSON.stringify(user.role));
     
     const match = await bcrypt.compare(contrasena, user.contrasena);
     
