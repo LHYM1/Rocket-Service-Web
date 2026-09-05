@@ -40,7 +40,7 @@ function ProductsPage() {
             <div className="rs-page-header">
                 <div>
                     <h2 className="rs-page-title">
-                        <i className="fa-solid fa-boxes-stacked"></i>
+                        <i className="fa-solid fa-boxes-stacked"></i>{" "}
                         Gestión de Insumos
                     </h2>
                     <p className="rs-page-subtitle">{product.length} insumos registrados</p>
@@ -49,7 +49,7 @@ function ProductsPage() {
                     className="rs-btn rs-btn-primary"
                     onClick={() => { setIdSeleccionado(null); setShowModal(true); }}
                 >
-                    <i className="fa-solid fa-plus"></i>
+                    <i className="fa-solid fa-plus"></i>{" "}
                     Agregar Insumo
                 </button>
             </div>
@@ -73,8 +73,8 @@ function ProductsPage() {
                     onChange={(e) => { setFiltroCategoria(e.target.value); setPagina(1); }}
                 >
                     <option value="">Todas las categorías</option>
-                    {categoriasUnicas.map((cat, i) => (
-                        <option key={i} value={cat}>{cat}</option>
+                    {categoriasUnicas.map((cat) => (
+                        <option key={cat} value={cat}>{cat}</option>
                     ))}
                 </select>
 
@@ -108,7 +108,7 @@ function ProductsPage() {
                     </button>
                     {Array.from({ length: totalPaginas }, (_, i) => (
                         <button
-                            key={i}
+                            key={`pagina-${i + 1}`}
                             className={`rs-page-btn ${pagina === i + 1 ? 'active' : ''}`}
                             onClick={() => setPagina(i + 1)}
                         >

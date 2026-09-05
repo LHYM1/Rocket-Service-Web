@@ -169,6 +169,11 @@ const Sidebar = () => {
                     </Link>
                 )}
 
+                <Link to="/panel/pre-revision" className="item" title={esAdmin ? "Pre-revisiones" : "Mis Pre-revisiones"}>
+                    <i className="fa-solid fa-magnifying-glass"></i>
+                    {abierto && <span>{esAdmin ? "Pre-revisiones" : "Mis Pre-revisiones"}</span>}
+                </Link>
+
                 <button className="item btn-cerrar-sesion" onClick={cerrarSesion} title="Cerrar sesión">
                     <i className="fa-solid fa-right-from-bracket"></i>
                     {abierto && <span>Cerrar sesión</span>}

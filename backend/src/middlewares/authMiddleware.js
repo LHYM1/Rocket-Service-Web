@@ -17,7 +17,12 @@ export const validarToken = (roles) => {
 
       req.user = decoded;
 
-      if (!roles.includes(decoded.role)) {
+      // .normalize("NFC") evita falsos negativos cuando una tilde (como en "Técnico")
+      // viene representada con una codificación Unicode distinta a la esperada.
+      const rolDecoded = typeof decoded.role === "string" ? decoded.role.normalize("NFC") : decoded.role;
+      const rolesNormalizados = roles.map(r => typeof r === "string" ? r.normalize("NFC") : r);
+
+      if (!rolesNormalizados.includes(rolDecoded)) {
         return res.status(403).json({ message: "No autorizado" });
       }
 

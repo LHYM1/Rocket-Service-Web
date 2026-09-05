@@ -1,60 +1,64 @@
 import db from '../../config/db.js';
 
 const product = {
-
-    // Listar todos
-    findAll: async () => {
-        const [rows] = await db.query(`
-            SELECT 
+    findAll: async () => { // Listar
+        const [rows] = await db.query(
+            `SELECT 
                 p.id_insumo,
                 ct.nombre AS categoria,
                 ct.id_categoria,
+
                 und.nombre AS unidad_de_medida,
                 und.id_unidad,
+                und.simbolo AS simbolo_unidad,
+            
                 p.nombre_insumo,
                 p.cantidad_disponible,
                 p.precio_unitario,
                 p.estado
+
             FROM insumos p
             LEFT JOIN categoria ct ON p.id_categoria = ct.id_categoria
             LEFT JOIN unidad_de_medida und ON p.id_unidad = und.id_unidad
-            ORDER BY p.nombre_insumo ASC
         `);
         return rows;
     },
 
-
-    // Cuenta cuántas veces el insumo aparece usado en órdenes
-    contarUsosEnOrdenes: async (id) => {
-        const [rows] = await db.query(
-            'SELECT COUNT(*) AS total FROM insumos_usados_en_servicio WHERE id_insumo = ?', [id]
-        );
-        return rows[0].total;
-    },    
-
-    // Buscar por nombre (para validar duplicados)
-    findByNombre: async (nombre_insumo, excludeId = null) => {
-        let query = `SELECT * FROM insumos WHERE UPPER(nombre_insumo) = UPPER(?)`;
-        let params = [nombre_insumo];
-
-        if (excludeId) {
-            query += ` AND id_insumo != ?`;
-            params.push(excludeId);
-        }
-
-        const [rows] = await db.query(query, params);
+    // consultar por id
+    findById : async (id) => {
+        const [rows] = await db.query(`SELECT * FROM insumos
+        WHERE id_insumo  = ?`, [id]);
         return rows[0];
     },
 
-    // Consultar por id
-    findById: async (id) => {
+    // RN-001 / CA-002 (registrar): buscar por nombre para validar unicidad
+    findByNombre: async (nombre_insumo) => {
         const [rows] = await db.query(
-            `SELECT * FROM insumos WHERE id_insumo = ?`, [id]
+            `SELECT id_insumo FROM insumos WHERE nombre_insumo = ?`,
+            [nombre_insumo]
         );
         return rows[0];
     },
 
-    // Crear
+    // RN-003 / CA-003 (actualizar): nombre único, excluyendo el propio insumo
+    findByNombreExcluyendo: async (nombre_insumo, id) => {
+        const [rows] = await db.query(
+            `SELECT id_insumo FROM insumos WHERE nombre_insumo = ? AND id_insumo != ?`,
+            [nombre_insumo, id]
+        );
+        return rows[0];
+    },
+
+    // RN-002 / CA-005 (registrar) y RN-004 / CA-004 (actualizar): validar existencia y estado de la categoría
+    getCategoriaPorId: async (id_categoria) => {
+        const [rows] = await db.query(
+            `SELECT id_categoria, estado FROM categoria WHERE id_categoria = ?`,
+            [id_categoria]
+        );
+        return rows[0];
+    },
+
+    // crear (HU-004.1)
     create: async (data) => {
         const {
             id_categoria,
@@ -64,80 +68,57 @@ const product = {
             precio_unitario
         } = data;
 
-        // Normalizar nombre a mayúsculas
-        const nombreNormalizado = nombre_insumo.trim().toUpperCase();
-
         const [result] = await db.query(
-            `INSERT INTO insumos 
-            (id_categoria, id_unidad, nombre_insumo, cantidad_disponible, precio_unitario, estado) 
+            `INSERT INTO insumos (id_categoria, id_unidad, nombre_insumo, cantidad_disponible, precio_unitario, estado)
             VALUES (?, ?, ?, ?, ?, 1)`,
-            [id_categoria, id_unidad, nombreNormalizado, cantidad_disponible, precio_unitario]
+
+            [id_categoria, id_unidad, nombre_insumo, cantidad_disponible, precio_unitario]
         );
         return result.insertId;
     },
 
-    // Actualizar
-    update: async (id, data) => {
+    // actualizar (HU-004.3) — la cantidad SUMA a la existente (RN-005) y
+    // reactiva automáticamente si el insumo estaba inactivo (RN-007 / HU-004.4)
+    update : async (id, data) => {
         const {
             id_categoria,
             nombre_insumo,
-            cantidad_adicional,
-            precio_unitario
+            cantidad_a_agregar
         } = data;
 
-        // Normalizar nombre a mayúsculas
-        const nombreNormalizado = nombre_insumo.trim().toUpperCase();
-
-        // Obtener cantidad actual
         const [rows] = await db.query(
-            `SELECT cantidad_disponible FROM insumos WHERE id_insumo = ?`, [id]
+            `SELECT cantidad_disponible, estado FROM insumos WHERE id_insumo = ?`,
+            [id]
         );
-        const cantidadActual = rows[0]?.cantidad_disponible || 0;
-        const nuevaCantidad = cantidadActual + (parseInt(cantidad_adicional) || 0);
+        if (rows.length === 0) return false;
+        const actual = rows[0];
 
-        // Determinar estado según nueva cantidad
-        const nuevoEstado = nuevaCantidad > 0 ? 1 : 0;
-
-        const [result] = await db.query(
-            `UPDATE insumos SET 
-                id_categoria = ?,
-                nombre_insumo = ?,
-                cantidad_disponible = ?,
-                precio_unitario = ?,
-                estado = ?
-            WHERE id_insumo = ?`,
-            [id_categoria, nombreNormalizado, nuevaCantidad, precio_unitario, nuevoEstado, id]
-        );
-        return result.affectedRows > 0;
-    },
-
-    // Desactivar automáticamente cuando stock = 0
-    desactivarSiStockCero: async (id) => {
-        const [rows] = await db.query(
-            `SELECT cantidad_disponible FROM insumos WHERE id_insumo = ?`, [id]
-        );
-        if (rows[0]?.cantidad_disponible === 0) {
-            await db.query(
-                `UPDATE insumos SET estado = 0 WHERE id_insumo = ?`, [id]
-            );
+        let nuevaCantidad = actual.cantidad_disponible;
+        if (cantidad_a_agregar !== undefined && cantidad_a_agregar !== null && cantidad_a_agregar !== "") {
+            nuevaCantidad = actual.cantidad_disponible + Number(cantidad_a_agregar);
         }
-    },
 
-    // Softdelete — desactivar manualmente
-    softDelete: async (id) => {
+        // HU-004.4: automático — se reactiva si vuelve a haber stock, se desactiva si llega a cero
+        let nuevoEstado = actual.estado;
+        if (nuevaCantidad > 0) nuevoEstado = 1;
+        if (nuevaCantidad === 0) nuevoEstado = 0;
+
         const [result] = await db.query(
-            `UPDATE insumos SET estado = 0 WHERE id_insumo = ?`, [id]
+            `UPDATE insumos SET id_categoria = ?, nombre_insumo = ?, cantidad_disponible = ?, estado = ?
+             WHERE id_insumo = ?`,
+            [id_categoria, nombre_insumo, nuevaCantidad, nuevoEstado, id]
         );
         return result.affectedRows > 0;
     },
 
-    // Reactivar
-    reactivar: async (id) => {
+    // eliminar
+    delete: async (id) => {
         const [result] = await db.query(
-            `UPDATE insumos SET estado = 1 WHERE id_insumo = ?`, [id]
+            `DELETE FROM insumos WHERE id_insumo = ?`, [id]
         );
         return result.affectedRows > 0;
     }
-};
+
+}; 
 
 export default product;

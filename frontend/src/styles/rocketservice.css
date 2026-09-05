@@ -244,13 +244,13 @@ input[type="number"] {
 }
 
 .rs-table thead tr {
-    background-color: #fff3e0;
-    border-bottom: 1px solid #fed7aa;
+    background-color: var(--rs-bg-secondary);
+    border-bottom: 1px solid var(--rs-bg-secondary);
 }
 
 .rs-table th {
     padding: 12px 16px;
-    color: var(--rs-naranja);
+    color: #ffffff;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -290,23 +290,23 @@ input[type="number"] {
 }
 
 .rs-badge-success {
-    background-color: rgba(34, 197, 94, 0.12);
-    color: #16a34a;
+    background-color: #e4f8ec;
+    color: #15803d;
 }
 
 .rs-badge-danger {
-    background-color: rgba(255, 68, 68, 0.1);
-    color: #dc2626;
+    background-color: #ffeded;
+    color: #b91c1c;
 }
 
 .rs-badge-warning {
-    background-color: rgba(245, 158, 11, 0.12);
-    color: #d97706;
+    background-color: #fef3e2;
+    color: #b45309;
 }
 
 .rs-badge-muted {
     background-color: #f3f4f6;
-    color: #6b7280;
+    color: #4b5563;
 }
 
 .rs-badge-orange {
@@ -400,6 +400,11 @@ input[type="number"] {
     justify-content: center;
     color: var(--rs-naranja);
     font-size: 16px;
+}
+
+.rs-modal-icon-danger {
+    background-color: var(--rs-danger-light);
+    color: var(--rs-danger);
 }
 
 .rs-modal-title {

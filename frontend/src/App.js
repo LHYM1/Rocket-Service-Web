@@ -20,6 +20,7 @@ import Modelo from './pages/modelo/PageModMoto.jsx';
 import EstadoOrdenPage from './pages/estOrdn/PageEstadoOrd.jsx';
 import Categoria from './pages/categoria/PageCategoria.jsx';
 import UnidadMedPage from './pages/undMed/PageUnidadMed.jsx';
+import PreRevisionPage from './pages/preRevision/PreRevisionPage.jsx';
 import FormEstbPassword from './components/formPassword/FormPassword.jsx';
 
 
@@ -144,6 +145,12 @@ function App() {
               <TypeServPage />
             </ProtectedRoute>
           }/>
+
+          <Route path="pre-revision" element={
+            <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
+              <PreRevisionPage />
+            </ProtectedRoute>
+        }/>
 
           <Route path="content" element={<Content />} />
           <Route path="profile" element={<Profile />} />

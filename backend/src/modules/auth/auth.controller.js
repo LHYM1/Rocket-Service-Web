@@ -85,8 +85,9 @@ const login = async (req, res) => {
         nombre: user.nombre, 
         apellido: user.apellido 
       },
-      process.env.JWT_SECRET || 'secreto_rocket_service',
+      process.env.JWT_SECRET,
       { expiresIn: "8h" }
+      
     );
 
     res.json({ token });
