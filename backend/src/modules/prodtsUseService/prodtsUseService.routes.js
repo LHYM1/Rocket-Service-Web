@@ -12,5 +12,6 @@ router.get('/mis-insumos', validarToken(["Técnico"]), controller.listarMisInsum
 // HU-006.9: agregar / quitar insumos de una orden (Cotización) -- solo el Técnico asignado
 router.post('/agregar', validarToken(["Técnico"]), controller.agregarInsumoAOrden);
 router.delete('/quitar/:id_insumos_orden', validarToken(["Técnico"]), controller.quitarInsumoDeOrden);
+router.patch('/actualizar-cantidad/:id_insumos_orden', validarToken(["Técnico"]), controller.actualizarCantidadInsumo);
 
 export default router;

@@ -132,7 +132,7 @@ const prodtsUseService = {
     // Insumos cotizados de UNA orden puntual (por id exacto, no búsqueda difusa)
     findInsumosDeOrden: async (id_orden) => {
         const [rows] = await db.query(
-            `SELECT iu.id_insumos_orden, i.nombre_insumo, iu.cantidad, iu.precio_unitario_snapshot,
+            `SELECT iu.id_insumos_orden, i.id_insumo, i.nombre_insumo, iu.cantidad, iu.precio_unitario_snapshot,
                     und.nombre AS nombre_unidad
              FROM insumos_usados_en_servicio iu
              JOIN insumos i ON iu.id_insumo = i.id_insumo
@@ -141,6 +141,21 @@ const prodtsUseService = {
             [id_orden]
         );
         return rows;
+    },
+
+    // Ajustar la cantidad de un insumo ya agregado (+ / -), devolviendo o descontando
+    // stock según la diferencia, sin necesidad de quitar y volver a agregar
+    actualizarCantidad: async (id_insumos_orden, nuevaCantidad, id_insumo, cantidadActual) => {
+        const diferencia = nuevaCantidad - cantidadActual;
+        await db.query(
+            `UPDATE insumos_usados_en_servicio SET cantidad = ? WHERE id_insumos_orden = ?`,
+            [nuevaCantidad, id_insumos_orden]
+        );
+        // Si aumentó, se descuenta la diferencia del stock; si bajó, se le devuelve
+        await db.query(
+            `UPDATE insumos SET cantidad_disponible = cantidad_disponible - ? WHERE id_insumo = ?`,
+            [diferencia, id_insumo]
+        );
     }
 };
 
