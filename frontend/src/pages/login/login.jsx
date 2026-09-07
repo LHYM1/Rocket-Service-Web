@@ -12,6 +12,7 @@ function Iniciarsesion() {
     const [form, setForm] = useState({ usuario: "", contrasena: "" });
     const [errores, setErrores] = useState({ usuario: false, contrasena: false });
     const [cargando, setCargando] = useState(false);
+    const [mostrarContrasena, setMostrarContrasena] = useState(false);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -48,11 +49,8 @@ function Iniciarsesion() {
                 setForm({ ...form, contrasena: "" });
                 setCargando(false);
                 return;
-
             }
 
-            // atob() por sí solo no maneja bien UTF-8 (rompe tildes/ñ en el payload del JWT).
-            // Este decode intermedio reconstruye correctamente los caracteres multibyte.
             const base64Url = data.token.split('.')[1];
             const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
             const jsonPayload = decodeURIComponent(
@@ -63,10 +61,6 @@ function Iniciarsesion() {
             );
             const payload = JSON.parse(jsonPayload);
 
-            // Sanitización con lista blanca: solo se acepta el valor si cumple
-            // exactamente el patrón/formato esperado. Cualquier otra cosa se descarta.
-            // .normalize("NFC") evita falsos negativos cuando la tilde viene representada
-            // con una codificación Unicode distinta (ej. "e" + acento combinado vs "é" como un solo carácter).
             const JWT_PATRON = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
             const ROLES_VALIDOS = ["Administrador", "Técnico", "Cliente"];
             const ID_PATRON = /^\d+$/;
@@ -90,8 +84,6 @@ function Iniciarsesion() {
             localStorage.setItem("userId", idSeguro);
             window.dispatchEvent(new CustomEvent('authChanged'));
 
-            // HU-004.6: al ingresar el Administrador, se notifica si hay insumos con stock bajo
-            // HU-006.8 CA-005: y si hay pre-revisiones listas para convertir en orden
             if (rolSeguro === "Administrador") {
                 fetch("http://localhost:4000/api/insumos/stock-bajo", {
                     headers: { Authorization: `Bearer ${tokenSeguro}` }
@@ -125,7 +117,6 @@ function Iniciarsesion() {
                     })
                     .catch(() => {});
 
-                // Notificaciones puntuales (por ejemplo, insumos sin stock reportados por un Técnico)
                 fetch("http://localhost:4000/api/notificaciones/pendientes-admin", {
                     headers: { Authorization: `Bearer ${tokenSeguro}` }
                 })
@@ -142,7 +133,6 @@ function Iniciarsesion() {
                     .catch(() => {});
             }
 
-            // HU-006.1/006.8: el Técnico se entera de sus nuevas asignaciones al ingresar
             if (rolSeguro === "Técnico") {
                 Promise.all([
                     fetch("http://localhost:4000/api/ordenes_de_servicio/listar", {
@@ -243,18 +233,38 @@ function Iniciarsesion() {
                             <label className="login-label" htmlFor="login-contrasena">
                                 <i className="fa-solid fa-lock me-2"></i>Contraseña
                             </label>
-                            <input
-                                id="login-contrasena"
-                                className={`login-input ${errores.contrasena ? "login-input-error" : ""}`}
-                                type="password"
-                                name="contrasena"
-                                value={form.contrasena}
-                                placeholder="••••••••"
-                                onChange={(e) => {
-                                    handleChange(e);
-                                    setErrores(prev => ({ ...prev, contrasena: false }));
-                                }}
-                            />
+                            <div style={{ position: "relative", width: "100%" }}>
+                                <input
+                                    id="login-contrasena"
+                                    className={`login-input ${errores.contrasena ? "login-input-error" : ""}`}
+                                    type={mostrarContrasena ? "text" : "password"}
+                                    name="contrasena"
+                                    value={form.contrasena}
+                                    placeholder="••••••••"
+                                    style={{ paddingRight: "40px" }}
+                                    onChange={(e) => {
+                                        handleChange(e);
+                                        setErrores(prev => ({ ...prev, contrasena: false }));
+                                    }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setMostrarContrasena(!mostrarContrasena)}
+                                    style={{
+                                        position: "absolute",
+                                        right: "12px",
+                                        top: "50%",
+                                        transform: "translateY(-50%)",
+                                        background: "none",
+                                        border: "none",
+                                        cursor: "pointer",
+                                        color: "#6b7280"
+                                    }}
+                                    tabIndex={-1}
+                                >
+                                    <i className={`fa-solid ${mostrarContrasena ? "fa-eye" : "fa-eye-slash"}`}></i>
+                                </button>
+                            </div>
                             {errores.contrasena && (
                                 <small className="login-error-msg">
                                     <i className="fa-solid fa-circle-exclamation me-1"></i>
@@ -273,19 +283,6 @@ function Iniciarsesion() {
                                 : <><i className="fa-solid fa-right-to-bracket me-2"></i>Iniciar Sesión</>
                             }
                         </button>
-
-                        <div className="login-register">
-                            <span>¿Primera vez en Rocket? </span>
-                            <Link to="/register" className="login-link">Registrarme</Link>
-                        </div>
-
-                        {/* <div className="login-divider">
-                            <span>o continúa con</span>
-                        </div>
-
-                        <div className="login-google">
-                            <GoogleButton />
-                        </div> */}
                     </form>
                 </div>
             </div>
