@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import axios from '../../axiosConfig';
 import OrdersTable from "../../components/orders/OrdersTable";
 import ClienteOrdersTable from "../../components/orders/ClienteOrdersTable";
@@ -56,9 +57,12 @@ function OrdenesPage() {
 
         <div className="d-flex justify-content-between mb-4 gap-3">
             {esAdmin && (
-                <button className="btn btn-success" onClick={() => { setIdSeleccionado(null); setShowModal(true); }}>
-                    <i className="fa-solid fa-plus me-1"></i> Nueva Orden
-                </button>
+                <div className="d-flex align-items-center gap-2 px-3 py-2 rounded"
+                    style={{ backgroundColor: "#fff8ee", border: "1px solid #ff8c0040", fontSize: "0.85rem", color: "#9a5b00" }}>
+                    <i className="fa-solid fa-circle-info"></i>
+                    Las órdenes se crean desde una <strong>Pre-revisión</strong> que requiera reparación.{" "}
+                    <Link to="/panel/pre-revision" style={{ color: "#ff8c00", fontWeight: "600" }}>Ir a Pre-revisiones →</Link>
+                </div>
             )}
             <input
                 type="text"
@@ -84,22 +88,29 @@ function OrdenesPage() {
         )}
 
         {totalPaginas > 1 && (
-            <div className="d-flex justify-content-center mt-4">
-                <nav>
-                    <ul className="pagination">
-                        <li className={`page-item ${pagina === 1 ? "disabled" : ""}`}>
-                            <button className="page-link" onClick={() => setPagina(pagina - 1)}>Anterior</button>
-                        </li>
-                        {Array.from({ length: totalPaginas }, (_, i) => (
-                            <li key={i} className={`page-item ${pagina === i + 1 ? "active" : ""}`}>
-                                <button className="page-link" onClick={() => setPagina(i + 1)}>{i + 1}</button>
-                            </li>
-                        ))}
-                        <li className={`page-item ${pagina === totalPaginas ? "disabled" : ""}`}>
-                            <button className="page-link" onClick={() => setPagina(pagina + 1)}>Siguiente</button>
-                        </li>
-                    </ul>
-                </nav>
+            <div className="rs-pagination">
+                <button
+                    className="rs-page-btn"
+                    onClick={() => setPagina(pagina - 1)}
+                    disabled={pagina === 1}>
+                    <i className="fa-solid fa-chevron-left" style={{ fontSize: "0.75rem" }}></i>
+                </button>
+
+                {Array.from({ length: totalPaginas }, (_, i) => (
+                    <button
+                        key={i}
+                        className={`rs-page-btn ${pagina === i + 1 ? "active" : ""}`}
+                        onClick={() => setPagina(i + 1)}>
+                        {i + 1}
+                    </button>
+                ))}
+
+                <button
+                    className="rs-page-btn"
+                    onClick={() => setPagina(pagina + 1)}
+                    disabled={pagina === totalPaginas}>
+                    <i className="fa-solid fa-chevron-right" style={{ fontSize: "0.75rem" }}></i>
+                </button>
             </div>
         )}
 
