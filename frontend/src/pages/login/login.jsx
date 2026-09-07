@@ -273,11 +273,14 @@ function Iniciarsesion() {
                                 : <><i className="fa-solid fa-right-to-bracket me-2"></i>Iniciar Sesión</>
                             }
                         </button>
-
+                        
+                        {/*
                         <div className="login-register">
                             <span>¿Primera vez en Rocket? </span>
                             <Link to="/register" className="login-link">Registrarme</Link>
                         </div>
+                        */}
+                        
 
                         {/* <div className="login-divider">
                             <span>o continúa con</span>

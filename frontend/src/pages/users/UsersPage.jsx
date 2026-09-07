@@ -95,7 +95,8 @@ function UsersPage() {
                     onChange={(e) => { setFiltroEstado(e.target.value); setPagina(1); }}
                 >
                     <option value="">Todos los estados</option>
-                    <option value="1">Activo</option>
+                    <option value="2">Activo</option>
+                    <option value="1">Pediente</option>
                     <option value="0">Inactivo</option>
                 </select>
             </div>

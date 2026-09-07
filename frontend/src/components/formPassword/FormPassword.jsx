@@ -9,8 +9,7 @@ function FormPassword() {
   const navigate = useNavigate();
   const { mostrarToast } = useToast();
 
-  const token = searchParams.get('token');
-
+  const [tokenOculto, setTokenOculto] = useState('');
   const [form, setForm] = useState({
     contrasena: '',
     confirmarContrasena: '',
@@ -22,45 +21,74 @@ function FormPassword() {
   });
 
   const [cargando, setCargando] = useState(false);
+  const [verificandoToken, setVerificandoToken] = useState(true);
   const [tokenInvalido, setTokenInvalido] = useState(false);
   const [mensajeEstado, setMensajeEstado] = useState('');
 
-  // Validar si viene el token en la URL
+  // Validar token contra el servidor al cargar el componente
   useEffect(() => {
-    if (!token) {
+    const tokenUrl = searchParams.get('token');
+    const tokenActual = tokenUrl || tokenOculto;
+
+    if (!tokenActual) {
       setTokenInvalido(true);
-      setMensajeEstado('Enlace no válido. Por favor verifica el correo enviado por el administrador.');
+      setMensajeEstado('Enlace no válido. Por favor verifica el correo enviado por el sistema.');
+      setVerificandoToken(false);
+      return;
     }
-  }, [token]);
+
+    setTokenOculto(tokenActual);
+
+    if (tokenUrl) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    const verificarTokenEnBackend = async () => {
+      try {
+        // RUTA CORREGIDA: Apunta exactamente a /api/auth con barra inicial /
+        const res = await axios.get(`http://localhost:4000/api/auth/validar-token-cliente/${tokenActual}`);
+        if (res.data.valido) {
+          setTokenInvalido(false);
+        }
+      } catch (error) {
+        setTokenInvalido(true);
+        setMensajeEstado(
+          error.response?.data?.message || 'El enlace ha expirado o ya fue utilizado.'
+        );
+      } finally {
+        setVerificandoToken(false);
+      }
+    };
+
+    verificarTokenEnBackend();
+  }, [searchParams]);
+
+  const regLongitud = form.contrasena.length >= 8;
+  const regMayus = /[A-Z]/.test(form.contrasena);
+  const regMinus = /[a-z]/.test(form.contrasena);
+  const regNum = /[0-9]/.test(form.contrasena);
+  const regEspecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(form.contrasena);
+
+  const esContrasenaValida = regLongitud && regMayus && regMinus && regNum && regEspecial;
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    setErrores((prev) => ({ ...prev, [name]: false }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!esContrasenaValida) {
+      setErrores((prev) => ({ ...prev, contrasena: true }));
+      mostrarToast('La contraseña no cumple con los requisitos de seguridad', 'warning');
+      return;
+    }
+
     if (form.contrasena !== form.confirmarContrasena) {
       setErrores({ contrasena: true, confirmarContrasena: true });
-      mostrarToast('Las contraseñas no coinciden, deben ser idénticas', 'warning');
-      return;
-    }
-
-    if (!form.contrasena || !form.confirmarContrasena) {
-      setErrores({
-        contrasena: form.contrasena === '',
-        confirmarContrasena: form.confirmarContrasena === '',
-      });
-      mostrarToast('Por favor completa todos los campos', 'warning');
-      return;
-    }
-
-    if (form.contrasena.length < 8) {
-      setErrores({ contrasena: true, confirmarContrasena: false });
-      mostrarToast('La contraseña debe tener al menos 8 caracteres', 'warning');
+      mostrarToast('Las contraseñas no coinciden', 'warning');
       return;
     }
 
@@ -68,8 +96,9 @@ function FormPassword() {
     setCargando(true);
 
     try {
+      // Enviar datos al backend 
       const response = await axios.post('http://localhost:4000/api/auth/establecer-contrasena-cliente', {
-        token,
+        token: tokenOculto,
         contrasena: form.contrasena
       });
 
@@ -98,6 +127,17 @@ function FormPassword() {
     }
   };
 
+  if (verificandoToken) {
+    return (
+      <div className="register-container">
+        <div className="register-form-container" style={{ textAlign: 'center', padding: '40px' }}>
+          <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: '32px', color: '#1a1a2e' }}></i>
+          <p style={{ marginTop: '15px', color: '#666' }}>Verificando validez del enlace...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="register-container">
       <div className="register-form-container">
@@ -111,16 +151,10 @@ function FormPassword() {
             </div>
             <h3 style={{ fontSize: '18px', color: '#1a1a2e', marginBottom: '10px' }}>Enlace expirado o no válido</h3>
             <p style={{ fontSize: '14px', color: '#666', marginBottom: '20px' }}>{mensajeEstado}</p>
-            <button 
-              className="register-btn"
-              onClick={() => navigate('/')}
-            >
-              <i className="fa-solid fa-right-to-bracket me-2"></i>Ir al Inicio de Sesión
-            </button>
+            
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            {/* Input contraseña y confirmar contraseña */}
             <div className="register-row">
               <div className="register-field">
                 <label className="register-label">
@@ -134,12 +168,32 @@ function FormPassword() {
                   autoComplete="new-password"
                   placeholder="••••••••"
                   value={form.contrasena}
-                  onChange={(e) => {
-                    handleChange(e);
-                    setErrores(prev => ({ ...prev, contrasena: false }));
-                  }}
+                  onChange={handleChange}
                 />  
-                {errores.contrasena && (
+
+                {form.contrasena && (
+                  <div style={{ marginTop: '8px', fontSize: '11px', color: '#555' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 8px' }}>
+                      <span style={{ color: regLongitud ? '#28a745' : '#dc3545' }}>
+                        {regLongitud ? '✓' : '✗'} Mínimo 8 caracteres
+                      </span>
+                      <span style={{ color: regMayus ? '#28a745' : '#dc3545' }}>
+                        {regMayus ? '✓' : '✗'} Una Mayúscula
+                      </span>
+                      <span style={{ color: regMinus ? '#28a745' : '#dc3545' }}>
+                        {regMinus ? '✓' : '✗'} Una Minúscula
+                      </span>
+                      <span style={{ color: regNum ? '#28a745' : '#dc3545' }}>
+                        {regNum ? '✓' : '✗'} Un Número
+                      </span>
+                      <span style={{ color: regEspecial ? '#28a745' : '#dc3545', gridColumn: 'span 2' }}>
+                        {regEspecial ? '✓' : '✗'} Carácter especial (@,#,$,etc)
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {errores.contrasena && !form.contrasena && (
                   <small className="register-error-msg">
                     <i className="fa-solid fa-circle-exclamation me-1"></i>
                     Este campo es obligatorio
@@ -159,16 +213,13 @@ function FormPassword() {
                   autoComplete="new-password"
                   placeholder="••••••••"
                   value={form.confirmarContrasena}
-                  onChange={(e) => {
-                    handleChange(e);
-                    setErrores(prev => ({ ...prev, confirmarContrasena: false }));
-                  }}
+                  onChange={handleChange}
                 />  
 
                 {errores.confirmarContrasena && (
                   <small className="register-error-msg">
                     <i className="fa-solid fa-circle-exclamation me-1"></i>
-                    Este campo es obligatorio
+                    Las contraseñas deben coincidir
                   </small>
                 )}  
               </div>

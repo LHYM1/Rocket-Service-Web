@@ -1,116 +1,125 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import EdtAgrModelo from "../../components/modeloMoto/EdtAgrModelo";
+import axios from "../../axiosConfig";
 import TableModelo from "../../components/modeloMoto/TableModelo";
+import EdtAgrModelo from "../../components/modeloMoto/EdtAgrModelo";
 
-function ModeloPage () {
-  const [modelo, setModelo] = useState([]);
-  const [idSeleccionado, setIdSeleccionado] = useState(null);
-  const [busqueda, setBusqueda] = useState("");
-  const [showModal, setShowModal] = useState(false);
+function ModeloMoto() {
+    const [modelo, setModelo] = useState([]);
+    const [idSeleccionado, setIdSeleccionado] = useState(null);
+    const [busqueda, setBusqueda] = useState("");
+    const [filtroEstado, setFiltroEstado] = useState("");
+    const [showModal, setShowModal] = useState(false);
+    const [pagina, setPagina] = useState(1);
+    const porPagina = 8;
 
-   // Paginación
-  const [pagina, setPagina] = useState(1);
-  const porPagina = 5;
+    const getModelo = () => {
+        axios.get("http://localhost:4000/api/modelo/listar")
+            .then(res => setModelo(res.data))
+            .catch(err => console.error(err));
+    };
 
-  const getModelo = () => {
-    axios.get("http://localhost:4000/api/modelo/listar")
-      .then(res => setModelo(res.data))
-      .catch(err => console.error(err));
-  };
+    useEffect(() => { getModelo(); }, []);
 
-  useEffect(() => {
-    getModelo();
-  }, []);
+    const modelosFiltrados = modelo.filter(m => {
+        const coincideNombre = m.nombre?.toLowerCase().includes(busqueda.toLowerCase());
+        const coincideEstado = filtroEstado === "" || String(m.estado) === filtroEstado;
+        return coincideNombre && coincideEstado;
+    });
 
-  // Filtrar motos según búsqueda
-  const insSerFiltrados = modelo.filter(mod => {
-    // Convertimos el ID a texto con string 
-    const idTexto = String(mod.nombre || "");
-    return idTexto.toLowerCase().includes(busqueda.toLowerCase()); 
-  });
+    const inicio = (pagina - 1) * porPagina;
+    const modelosPaginados = modelosFiltrados.slice(inicio, inicio + porPagina);
+    const totalPaginas = Math.ceil(modelosFiltrados.length / porPagina);
 
-  // Calcular usuarios de la página actual
-  const inicio = (pagina - 1) * porPagina;
-  const fin = inicio + porPagina;
-  const paginados = insSerFiltrados.slice(inicio, fin);
-
-  // Número total de páginas
-  const totalPaginas = Math.ceil(insSerFiltrados.length / porPagina);
-
-  return (
-    <div className="container mt-4">
-      <h2>Gestión Modelos motocicleta</h2>
-
-      {/* Barra de acciones */}
-      <div className="d-flex justify-content-between mb-3">
-        <button
-          className="btn btn-primary"
-          onClick={() => {
-            setIdSeleccionado(null);
-            setShowModal(true);
-          }}
-        >
-          Agregar 
-        </button>
-
-        <input
-          type="text"
-          className="form-control w-50"
-          placeholder="Buscar modelo por nombre..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
-      </div>
-
-      {/* Tabla */}
-      <TableModelo
-        modelo={paginados}
-        setIdSeleccionado={(ts) => {
-          setIdSeleccionado(ts);
-          setShowModal(true);
-        }}
-        getModelo={getModelo}
-      />
-
-      {/* Paginador */}
-      <div className="d-flex justify-content-center mt-3">
-        <nav>
-          <ul className="pagination">
-            <li className={`page-item ${pagina === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina - 1)}>
-                Anterior
-              </button>
-            </li>
-
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <li key={i} className={`page-item ${pagina === i + 1 ? "active" : ""}`}>
-                <button className="page-link" onClick={() => setPagina(i + 1)}>
-                  {i + 1}
+    return (
+        <div className="rs-page-light">
+            {/* Header */}
+            <div className="rs-page-header">
+                <div>
+                    <h2 className="rs-page-title">
+                        <i className="fa-solid fa-motorcycle"></i>{" "}
+                        Gestión de Modelos de Motocicleta
+                    </h2>
+                    <p className="rs-page-subtitle">{modelo.length} modelos registrados</p>
+                </div>
+                <button
+                    className="rs-btn rs-btn-primary"
+                    onClick={() => { setIdSeleccionado(null); setShowModal(true); }}
+                >
+                    <i className="fa-solid fa-plus"></i>{" "}
+                    Agregar Modelo
                 </button>
-              </li>
-            ))}
+            </div>
 
-            <li className={`page-item ${pagina === totalPaginas ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina + 1)}>
-                Siguiente
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
+            {/* Filtros */}
+            <div className="rs-filters">
+                <div className="rs-search-wrapper">
+                    <i className="fa-solid fa-search rs-search-icon"></i>
+                    <input
+                        type="text"
+                        className="rs-search-input"
+                        placeholder="Buscar por nombre..."
+                        value={busqueda}
+                        onChange={(e) => { setBusqueda(e.target.value); setPagina(1); }}
+                    />
+                </div>
 
-      {/* Modal de agregar/editar */}
-      {showModal && (
-        <EdtAgrModelo
-          idSeleccionado={idSeleccionado}
-          getModelo={getModelo}
-          onClose={() => setShowModal(false)}
-          onSuccess={() => getModelo()}
-        />
-      )}
-    </div>
-  );
+                <select
+                    className="rs-select"
+                    value={filtroEstado}
+                    onChange={(e) => { setFiltroEstado(e.target.value); setPagina(1); }}
+                >
+                    <option value="">Todos los estados</option>
+                    <option value="1">Activo</option>
+                    <option value="0">Inactivo</option>
+                </select>
+            </div>
+
+            {/* Tabla */}
+            <TableModelo
+                modelo={modelosPaginados}
+                setIdSeleccionado={(m) => { setIdSeleccionado(m); setShowModal(true); }}
+                getModelo={getModelo}
+            />
+
+            {/* Paginador */}
+            {totalPaginas > 1 && (
+                <div className="rs-pagination">
+                    <button
+                        className="rs-page-btn"
+                        onClick={() => setPagina(pagina - 1)}
+                        disabled={pagina === 1}
+                    >
+                        <i className="fa-solid fa-chevron-left"></i>
+                    </button>
+                    {Array.from({ length: totalPaginas }, (_, i) => (
+                        <button
+                            key={`pagina-${i + 1}`}
+                            className={`rs-page-btn ${pagina === i + 1 ? 'active' : ''}`}
+                            onClick={() => setPagina(i + 1)}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+                    <button
+                        className="rs-page-btn"
+                        onClick={() => setPagina(pagina + 1)}
+                        disabled={pagina === totalPaginas}
+                    >
+                        <i className="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            )}
+
+            {/* Modal */}
+            {showModal && (
+                <EdtAgrModelo
+                    idSeleccionado={idSeleccionado}
+                    onClose={() => { setShowModal(false); setIdSeleccionado(null); }}
+                    onSuccess={() => getModelo()}
+                />
+            )}
+        </div>
+    );
 }
 
-export default ModeloPage;
+export default ModeloMoto;

@@ -1,29 +1,14 @@
 import usuarios from './usuarios.model.js';
 import pool from '../../config/db.js';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { enviarTokenTecnico, enviarTokenCliente } from '../../helpers/emailService.js';
+import { FormValidators } from '@rocket/shared';
 
-const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const regexSoloLetras = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+$/;
-const regexTelefono = /^\d{10}$/;
+const TECNICO_TOKEN_VIGENCIA_MS = 10 * 60 * 1000;
+const CLIENTE_TOKEN_VIGENCIA_MS = 24 * 60 * 60 * 1000;
 
-const normalizarNombre = (texto) => {
-    if (!texto) return texto;
-    const limpio = texto.trim();
-    return limpio.charAt(0).toUpperCase() + limpio.slice(1).toLowerCase();
-};
-
-const formatearFechaMYSQL = (fecha) => {
-    return fecha.toString().slice(0, 19).replace('T', ' ');
-}
-
-const TECNICO_TOKEN_VIGENCIA_MS = 10 * 60 * 1000; // 10 minutos
-const CLIENTE_TOKEN_VIGENCIA_MS = 24 * 60 * 60 * 1000; // 24 horas
-
-const generarCodigo6Digitos = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-};
+const generarCodigo6Digitos = () => crypto.randomInt(100000, 999999).toString();
 
 const esRolAdministrador = async (id_tipo_usuario) => {
     if (!id_tipo_usuario) return false;
@@ -35,13 +20,19 @@ const esRolAdministrador = async (id_tipo_usuario) => {
     return rows[0].categoria_usuario.toLowerCase().includes('admin');
 };
 
+// Listar usuarios incluyendo mapeo del estado a Activo/Inactivo si la vista de React lo requiere como String
 export const listarUsuario = async (req, res) => {
     try {
         const users = await usuarios.findAll();
-        res.json(users);
+        // Garantiza que el admin reciba 'Activo' cuando estado === 1
+        const usersMapped = users.map(u => ({
+            ...u,
+            estado_texto: u.estado === 1 || u.estado === '1' ? 'Activo' : 'Inactivo'
+        }));
+        res.json(usersMapped);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error al listar usuarios' });
+        console.error("Error listar usuarios:", error);
+        res.status(500).json({ message: 'Error interno del servidor' });
     }
 };
 
@@ -53,7 +44,8 @@ export const obtenerUsuario = async (req, res) => {
         }
         res.json(user);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("Error obtener usuario:", error);
+        res.status(500).json({ message: "Error interno del servidor" });
     }
 };
 
@@ -64,23 +56,20 @@ export const verificarCorreo = async (req, res) => {
         return res.status(400).json({ message: "Correo no proporcionado" });
     }
 
-    if (!regexEmail.test(correo_usuario)) {
-        return res.json({ valido: false, motivo: "formato_invalido" });
+    if (!FormValidators.esEmailValido(correo_usuario)) {
+        return res.status(400).json({ message: "Formato de correo inválido" });
     }
 
     try {
         const usuarioExistente = await usuarios.findByEmail(correo_usuario);
-        if (usuarioExistente) {
-            return res.json({ valido: false, motivo: "duplicado" });
-        }
-        return res.json({ valido: true });
+        return res.json({ valido: !usuarioExistente });
     } catch (error) {
         console.error("ERROR VERIFICAR CORREO:", error);
         res.status(500).json({ message: "Error al verificar el correo" });
     }
 };
 
-// 1. CREACIÓN DEL CLIENTE (Recibe URL con Token de 24 Horas)
+// Creación de cliente con ESTADO ACTIVO (1)
 export const crearCliente = async (req, res) => {
     try {
         const { nombre, apellido, correo_usuario, telefono_usuario, id_tipo_usuario } = req.body;
@@ -90,23 +79,14 @@ export const crearCliente = async (req, res) => {
         }
 
         if (await esRolAdministrador(id_tipo_usuario)) {
-            return res.status(403).json({ 
-                message: "No está permitido crear usuarios Administradores por este medio." 
-            });
+            return res.status(403).json({ message: "Operación no permitida." });
         }
 
-        if (!regexEmail.test(correo_usuario)) {
-            return res.status(400).json({ message: "El formato del correo no es válido." });
-        }
-
-        if (!regexSoloLetras.test(nombre.trim()) || !regexSoloLetras.test(apellido.trim())) {
-            return res.status(400).json({ message: "El nombre y apellido solo deben contener letras." });
-        }
-
-        if (!regexTelefono.test(telefono_usuario.trim())) {
-            return res.status(400).json({ 
-                message: "El teléfono debe contener exactamente 10 dígitos numéricos." 
-            });
+        if (!FormValidators.esEmailValido(correo_usuario) || 
+            !FormValidators.esSoloLetras(nombre) || 
+            !FormValidators.esSoloLetras(apellido) || 
+            !FormValidators.esTelefonoValido(telefono_usuario)) {
+            return res.status(400).json({ message: "Datos de entrada inválidos." });
         }
 
         const existente = await usuarios.findByEmail(correo_usuario);
@@ -114,41 +94,35 @@ export const crearCliente = async (req, res) => {
             return res.status(409).json({ message: "Este correo ya está registrado." });
         }
 
-        // Crear registro en la tabla usuarios (campos vacíos en lugar de null)
+        // Se inserta explícitamente con estado: 1 (Activo)
         const clienteCreado = await usuarios.create({
-            nombre: normalizarNombre(nombre),
-            apellido: normalizarNombre(apellido),
+            nombre: FormValidators.normalizarTexto(nombre),
+            apellido: FormValidators.normalizarTexto(apellido),
             correo_usuario,
             telefono_usuario: telefono_usuario.trim(),
             contrasena: '',
             id_tipo_usuario,
-            estado: 1
+            estado: 1 
         });
 
         const id_usuario = clienteCreado.insertId;
 
-        // Generar JWT
-        const tokenCliente = jwt.sign(
-            { id_usuario, correo: correo_usuario },
-            process.env.JWT_SECRET || 'secreto_rocket_service',
-            { expiresIn: '24h' }
-        );
-
-        // Registrar token en la base de datos
+        const rawToken = crypto.randomBytes(32).toString('hex');
+        const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
         const expiracion = new Date(Date.now() + CLIENTE_TOKEN_VIGENCIA_MS);
+
         await usuarios.createToken({
             id_usuario,
-            token: tokenCliente,
+            token: tokenHash,
             tipo_token: 'REGISTRO',
             fecha_expiracion: expiracion
         });
 
-        // Enviar únicamente el enlace dinámico al cliente
-        const urlCliente = `${process.env.FRONTEND_URL}/establecer-contrasena?token=${tokenCliente}`;
+        const urlCliente = `${process.env.FRONTEND_URL}/establecer-contrasena?token=${rawToken}`;
         await enviarTokenCliente(correo_usuario, urlCliente);
 
         res.status(201).json({
-            message: "Cliente creado correctamente. Se ha enviado el enlace de activación al correo.",
+            message: "Cliente creado correctamente con estado Activo. Enlace enviado al correo.",
         });
 
     } catch (error) {
@@ -157,22 +131,20 @@ export const crearCliente = async (req, res) => {
     }
 };
 
-// 2. INVITACIÓN DE TÉCNICO (Recibe únicamente el código numérico de 6 dígitos)
+// Invitación de Técnico con ESTADO ACTIVO (1)
 export const invitarTecnico = async (req, res) => {
     const { correo_usuario, id_tipo_usuario } = req.body;
 
     if (!correo_usuario || !id_tipo_usuario) {
-        return res.status(400).json({ message: "El correo y el tipo de usuario son obligatorios." });
+        return res.status(400).json({ message: "Campos obligatorios faltantes." });
     }
 
     if (await esRolAdministrador(id_tipo_usuario)) {
-        return res.status(403).json({ 
-            message: "No está permitido invitar usuarios Administradores por este medio." 
-        });
+        return res.status(403).json({ message: "Operación no permitida." });
     }
 
-    if (!regexEmail.test(correo_usuario)) {
-        return res.status(400).json({ message: "El formato del correo no es válido." });
+    if (!FormValidators.esEmailValido(correo_usuario)) {
+        return res.status(400).json({ message: "Correo inválido." });
     }
 
     try {
@@ -182,11 +154,11 @@ export const invitarTecnico = async (req, res) => {
         }
 
         const codigo = generarCodigo6Digitos();
-        const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(12);
         const codigoHash = await bcrypt.hash(codigo, salt);
         const expiracion = new Date(Date.now() + TECNICO_TOKEN_VIGENCIA_MS);
 
-        // Crear usuario técnico en estado pendiente (campos vacíos)
+        // Se asigna estado: 1 (Activo)
         const tecnicoCreado = await usuarios.create({
             nombre: '',
             apellido: '',
@@ -194,34 +166,25 @@ export const invitarTecnico = async (req, res) => {
             telefono_usuario: '',
             contrasena: '',
             id_tipo_usuario,
-            estado: 1
+            estado: 1 
         });
 
-        const id_usuario = tecnicoCreado.insertId;
-
-        // Guardar el HASH del código de 6 dígitos en tokens_autenticacion
         await usuarios.createToken({
-            id_usuario,
+            id_usuario: tecnicoCreado.insertId,
             token: codigoHash,
             tipo_token: 'REGISTRO',
             fecha_expiracion: expiracion
         });
 
-        // Se envía ÚNICAMENTE el PIN de 6 dígitos (NO se envía URL ni token en el enlace)
         await enviarTokenTecnico(correo_usuario, codigo);
 
         return res.status(201).json({
-            message: "Técnico registrado. Se ha enviado el código de activación al correo, válido por 10 minutos."
+            message: "Código de activación enviado. Técnico en estado Activo."
         });
 
     } catch (error) {
-        console.error("Error al invitar técnico:", error);
-
-        if (error.code === 'ER_DUP_ENTRY' || error.errno === 1062) {
-            return res.status(409).json({ message: "Este correo ya está registrado." });
-        }
-
-        return res.status(500).json({ message: "Error al procesar la invitación del técnico." });
+        console.error("Error invitar técnico:", error);
+        return res.status(500).json({ message: "Error procesando invitación." });
     }
 };
 
@@ -230,81 +193,69 @@ export const actualizarUsuario = async (req, res) => {
         let datosAActualizar = { ...req.body };
 
         if (datosAActualizar.id_tipo_usuario && await esRolAdministrador(datosAActualizar.id_tipo_usuario)) {
-            return res.status(403).json({ 
-                message: "No está permitido asignar el rol Administrador a un usuario." 
-            });
+            return res.status(403).json({ message: "Operación no permitida." });
         }
 
         if (datosAActualizar.nombre) {
-            if (!regexSoloLetras.test(datosAActualizar.nombre.trim())) {
-                return res.status(400).json({ message: "El nombre solo debe contener letras." });
-            }
-            datosAActualizar.nombre = normalizarNombre(datosAActualizar.nombre);
+            if (!FormValidators.esSoloLetras(datosAActualizar.nombre)) return res.status(400).json({ message: "Nombre inválido." });
+            datosAActualizar.nombre = FormValidators.normalizarTexto(datosAActualizar.nombre);
         }
+
         if (datosAActualizar.apellido) {
-            if (!regexSoloLetras.test(datosAActualizar.apellido.trim())) {
-                return res.status(400).json({ message: "El apellido solo debe contener letras." });
-            }
-            datosAActualizar.apellido = normalizarNombre(datosAActualizar.apellido);
+            if (!FormValidators.esSoloLetras(datosAActualizar.apellido)) return res.status(400).json({ message: "Apellido inválido." });
+            datosAActualizar.apellido = FormValidators.normalizarTexto(datosAActualizar.apellido);
         }
 
         if (datosAActualizar.telefono_usuario) {
-            if (!regexTelefono.test(datosAActualizar.telefono_usuario.trim())) {
-                return res.status(400).json({ 
-                    message: "El teléfono debe contener exactamente 10 dígitos numéricos." 
-                });
-            }
+            if (!FormValidators.esTelefonoValido(datosAActualizar.telefono_usuario)) return res.status(400).json({ message: "Teléfono inválido." });
             datosAActualizar.telefono_usuario = datosAActualizar.telefono_usuario.trim();
         }
 
         if (req.body.contrasena) {
-            const salt = await bcrypt.genSalt(10);
+            const salt = await bcrypt.genSalt(12);
             datosAActualizar.contrasena = await bcrypt.hash(req.body.contrasena, salt);
         } else {
             delete datosAActualizar.contrasena;
         }
 
-        const actualizado = await usuarios.update(req.params.id, datosAActualizar);
-
-        if (!actualizado) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
+        // Asegurarse de mantener el estado si se envía
+        if (req.body.estado !== undefined) {
+            datosAActualizar.estado = req.body.estado;
         }
+
+        const actualizado = await usuarios.update(req.params.id, datosAActualizar);
+        if (!actualizado) return res.status(404).json({ message: "Usuario no encontrado" });
 
         res.json({ message: "Usuario actualizado correctamente" });
 
     } catch (error) {
         console.error("ERROR ACTUALIZAR:", error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: "Error interno del servidor" });
     }
 };
 
 export const eliminarUsuario = async (req, res) => {
     try {
         const eliminado = await usuarios.remove(req.params.id);
-        if (!eliminado) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
-        }
-        res.json({ message: "Usuario desactivado correctamente" });
+        if (!eliminado) return res.status(404).json({ message: "Usuario no encontrado" });
+        res.json({ message: "Usuario desactivado (Estado: 0)" });
     } catch (error) {
         console.error("ERROR DESACTIVAR:", error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: "Error interno del servidor" });
     }
 };
 
 export const restaurarUsuario = async (req, res) => {
     try {
         const restaurado = await usuarios.restaurar(req.params.id);
-        if (!restaurado) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
-        }
-        res.json({ message: "Usuario activado correctamente" });
+        if (!restaurado) return res.status(404).json({ message: "Usuario no encontrado" });
+        res.json({ message: "Usuario activado (Estado: 1)" });
     } catch (error) {
         console.error("ERROR ACTIVAR:", error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: "Error interno del servidor" });
     }
 };
 
-// Listar disponibilidad de técnicos (ocupado o disponible)
 export const listarTecnicosDisponibilidad = async (req, res) => {
     try {
         const query = `
@@ -323,14 +274,81 @@ export const listarTecnicosDisponibilidad = async (req, res) => {
                     SELECT id_estado_de_servicio FROM estado_de_orden_de_servicio 
                     WHERE nombre_estado NOT IN ('FINALIZADA', 'CANCELADA')
                 )
-            WHERE c.categoria_usuario = 'Técnico'
+            WHERE c.categoria_usuario = 'Técnico' AND u.estado = 1
             GROUP BY u.id_usuario, u.nombre, u.apellido
         `;
-        const [rows] = await db.query(query);
+        const [rows] = await pool.query(query);
         res.json(rows);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al listar disponibilidad de técnicos' });
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+};
+
+
+export const reenviarToken = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // 1. Obtener usuario y su categoría
+        const user = await usuarios.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "Usuario no encontrado." });
+        }
+
+        // 2. Obtener el nombre de la categoría para distinguir entre Técnico y Cliente
+        const [categorias] = await pool.query(
+            'SELECT categoria_usuario FROM clasificacion_de_usuarios WHERE id_tipo_usuario = ?',
+            [user.id_tipo_usuario]
+        );
+
+        if (categorias.length === 0) {
+            return res.status(400).json({ message: "El usuario no tiene una categoría válida." });
+        }
+
+        const categoriaNombre = categorias[0].categoria_usuario.toLowerCase();
+        const esTecnico = categoriaNombre.includes('tecnico') || categoriaNombre.includes('técnico');
+
+        // 3. Generar nuevo token/código según el rol
+        if (esTecnico) {
+            const codigo = generarCodigo6Digitos();
+            const salt = await bcrypt.genSalt(12);
+            const codigoHash = await bcrypt.hash(codigo, salt);
+            const expiracion = new Date(Date.now() + TECNICO_TOKEN_VIGENCIA_MS);
+
+            await usuarios.createToken({
+                id_usuario: id,
+                token: codigoHash,
+                tipo_token: 'REGISTRO',
+                fecha_expiracion: expiracion
+            });
+
+            await enviarTokenTecnico(user.correo_usuario, codigo);
+
+            return res.json({ message: "Nuevo código de activación enviado al técnico." });
+
+        } else {
+            // Es Cliente
+            const rawToken = crypto.randomBytes(32).toString('hex');
+            const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+            const expiracion = new Date(Date.now() + CLIENTE_TOKEN_VIGENCIA_MS);
+
+            await usuarios.createToken({
+                id_usuario: id,
+                token: tokenHash,
+                tipo_token: 'REGISTRO',
+                fecha_expiracion: expiracion
+            });
+
+            const urlCliente = `${process.env.FRONTEND_URL}/establecer-contrasena?token=${rawToken}`;
+            await enviarTokenCliente(user.correo_usuario, urlCliente);
+
+            return res.json({ message: "Nuevo enlace de activación enviado al cliente." });
+        }
+
+    } catch (error) {
+        console.error("ERROR REENVIAR TOKEN:", error); // Token registro
+        return res.status(500).json({ message: "Error interno al reenviar el token." });
     }
 };
 
@@ -343,5 +361,6 @@ export default {
     eliminarUsuario,
     restaurarUsuario,
     invitarTecnico,
-    listarTecnicosDisponibilidad
+    listarTecnicosDisponibilidad,
+    reenviarToken
 };

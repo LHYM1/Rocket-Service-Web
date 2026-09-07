@@ -9,6 +9,7 @@ function TypeServPage() {
     const [tipServ, setTipServ] = useState([]);
     const [idSeleccionado, setIdSeleccionado] = useState(null);
     const [busqueda, setBusqueda] = useState("");
+    const [filtroEstado, setFiltroEstado] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [cargando, setCargando] = useState(true);
 
@@ -32,10 +33,21 @@ function TypeServPage() {
         getTipoServicio();
     }, []);
 
-    const tipServFiltrados = tipServ.filter(ts =>
-        (ts.nombre_servicio || "").toLowerCase().includes(busqueda.toLowerCase()) ||
-        (ts.descripcion_servicio || "").toLowerCase().includes(busqueda.toLowerCase())
-    );
+    // Filtro por nombre, descripción y estado
+    const tipServFiltrados = tipServ.filter(ts => {
+        const texto = busqueda.toLowerCase();
+        const coincideBusqueda =
+            (ts.nombre_servicio || "").toLowerCase().includes(texto) ||
+            (ts.descripcion_servicio || "").toLowerCase().includes(texto);
+
+        const coincideEstado =
+            filtroEstado === "" ||
+            String(ts.estado) === filtroEstado ||
+            (filtroEstado === "1" && ts.estado === true) ||
+            (filtroEstado === "0" && ts.estado === false);
+
+        return coincideBusqueda && coincideEstado;
+    });
 
     const inicio = (pagina - 1) * tipServPorPagina;
     const fin = inicio + tipServPorPagina;
@@ -51,7 +63,7 @@ function TypeServPage() {
                         Gestión de Tipo de Servicio
                     </h2>
                     <p className="rs-page-subtitle">
-                        Configura las categorías e intervenciones técnicas disponibles en el taller
+                        Gestiona todos los servicios ofrecidos en el Taller
                     </p>
                 </div>
 
@@ -80,6 +92,19 @@ function TypeServPage() {
                         }}
                     />
                 </div>
+
+                <select
+                    className="rs-select"
+                    value={filtroEstado}
+                    onChange={(e) => {
+                        setFiltroEstado(e.target.value);
+                        setPagina(1);
+                    }}
+                >
+                    <option value="">Todos los estados</option>
+                    <option value="1">Activo</option>
+                    <option value="0">Inactivo</option>
+                </select>
             </div>
 
             {cargando ? (

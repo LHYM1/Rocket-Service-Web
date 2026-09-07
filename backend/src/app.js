@@ -21,7 +21,7 @@ import prodtsUseServiceRoutes from './modules/prodtsUseService/prodtsUseService.
 import preRevisionRoutes from './modules/preRevision/preRevision.routes.js';
 import calificacionesRoutes from './modules/calificaciones/Calificaciones.routes.js'; 
 import notificacionesRoutes from './modules/notificaciones/notificaciones.routes.js';
-// ...
+import tokenRoutes from './modules/tokens/token.routes.js';
 
 const app = express();
 
@@ -30,6 +30,7 @@ app.use(cors()); // permite acceso a la API desde el frontend
 
 // Rutas usuario
 app.use('/api/usuarios', userRoutes);
+app.use('/api/tokens', tokenRoutes);
 
 // Rutas para clasificación de usuarios
 app.use('/api/clasificacion_de_usuarios', rolesRoutes);

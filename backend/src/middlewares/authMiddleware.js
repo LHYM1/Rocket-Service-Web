@@ -1,35 +1,30 @@
 import jwt from 'jsonwebtoken';
 
-// Protección de rutas
-export const validarToken = (roles) => {
-    return (req, res, next) => {
-
+export const validarToken = (rolesPermitidos = []) => {
+  return (req, res, next) => {
     const authHeader = req.headers['authorization'];
 
-    if (!authHeader) {
-      return res.status(401).json({ message: "Token requerido" });
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: "Acceso no autorizado. Token requerido." });
     }
 
-    const token = authHeader.split(" ")[1];
+    const token = authHeader.split(' ')[1];
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      req.user = decoded;
+      const rolUsuario = typeof decoded.role === 'string' ? decoded.role.normalize('NFC') : decoded.role;
+      const rolesNormalizados = rolesPermitidos.map(r => typeof r === 'string' ? r.normalize('NFC') : r);
 
-      // .normalize("NFC") evita falsos negativos cuando una tilde (como en "Técnico")
-      // viene representada con una codificación Unicode distinta a la esperada.
-      const rolDecoded = typeof decoded.role === "string" ? decoded.role.normalize("NFC") : decoded.role;
-      const rolesNormalizados = roles.map(r => typeof r === "string" ? r.normalize("NFC") : r);
-
-      if (!rolesNormalizados.includes(rolDecoded)) {
-        return res.status(403).json({ message: "No autorizado" });
+      if (rolesNormalizados.length > 0 && !rolesNormalizados.includes(rolUsuario)) {
+        return res.status(403).json({ message: "No tienes permisos para realizar esta acción." });
       }
 
+      req.user = decoded;
       next();
 
     } catch (error) {
-      return res.status(401).json({ message: "Token inválido" });
+      return res.status(401).json({ message: "Token inválido o expirado." });
     }
   };
 };

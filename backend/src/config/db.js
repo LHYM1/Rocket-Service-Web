@@ -4,7 +4,7 @@ const pool = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'rock-service',
+    database: 'rocketservice',
     port: 3306,
     charset: 'utf8mb4_general_ci',
     waitForConnections: true,

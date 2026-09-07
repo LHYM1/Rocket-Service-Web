@@ -11,6 +11,7 @@ router.put('/restaurar/:id', controllerUsers.restaurarUsuario);
 router.post('/invitar-tecnico', controllerUsers.invitarTecnico);
 router.post('/invitar-cliente', controllerUsers.crearCliente);
 router.get('/verificar-correo', controllerUsers.verificarCorreo);
+router.post('/reenviar-token/:id', controllerUsers.reenviarToken);// Token registro
 
 
 export default router;

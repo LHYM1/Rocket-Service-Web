@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Select from "react-select";
 import axios from "../../axiosConfig";
 import { useToast } from "../../context/ToastContext";
+import { FormValidators } from '@rocket/shared';
 
 const selectStyles = {
     control: (base, state) => ({
@@ -44,9 +45,6 @@ const selectStyles = {
     }),
 };
 
-const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const regexSoloLetras = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]*$/;
-
 const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
     const { mostrarToast } = useToast();
 
@@ -63,10 +61,10 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
     const [cargando, setCargando] = useState(false);
     const [verificandoCorreo, setVerificandoCorreo] = useState(false);
 
+    // Cargar tipos de usuarios excluyendo administradores
     useEffect(() => {
         axios.get("http://localhost:4000/api/clasificacion_de_usuarios/listar")
             .then(res => {
-                // FILTRO DE SEGURIDAD: Excluir rol de Administrador
                 const categoriasSinAdmin = res.data.filter(cat => 
                     !cat.categoria_usuario.toLowerCase().includes("admin")
                 );
@@ -79,6 +77,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
             .catch(() => mostrarToast("Error al cargar tipos de usuario", "error"));
     }, []);
 
+    // Cargar datos en modo Edición
     useEffect(() => {
         if (idSeleccionado) {
             setUsuario({
@@ -92,14 +91,16 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
     }, [idSeleccionado]);
 
     const categoriaSeleccionadaObj = categoriaUser.find(c => c.value === usuario.id_tipo_usuario);
-    const labelCategoria = categoriaSeleccionadaObj?.label?.toLowerCase() || "";
+    const labelCategoria = (categoriaSeleccionadaObj?.label || idSeleccionado?.categoria_usuario || "").toLowerCase();
 
-    const esTecnico = labelCategoria.includes("técnico") || labelCategoria.includes("tecnico");
+    // Detección normalizada de roles sin conflicto de tildes
+    const esTecnico = labelCategoria.includes("tecnico") || labelCategoria.includes("técnico");
     const esCliente = labelCategoria.includes("cliente");
 
+    // Verificar disponibilidad de correo solo para nuevos registros
     useEffect(() => {
         if (!usuario.correo_usuario || idSeleccionado) return;
-        if (!regexEmail.test(usuario.correo_usuario)) return;
+        if (!FormValidators.esEmailValido(usuario.correo_usuario)) return;
 
         const timer = setTimeout(async () => {
             setVerificandoCorreo(true);
@@ -108,15 +109,12 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                     params: { correo_usuario: usuario.correo_usuario }
                 });
                 if (!res.data.valido) {
-                    const mensaje = res.data.motivo === "duplicado"
-                        ? "Este correo ya está registrado."
-                        : "Formato de correo inválido.";
-                    setErrores(prev => ({ ...prev, correo_usuario: mensaje }));
+                    setErrores(prev => ({ ...prev, correo_usuario: "Este correo ya está registrado." }));
                 } else {
                     setErrores(prev => ({ ...prev, correo_usuario: "" }));
                 }
             } catch {
-                // Si falla la consulta no interrumpe el flujo principal
+                // Silencioso
             } finally {
                 setVerificandoCorreo(false);
             }
@@ -125,17 +123,11 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
         return () => clearTimeout(timer);
     }, [usuario.correo_usuario, idSeleccionado]);
 
-    const capitalizar = (valor) => {
-        if (!valor) return valor;
-        return valor.charAt(0).toUpperCase() + valor.slice(1).toLowerCase();
-    };
-
     const handleChange = (e) => {
         const { name, value } = e.target;
 
         if (name === "nombre" || name === "apellido") {
-            if (!regexSoloLetras.test(value)) return;
-            setUsuario({ ...usuario, [name]: capitalizar(value) });
+            setUsuario({ ...usuario, [name]: FormValidators.normalizarNombreCompleto(value) });
         } else if (name === "telefono_usuario") {
             const soloNumeros = value.replace(/\D/g, "");
             if (soloNumeros.length <= 10) {
@@ -162,7 +154,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
 
         if (!usuario.correo_usuario.trim()) {
             nuevosErrores.correo_usuario = "El correo electrónico es obligatorio.";
-        } else if (!regexEmail.test(usuario.correo_usuario)) {
+        } else if (!FormValidators.esEmailValido(usuario.correo_usuario)) {
             nuevosErrores.correo_usuario = "Ingrese un correo electrónico válido.";
         } else if (errores.correo_usuario) {
             nuevosErrores.correo_usuario = errores.correo_usuario;
@@ -171,19 +163,19 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
         if (!esTecnico || idSeleccionado) {
             if (!usuario.nombre.trim()) {
                 nuevosErrores.nombre = "El nombre es obligatorio.";
-            } else if (!regexSoloLetras.test(usuario.nombre.trim())) {
+            } else if (!FormValidators.esSoloLetras(usuario.nombre.trim())) {
                 nuevosErrores.nombre = "El nombre solo debe contener letras.";
             }
 
             if (!usuario.apellido.trim()) {
                 nuevosErrores.apellido = "El apellido es obligatorio.";
-            } else if (!regexSoloLetras.test(usuario.apellido.trim())) {
+            } else if (!FormValidators.esSoloLetras(usuario.apellido.trim())) {
                 nuevosErrores.apellido = "El apellido solo debe contener letras.";
             }
 
             if (!usuario.telefono_usuario.trim()) {
                 nuevosErrores.telefono_usuario = "El teléfono es obligatorio.";
-            } else if (usuario.telefono_usuario.length !== 10) {
+            } else if (!FormValidators.esTelefonoValido(usuario.telefono_usuario)) {
                 nuevosErrores.telefono_usuario = "El teléfono debe tener exactamente 10 dígitos.";
             }
         }
@@ -217,8 +209,9 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                     telefono_usuario: usuario.telefono_usuario,
                     id_tipo_usuario: usuario.id_tipo_usuario
                 };
+                
                 await axios.post("http://localhost:4000/api/usuarios/invitar-cliente", datosCliente);
-                mostrarToast("Cliente registrado. Se ha enviado un enlace al correo para establecer su contraseña.", "success");
+                mostrarToast("Cliente registrado en estado Pendiente. Enlace de contraseña enviado.", "success");
             }
 
             onSuccess();
@@ -256,6 +249,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                 <div className="rs-modal-body">
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
 
+                        {/* SELECTOR DE ROL */}
                         <div className="rs-field" style={{ gridColumn: '1 / -1' }}>
                             <label className="rs-label">
                                 Tipo de usuario <span className="rs-required">*</span>
@@ -277,6 +271,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                             )}
                         </div>
 
+                        {/* MENSAJE DE ROL CLIENTE */}
                         {esCliente && !idSeleccionado && (
                             <div style={{
                                 gridColumn: '1 / -1',
@@ -287,12 +282,13 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                             }}>
                                 <p style={{ margin: 0, fontSize: '13px', color: '#b75300', fontWeight: '500' }}>
                                     <i className="fa-solid fa-envelope-circle-check me-2"></i>
-                                    <strong>Registro Inicial de Cliente:</strong> Ingresa los datos básicos. Al guardar, se enviará automáticamente un correo al cliente con un enlace para que cree su contraseña.
+                                    <strong>Registro Inicial de Cliente:</strong> Ingresa sus datos. Se creará con estado Pendiente y recibirá un correo para establecer su contraseña y activar su cuenta.
                                 </p>
                             </div>
                         )}
 
-                        {esTecnico && !idSeleccionado ? (
+                        {/* CAMPOS DINÁMICOS PARA TÉCNICO NUEVO */}
+                        {esTecnico && !idSeleccionado && (
                             <div style={{ gridColumn: '1 / -1' }}>
                                 <div className="rs-field">
                                     <label className="rs-label">
@@ -325,7 +321,10 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                                     Se enviará un código de activación válido por 10 minutos a este correo.
                                 </small>
                             </div>
-                        ) : (
+                        )}
+
+                        {/* CAMPOS DINÁMICOS PARA CLIENTE O EDITAR CUALQUIER USUARIO */}
+                        {(esCliente || idSeleccionado) && (
                             <>
                                 <div className="rs-field">
                                     <label className="rs-label">
@@ -418,6 +417,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                                 </div>
                             </>
                         )}
+
                     </div>
                 </div>
 
@@ -425,7 +425,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                     <button className="rs-btn rs-btn-secondary" onClick={onClose}>
                         Cancelar
                     </button>
-                    <button className="rs-btn rs-btn-primary" onClick={handleSave} disabled={cargando}>
+                    <button className="rs-btn rs-btn-primary" onClick={handleSave} disabled={cargando || (!usuario.id_tipo_usuario && !idSeleccionado)}>
                         {cargando ? (
                             <><i className="fa-solid fa-spinner fa-spin me-1"></i> Procesando...</>
                         ) : esTecnico && !idSeleccionado ? (

@@ -29,6 +29,7 @@ const RedirigirPorRol = () => {
     const rol = localStorage.getItem("rol");
     if (rol === "Administrador") return <Navigate to="/panel/dashboard" replace />;
     if (rol === "Técnico") return <Navigate to="/panel/orders" replace />;
+    if (rol == "Cliente") return <Navigate to="/" replace />;
     return <Navigate to="/" replace />;
 };
 

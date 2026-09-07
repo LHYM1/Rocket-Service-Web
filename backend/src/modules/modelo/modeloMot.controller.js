@@ -1,13 +1,11 @@
-
-import modeloMot from './modeloMot.js';
+import modeloMot from './modeloMot.model.js';
 
 export const listarModeloMot = async (req, res) => {
-
     try {
         const modelo = await modeloMot.findAll();
         res.json(modelo);
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).json({ error: 'Error al listar modelos' });
     }
 };
@@ -24,46 +22,91 @@ export const obtenerModelo = async (req, res) => {
 
 export const crearModelo = async (req, res) => {
     try {
-        const { nombre } = req.body; // Campos DB
+        const { nombre } = req.body;
 
-        if (!nombre) {
-            return res.status(400).json({ 
-                message: "Todos los campos son obligatorios" 
-            });
+        // RN-003: campo obligatorio
+        if (!nombre || !nombre.trim()) {
+            return res.status(400).json({ message: "El nombre del modelo es obligatorio." });
         }
-        
-        const id = await modeloMot.create(req.body);
 
-        res.status(201).json({ 
-            message: "Registo de modelo motocicleta creado correctamente",
-        }); 
+        // RN-002: nombre único
+        const existe = await modeloMot.findByNombre(nombre);
+        if (existe) {
+            return res.status(400).json({ message: "Este nombre de modelo ya existe. Por favor ingrese otro." });
+        }
+
+        await modeloMot.create(req.body);
+
+        res.status(201).json({ message: "Modelo de motocicleta registrado exitosamente." });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: error.message });
     }
 };
 
 export const actualizarModeloMot = async (req, res) => {
     try {
-        const actualizado = await modeloMot.update(req.params.id, req.body);
+        const { nombre } = req.body;
+        const id = req.params.id;
 
-        if (!actualizado) {
-            return res.status(404).json({ message: "Registro de modelo no encontrado" });
+        if (!nombre || !nombre.trim()) {
+            return res.status(400).json({ message: "No puede dejar este campo sin completar." });
         }
-        res.json({ message: "Registro de modelo actualizado correctamente" });
+
+        const modeloActual = await modeloMot.findById(id);
+        if (!modeloActual) {
+            return res.status(404).json({ message: "El modelo no existe." });
+        }
+
+        // RN-002: nombre único (excluyendo el propio registro)
+        const existe = await modeloMot.findByNombre(nombre, id);
+        if (existe) {
+            return res.status(400).json({ message: "Este nombre ya está en uso." });
+        }
+
+        await modeloMot.update(id, req.body);
+
+        res.json({ message: "Modelo de motocicleta actualizado satisfactoriamente." });
     } catch (error) {
-        console.error("ERROR EN EL MODELO:", error.message);
+        console.error("ERROR ACTUALIZAR MODELO:", error.message);
         res.status(500).json({ error: error.message });
     }
 };
 
-export const eliminarModelo = async (req, res) => {
+// RN-003/RN-004: softdelete, bloqueado si está en uso
+export const desactivarModelo = async (req, res) => {
     try {
-        const eliminado = await modeloMot.delete(req.params.id);
-        if (!eliminado) 
-            return res.status(404).json({
-                message: "Registro de modelo no encontrado" 
+        const id = req.params.id;
+
+        const modeloActual = await modeloMot.findById(id);
+        if (!modeloActual) {
+            return res.status(404).json({ message: "El modelo no existe." });
+        }
+        if (modeloActual.estado === 0) {
+            return res.status(409).json({ message: "Este modelo ya se encuentra inactivo." });
+        }
+
+        const totalMotos = await modeloMot.contarMotosAsociadas(id);
+        if (totalMotos > 0) {
+            return res.status(409).json({
+                message: `No es posible desactivar este modelo: está asociado a ${totalMotos} motocicleta(s).`
             });
-        res.json({ message: "Registro de modelo eliminado" });
+        }
+
+        await modeloMot.softDelete(id);
+        res.json({ message: "Modelo de motocicleta desactivado satisfactoriamente." });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const reactivarModelo = async (req, res) => {
+    try {
+        const reactivado = await modeloMot.reactivar(req.params.id);
+        if (!reactivado) {
+            return res.status(404).json({ message: "Modelo no encontrado" });
+        }
+        res.json({ message: "Modelo reactivado correctamente." });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -71,10 +114,9 @@ export const eliminarModelo = async (req, res) => {
 
 export default {
     listarModeloMot,
-    obtenerModelo,   
+    obtenerModelo,
     crearModelo,
     actualizarModeloMot,
-    eliminarModelo
+    desactivarModelo,
+    reactivarModelo
 };
-
-
