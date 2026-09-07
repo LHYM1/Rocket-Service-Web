@@ -67,7 +67,7 @@ const preRevision = {
         const [rows] = await db.query(
             `SELECT
                 pr.id_pre_revision, pr.fecha_pre_revision, pr.estado, pr.resultado, pr.observaciones,
-                pr.id_moto, pr.id_tipo_servicio,
+                pr.id_moto, pr.id_tipo_servicio, pr.id_orden_generada,
                 CONCAT(cli.nombre, ' ', cli.apellido) AS cliente,
                 m.placa
              FROM pre_revision pr

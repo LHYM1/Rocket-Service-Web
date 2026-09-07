@@ -39,10 +39,7 @@ const login = async (req, res) => {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    const user = rows[0];
-
-    console.log('DEBUG BACKEND user.role:', JSON.stringify(user.role));
-    
+    const user = rows[0];    
     const match = await bcrypt.compare(contrasena, user.contrasena);
     
     if (!match) {

@@ -6,6 +6,7 @@ import ModalCrearPreRevision from "../../components/ModalCrearPreRevision";
 import ModalCompletarPreRevision from "../../components/ModalCompletarPreRevision";
 import ModalCrearOrdenDesdePreRevision from "../../components/ModalCrearOrdenDesdePreRevision";
 import ConfirmModal from "../../components/ConfirmModal";
+import ModalDetallePreRevision from "../../components/ModalDetallePreRevision";
 
 const ESTADOS_BADGE = {
     PENDIENTE: "rs-badge-warning",
@@ -22,6 +23,7 @@ function PreRevisionPage() {
     const [seleccionada, setSeleccionada] = useState(null);
     const [idParaEliminar, setIdParaEliminar] = useState(null);
     const [paraCrearOrden, setParaCrearOrden] = useState(null);
+    const [paraVerDetalle, setParaVerDetalle] = useState(null);
 
     const cargar = useCallback(() => {
         const url = filtroEstado
@@ -53,6 +55,23 @@ function PreRevisionPage() {
 
     return (
         <div className="rs-page-light">
+            <style>{`
+                @keyframes entradaFilaPreRevision {
+                    from { opacity: 0; transform: translateY(12px); }
+                    to   { opacity: 1; transform: translateY(0); }
+                }
+                .rs-table tbody tr {
+                    animation: entradaFilaPreRevision 0.35s ease both;
+                }
+                .rs-table tbody tr:nth-child(1) { animation-delay: 0s; }
+                .rs-table tbody tr:nth-child(2) { animation-delay: 0.05s; }
+                .rs-table tbody tr:nth-child(3) { animation-delay: 0.10s; }
+                .rs-table tbody tr:nth-child(4) { animation-delay: 0.15s; }
+                .rs-table tbody tr:nth-child(5) { animation-delay: 0.20s; }
+                .rs-table tbody tr:nth-child(6) { animation-delay: 0.25s; }
+                .rs-table tbody tr:nth-child(7) { animation-delay: 0.30s; }
+                .rs-table tbody tr:nth-child(8) { animation-delay: 0.35s; }
+            `}</style>
             <div className="rs-page-header">
                 <div>
                     <h2 className="rs-page-title">
@@ -142,6 +161,26 @@ function PreRevisionPage() {
                                             {esAdmin && pr.estado === "COMPLETADA" && pr.id_orden_generada && (
                                                 <span className="rs-badge rs-badge-success">Orden creada</span>
                                             )}
+
+                                            {/* Técnico: estado informativo + ojo para ver el detalle, cuando ya terminó */}
+                                            {!esAdmin && pr.estado === "FINALIZADA" && (
+                                                <span className="rs-badge rs-badge-success">Sin acción pendiente</span>
+                                            )}
+                                            {!esAdmin && pr.estado === "COMPLETADA" && !pr.id_orden_generada && (
+                                                <span className="rs-badge rs-badge-warning">Esperando que Admin cree la orden</span>
+                                            )}
+                                            {!esAdmin && pr.estado === "COMPLETADA" && pr.id_orden_generada && (
+                                                <span className="rs-badge rs-badge-success">Orden #{pr.id_orden_generada} creada</span>
+                                            )}
+                                            {!esAdmin && (pr.estado === "FINALIZADA" || pr.estado === "COMPLETADA") && (
+                                                <button
+                                                    className="rs-btn rs-btn-icon rs-btn-edit"
+                                                    onClick={() => setParaVerDetalle(pr)}
+                                                    title="Ver detalle"
+                                                >
+                                                    <i className="fa-solid fa-eye"></i>
+                                                </button>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>
@@ -182,6 +221,13 @@ function PreRevisionPage() {
                     preRevision={paraCrearOrden}
                     onClose={() => setParaCrearOrden(null)}
                     onSuccess={cargar}
+                />
+            )}
+
+            {paraVerDetalle && (
+                <ModalDetallePreRevision
+                    preRevision={paraVerDetalle}
+                    onClose={() => setParaVerDetalle(null)}
                 />
             )}
         </div>
