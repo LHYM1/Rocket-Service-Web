@@ -66,9 +66,13 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
         try {
             if (idSeleccionado) {
                 // Actualizar (HU-004.3) — la cantidad a agregar es opcional, y SUMA al stock actual.
-                // El tipo de medida no se envía: no es editable (RN-002).
+                // El precio SÍ es editable ahora (reemplaza, no suma). El tipo de medida no se envía: no es editable (RN-002).
                 if (insumo.cantidad_a_agregar !== "" && Number(insumo.cantidad_a_agregar) <= 0) {
                     mostrarToast("La cantidad a agregar debe ser mayor a cero.", "warning");
+                    return;
+                }
+                if (!insumo.precio_unitario || Number(insumo.precio_unitario) < 1000) {
+                    mostrarToast("El precio unitario debe ser de al menos $1.000.", "warning");
                     return;
                 }
 
@@ -77,7 +81,8 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                     {
                         id_categoria: insumo.id_categoria,
                         nombre_insumo: insumo.nombre_insumo,
-                        cantidad_a_agregar: insumo.cantidad_a_agregar
+                        cantidad_a_agregar: insumo.cantidad_a_agregar,
+                        precio_unitario: insumo.precio_unitario
                     }
                 );
                 mostrarToast("Insumo actualizado correctamente.", "success");
@@ -184,44 +189,28 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                 </div>
 
                 {!idSeleccionado ? (
-                    // Registrar (HU-004.1): cantidad inicial exacta + precio
-                    <>
-                        <div className="rs-field">
-                            <label className="rs-label" htmlFor="insumo-cantidad-inicial">Cantidad inicial <span className="rs-required">*</span></label>
-                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                <input
-                                    id="insumo-cantidad-inicial"
-                                    type="number"
-                                    min="1"
-                                    step="1"
-                                    className="rs-input-white"
-                                    name="cantidad_disponible"
-                                    value={insumo.cantidad_disponible}
-                                    onChange={handleChange}
-                                    placeholder="Cantidad mayor a cero"
-                                />
-                                {simboloUnidadActual && (
-                                    <span style={{ color: "#6b7280", fontSize: "13px", fontWeight: "600", whiteSpace: "nowrap" }}>
-                                        {simboloUnidadActual}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="rs-field">
-                            <label className="rs-label" htmlFor="insumo-precio">Precio unitario <span className="rs-required">*</span></label>
+                    // Registrar (HU-004.1): cantidad inicial exacta
+                    <div className="rs-field">
+                        <label className="rs-label" htmlFor="insumo-cantidad-inicial">Cantidad inicial <span className="rs-required">*</span></label>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                             <input
-                                id="insumo-precio"
-                                type="text"
-                                inputMode="numeric"
+                                id="insumo-cantidad-inicial"
+                                type="number"
+                                min="1"
+                                step="1"
                                 className="rs-input-white"
-                                name="precio_unitario"
-                                value={formatearPrecio(insumo.precio_unitario)}
-                                onChange={handlePrecioChange}
-                                placeholder="Mínimo $1.000"
+                                name="cantidad_disponible"
+                                value={insumo.cantidad_disponible}
+                                onChange={handleChange}
+                                placeholder="Cantidad mayor a cero"
                             />
+                            {simboloUnidadActual && (
+                                <span style={{ color: "#6b7280", fontSize: "13px", fontWeight: "600", whiteSpace: "nowrap" }}>
+                                    {simboloUnidadActual}
+                                </span>
+                            )}
                         </div>
-                    </>
+                    </div>
                 ) : (
                     // Actualizar (HU-004.3): cantidad a agregar, opcional, suma al stock actual
                     <div className="rs-field">
@@ -247,6 +236,24 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                         <span className="rs-hint">Este valor se SUMA al stock actual. Déjalo vacío si no quieres cambiar la cantidad.</span>
                     </div>
                 )}
+
+                {/* Precio unitario: editable tanto al registrar como al actualizar */}
+                <div className="rs-field">
+                    <label className="rs-label" htmlFor="insumo-precio">Precio unitario <span className="rs-required">*</span></label>
+                    <input
+                        id="insumo-precio"
+                        type="text"
+                        inputMode="numeric"
+                        className="rs-input-white"
+                        name="precio_unitario"
+                        value={formatearPrecio(insumo.precio_unitario)}
+                        onChange={handlePrecioChange}
+                        placeholder="Mínimo $1.000"
+                    />
+                    {idSeleccionado && (
+                        <span className="rs-hint">Este valor reemplaza el precio anterior (no se suma).</span>
+                    )}
+                </div>
 
             </div>
 

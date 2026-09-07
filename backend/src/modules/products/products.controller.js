@@ -21,6 +21,16 @@ export const obtenerInsumo = async (req, res) => {
     }
 };
 
+// HU-004.6 -- Notificar stock bajo de insumos
+export const obtenerStockBajo = async (req, res) => {
+    try {
+        const bajos = await insumos.findStockBajo();
+        res.json(bajos);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // HU-004.1 -- Registrar insumo
 export const crearInsumo = async (req, res) => {
     try {
@@ -104,7 +114,7 @@ export const crearInsumo = async (req, res) => {
 export const actualizarInsumo = async (req, res) => {
     try {
         const { id } = req.params;
-        const { id_categoria, nombre_insumo, cantidad_a_agregar } = req.body;
+        const { id_categoria, nombre_insumo, cantidad_a_agregar, precio_unitario } = req.body;
 
         const insumoActual = await insumos.findById(id);
         if (!insumoActual) {
@@ -142,10 +152,23 @@ export const actualizarInsumo = async (req, res) => {
             }
         }
 
+        // Precio unitario: editable también al actualizar (RN-005, mismo mínimo que al registrar)
+        let precioFinal = insumoActual.precio_unitario;
+        if (precio_unitario !== undefined && precio_unitario !== null && precio_unitario !== "") {
+            const precio = Number(precio_unitario);
+            if (Number.isNaN(precio) || precio < 1000) {
+                return res.status(400).json({
+                    message: "El precio unitario debe ser de al menos $1.000."
+                });
+            }
+            precioFinal = precio;
+        }
+
         const actualizado = await insumos.update(id, {
             id_categoria,
             nombre_insumo: nombreFinal,
-            cantidad_a_agregar
+            cantidad_a_agregar,
+            precio_unitario: precioFinal
         });
 
         if (!actualizado) {
@@ -173,10 +196,21 @@ export const eliminarInsumo = async (req, res) => {
     }
 };
 
+// HU-004.6 -- Notificar stock bajo de insumos
+export const obtenerStockBajos = async (req, res) => {
+    try {
+        const bajos = await insumos.findStockBajo();
+        res.json(bajos);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 export default {
     listarInsumo,
     obtenerInsumo,
     crearInsumo,
     actualizarInsumo,
-    eliminarInsumo
+    eliminarInsumo,
+    obtenerStockBajos
 }
