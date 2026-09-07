@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import controller from './Calificaciones.controller.js';
+import controller from './calificaciones.controller.js';
 import { validarToken } from '../../middlewares/authMiddleware.js';
 
 // RN-001: solo el Cliente califica
