@@ -49,6 +49,16 @@ const product = {
         return rows[0];
     },
 
+    // HU-004.6 -- RN-001: insumos activos con stock bajo (entre 1 y 5 unidades)
+    findStockBajo: async () => {
+        const [rows] = await db.query(
+            `SELECT id_insumo, nombre_insumo, cantidad_disponible
+             FROM insumos
+             WHERE cantidad_disponible > 0 AND cantidad_disponible <= 5 AND estado = 1`
+        );
+        return rows;
+    },
+
     // RN-002 / CA-005 (registrar) y RN-004 / CA-004 (actualizar): validar existencia y estado de la categoría
     getCategoriaPorId: async (id_categoria) => {
         const [rows] = await db.query(
@@ -77,13 +87,14 @@ const product = {
         return result.insertId;
     },
 
-    // actualizar (HU-004.3) — la cantidad SUMA a la existente (RN-005) y
-    // reactiva automáticamente si el insumo estaba inactivo (RN-007 / HU-004.4)
+    // actualizar (HU-004.3) — la cantidad SUMA a la existente (RN-005), el precio se reemplaza
+    // directo (no suma), y reactiva automáticamente si el insumo estaba inactivo (RN-007 / HU-004.4)
     update : async (id, data) => {
         const {
             id_categoria,
             nombre_insumo,
-            cantidad_a_agregar
+            cantidad_a_agregar,
+            precio_unitario
         } = data;
 
         const [rows] = await db.query(
@@ -104,9 +115,9 @@ const product = {
         if (nuevaCantidad === 0) nuevoEstado = 0;
 
         const [result] = await db.query(
-            `UPDATE insumos SET id_categoria = ?, nombre_insumo = ?, cantidad_disponible = ?, estado = ?
+            `UPDATE insumos SET id_categoria = ?, nombre_insumo = ?, cantidad_disponible = ?, precio_unitario = ?, estado = ?
              WHERE id_insumo = ?`,
-            [id_categoria, nombre_insumo, nuevaCantidad, nuevoEstado, id]
+            [id_categoria, nombre_insumo, nuevaCantidad, precio_unitario, nuevoEstado, id]
         );
         return result.affectedRows > 0;
     },
@@ -117,6 +128,16 @@ const product = {
             `DELETE FROM insumos WHERE id_insumo = ?`, [id]
         );
         return result.affectedRows > 0;
+    },
+
+    // HU-004.6 -- RN-001: insumos activos con stock bajo (entre 1 y 5 unidades)
+    findStockBajo: async () => {
+        const [rows] = await db.query(
+            `SELECT id_insumo, nombre_insumo, cantidad_disponible
+             FROM insumos
+             WHERE cantidad_disponible > 0 AND cantidad_disponible <= 5 AND estado = 1`
+        );
+        return rows;
     }
 
 }; 
