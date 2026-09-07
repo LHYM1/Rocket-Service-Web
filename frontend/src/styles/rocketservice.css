@@ -362,6 +362,7 @@ input[type="number"] {
     align-items: center;
     justify-content: center;
     z-index: 1050;
+    animation: rsModalFadeIn 0.2s ease both;
 }
 
 .rs-modal {
@@ -371,6 +372,18 @@ input[type="number"] {
     background-color: #ffffff;
     border: 1px solid #e5e7eb;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    animation: rsModalPopIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes rsModalFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes rsModalPopIn {
+    from { opacity: 0; transform: scale(0.92) translateY(12px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .rs-modal-header {

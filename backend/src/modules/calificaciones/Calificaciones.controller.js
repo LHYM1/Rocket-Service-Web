@@ -1,4 +1,4 @@
-import calificaciones from './Calificaciones.model.js';
+import calificaciones from './calificaciones.model.js';
 import db from '../../config/db.js';
 
 // HU-012.1 -- Calificar servicio (Cliente)
@@ -53,7 +53,7 @@ export const calificarServicio = async (req, res) => {
             comentario
         });
 
-        res.status(201).json({ message: "¡Gracias por tu calificación!" });
+        res.status(201).json({ message: "¡Gracias por tu calificación! Te esperamos de nuevo en Rocket Service." });
     } catch (error) {
         // Respaldo por si la restricción UNIQUE de la BD detecta una doble calificación
         if (error.code === 'ER_DUP_ENTRY') {
