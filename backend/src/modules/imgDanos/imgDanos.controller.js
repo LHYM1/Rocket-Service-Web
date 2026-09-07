@@ -3,7 +3,6 @@ import imgDanosModel from './imgDanos.model.js';
 export const listarImgDanos = async (req, res) => {
     try {
         const imgDanos = await imgDanosModel.findAll();
-        console.log("Datos obtenidos:", imgDanos);
         res.json(imgDanos);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -22,7 +21,7 @@ export const ObtenerImgDanos = async (req, res) => {
 
 export const crearImagenDanos = async (req, res) => {
     try {
-        const { id_orden, descripcion } = req.body;
+        const { id_orden, descripcion, tipo } = req.body;
         
         // Si no hay archivo, avisamos
         if (!req.file) {
@@ -33,10 +32,11 @@ export const crearImagenDanos = async (req, res) => {
         const nombreArchivo = req.file.filename;
         const url_imagen = `/uploads/${nombreArchivo}`;
 
-        const nuevoRegistro = await ImagenDano.create({
+        const nuevoRegistro = await imgDanosModel.create({
             id_orden,
             descripcion,
-            url_imagen: url_imagen // Esto es lo que se guarda en la DB
+            url_imagen,
+            tipo
         });
 
         res.status(201).json(nuevoRegistro);
@@ -45,22 +45,33 @@ export const crearImagenDanos = async (req, res) => {
     }
 };
 
+// Fotos de UNA orden puntual -- usado por el Técnico y por "Evidencias" del Cliente
+export const obtenerPorOrden = async (req, res) => {
+    try {
+        const fotos = await imgDanosModel.findByOrden(req.params.id_orden);
+        res.json(fotos);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 export const actImgDanos = async (req, res) => {
     try {
         const { id } = req.params;
-        const { id_orden, descripcion } = req.body;
+        const { id_orden, descripcion, tipo } = req.body;
         
-        let datosActualizar = { id_orden, descripcion };
+        let datosActualizar = { id_orden, descripcion, tipo };
 
-        // Solo si el usuario subió una foto nueva, actualizamos la ruta
         if (req.file) {
             datosActualizar.url_imagen = `/uploads/${req.file.filename}`;
+        } else {
+            const actual = await imgDanosModel.findById(id);
+            datosActualizar.url_imagen = actual?.url_imagen;
         }
 
-        await modelo.update(datosActualizar, { where: { id_imagen: id } });
+        await imgDanosModel.update(id, datosActualizar);
         res.json({ message: "Actualizado con éxito" });
     } catch (error) {
-        
         res.status(500).json({ error: error.message });
     }
 }
@@ -84,5 +95,6 @@ export default {
     ObtenerImgDanos,
     crearImagenDanos,
     actImgDanos,
-    eliminarImgDano
+    eliminarImgDano,
+    obtenerPorOrden
 };
