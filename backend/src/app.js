@@ -21,6 +21,7 @@ import prodtsUseServiceRoutes from './modules/prodtsUseService/prodtsUseService.
 import preRevisionRoutes from './modules/preRevision/preRevision.routes.js';
 import calificacionesRoutes from './modules/calificaciones/calificaciones.routes.js';
 import notificacionesRoutes from './modules/notificaciones/notificaciones.routes.js';
+import dashboardRoutes from './modules/dashboard/dashboard.routes.js';
 // ...
 
 const app = express();
@@ -72,5 +73,7 @@ app.use('/api/pre_revision', preRevisionRoutes);
 app.use('/api/calificaciones', calificacionesRoutes);
 
 app.use('/api/notificaciones', notificacionesRoutes);
+
+app.use('/api/dashboard', dashboardRoutes);
 
 export default app;
