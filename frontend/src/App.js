@@ -28,6 +28,8 @@ const RedirigirPorRol = () => {
     const rol = localStorage.getItem("rol");
     if (rol === "Administrador") return <Navigate to="/panel/dashboard" replace />;
     if (rol === "Técnico") return <Navigate to="/panel/orders" replace />;
+    if (rol === "Cliente") return <Navigate to="/panel/orders" replace />;
+
     return <Navigate to="/" replace />;
 };
 
@@ -41,7 +43,7 @@ function App() {
         <Route
           path="/panel"
           element={
-            <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
+            <ProtectedRoute allowedRoles={["Administrador", "Técnico", "Cliente"]}>
               <DashboardLayout />
             </ProtectedRoute>
           }
@@ -104,9 +106,9 @@ function App() {
             </ProtectedRoute>
           }/>
 
-          {/* Admin y Técnico */}
+          {/* Admin, Técnico y cliente */}
           <Route path="orders" element={
-            <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
+            <ProtectedRoute allowedRoles={["Administrador", "Técnico", "Cliente"]}>
               <OrdersPage />
             </ProtectedRoute>
           }/>

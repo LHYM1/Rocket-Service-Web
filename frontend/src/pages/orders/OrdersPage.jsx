@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
 import axios from '../../axiosConfig';
 import OrdersTable from "../../components/orders/OrdersTable";
+import ClienteOrdersTable from "../../components/orders/ClienteOrdersTable";
 import ModalEdtAgr from "../../components/orders/ModalEdtAgr";
 import { useAuth } from "../../context/AuthContext";
 
 function OrdenesPage() {
-  const { esAdmin } = useAuth();
+  const { esAdmin, esCliente } = useAuth();
   const [ordenes, setOrdenes] = useState([]);
   const [idSeleccionado, setIdSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [pagina, setPagina] = useState(1);
-  const ordenesPorPagina = 6; // ← cambié a 6 para que salgan 3x3
+  const ordenesPorPagina = 6;
 
   const getOrdenes = () => {
-    const url = esAdmin
+    const url = (esAdmin || esCliente)
         ? "http://localhost:4000/api/ordenes_de_servicio/listar"
         : "http://localhost:4000/api/ordenes_de_servicio/mis-ordenes";
 
@@ -42,8 +43,6 @@ function OrdenesPage() {
     (o.nombre_estado || "").toLowerCase().includes(busqueda.toLowerCase())
   );
 
-  
-
   const inicio = (pagina - 1) * ordenesPorPagina;
   const ordenesPaginadas = ordenesFiltradas.slice(inicio, inicio + ordenesPorPagina);
   const totalPaginas = Math.ceil(ordenesFiltradas.length / ordenesPorPagina);
@@ -52,7 +51,7 @@ function OrdenesPage() {
     <div className="container mt-4">
         <h2 className="fw-bold mb-4">
             <i className="fa-solid fa-screwdriver-wrench me-2"></i>
-            {esAdmin ? "Gestión de Órdenes de Servicio" : "Mis Órdenes"}
+            {esAdmin ? "Gestión de Órdenes de Servicio" : esCliente ? "Seguimiento de mi Orden" : "Mis Órdenes"}
         </h2>
 
         <div className="d-flex justify-content-between mb-4 gap-3">
@@ -70,12 +69,19 @@ function OrdenesPage() {
             />
         </div>
 
-        <OrdersTable
-            ordenes={ordenesPaginadas}
-            setIdSeleccionado={(o) => { setIdSeleccionado(o); setShowModal(true); }}
-            getOrdenes={getOrdenes}
-            esAdmin={esAdmin}
-        />
+        {esCliente ? (
+            <ClienteOrdersTable
+                ordenes={ordenesPaginadas}
+                getOrdenes={getOrdenes}
+            />
+        ) : (
+            <OrdersTable
+                ordenes={ordenesPaginadas}
+                setIdSeleccionado={(o) => { setIdSeleccionado(o); setShowModal(true); }}
+                getOrdenes={getOrdenes}
+                esAdmin={esAdmin}
+            />
+        )}
 
         {totalPaginas > 1 && (
             <div className="d-flex justify-content-center mt-4">
@@ -106,6 +112,6 @@ function OrdenesPage() {
         )}
     </div>
  );
-} 
+}
 
 export default OrdenesPage;
