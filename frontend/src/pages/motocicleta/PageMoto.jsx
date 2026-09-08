@@ -1,22 +1,28 @@
 import { useEffect, useState } from "react";
-import axios from "../../axiosConfig"; // Ajustado a tu instancia configurable de axios
+import axios from "../../axiosConfig";
 import MotoEdAgr from "../../components/motocicleta/motoEdAgr";
 import TableMoto from "../../components/motocicleta/TableMoto";
 
+// URL absoluta del Backend Express
+const API_BASE_URL = "http://localhost:4000/api";
+
 function MotocicletaPage() {
     const [moto, setMoto] = useState([]);
+    const [modelos, setModelos] = useState([]);
     const [idSeleccionado, setIdSeleccionado] = useState(null);
-    const [busqueda, setBusqueda] = useState("");
     const [showModal, setShowModal] = useState(false);
+
+    // Filtros
+    const [busqueda, setBusqueda] = useState("");
+    const [filtroModelo, setFiltroModelo] = useState("");
 
     // Paginación
     const [pagina, setPagina] = useState(1);
     const porPagina = 5;
 
     const getMoto = () => {
-        axios.get("http://localhost:4000/api/motocicleta/listar")
+        axios.get(`${API_BASE_URL}/motocicleta/listar`)
             .then(res => {
-                // Procesa array directo o res.data.data si el controller envuelve la respuesta
                 const dataExtraida = Array.isArray(res.data) ? res.data : (res.data?.data || []);
                 setMoto(dataExtraida);
             })
@@ -26,20 +32,34 @@ function MotocicletaPage() {
             });
     };
 
+    const getModelos = () => {
+        axios.get(`${API_BASE_URL}/modelo/listar`)
+            .then(res => {
+                const dataExtraida = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+                setModelos(dataExtraida);
+            })
+            .catch(err => console.error("Error al cargar lista de modelos:", err));
+    };
+
     useEffect(() => {
         getMoto();
+        getModelos();
     }, []);
 
     useEffect(() => {
         setPagina(1);
-    }, [busqueda]);
+    }, [busqueda, filtroModelo]);
 
-    // Filtrado por placa o nombre/apellido del dueño
+    // Filtrado por Placa/Cliente y por Modelo opcional
     const motosFiltradas = moto.filter(m => {
         const placa = String(m.placa || "").toLowerCase();
         const dueno = String(`${m.nombre_usuario || ""} ${m.apellido_usuario || ""}`).toLowerCase();
         const termino = busqueda.toLowerCase();
-        return placa.includes(termino) || dueno.includes(termino);
+
+        const coincideTermino = placa.includes(termino) || dueno.includes(termino);
+        const coincideModelo = filtroModelo === "" || String(m.id_modelo) === String(filtroModelo);
+
+        return coincideTermino && coincideModelo;
     });
 
     const inicio = (pagina - 1) * porPagina;
@@ -70,9 +90,9 @@ function MotocicletaPage() {
                 </button>
             </div>
 
-            {/* Filtros y Búsqueda */}
-            <div className="rs-filters">
-                <div className="rs-search-wrapper">
+            {/* Filtros: Búsqueda global + Select de Modelo */}
+            <div className="rs-filters" style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                <div className="rs-search-wrapper" style={{ flex: 1 }}>
                     <i className="fas fa-search rs-search-icon"></i>
                     <input
                         type="text"
@@ -81,6 +101,22 @@ function MotocicletaPage() {
                         value={busqueda}
                         onChange={(e) => setBusqueda(e.target.value)}
                     />
+                </div>
+
+                <div style={{ minWidth: "200px" }}>
+                    <select
+                        className="rs-input-white"
+                        style={{ height: "42px" }}
+                        value={filtroModelo}
+                        onChange={(e) => setFiltroModelo(e.target.value)}
+                    >
+                        <option value="">Todos los modelos</option>
+                        {modelos.map(mod => (
+                            <option key={mod.id_modelo} value={mod.id_modelo}>
+                                {mod.nombre_modelo || mod.nombre}
+                            </option>
+                        ))}
+                    </select>
                 </div>
             </div>
 
@@ -128,7 +164,10 @@ function MotocicletaPage() {
                 <MotoEdAgr
                     idSeleccionado={idSeleccionado}
                     onClose={() => setShowModal(false)}
-                    onSuccess={() => getMoto()}
+                    onSuccess={() => {
+                        getMoto();
+                        getModelos();
+                    }}
                 />
             )}
         </div>
