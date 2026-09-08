@@ -19,7 +19,7 @@ import categoriaInsumos from './modules/categoria/categoriaProd.routes.js';
 import unidadMedida from './modules/undMed/undMed.routes.js';   
 import prodtsUseServiceRoutes from './modules/prodtsUseService/prodtsUseService.routes.js';
 import preRevisionRoutes from './modules/preRevision/preRevision.routes.js';
-import calificacionesRoutes from './modules/calificaciones/Calificaciones.routes.js'; 
+import calificacionesRoutes from './modules/calificaciones/calificaciones.routes.js'; 
 import notificacionesRoutes from './modules/notificaciones/notificaciones.routes.js';
 import dashboardRoutes from './modules/dashboard/dashboard.routes.js';
 // ...
