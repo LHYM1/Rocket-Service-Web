@@ -13,7 +13,8 @@ export const AuthProvider = ({ children }) => {
             get token() { return getToken(); },
             get userId() { return getUserId(); },
             get esAdmin() { return getRol() === "Administrador"; },
-            get esTecnico() { return getRol() === "Técnico"; }
+            get esTecnico() { return getRol() === "Técnico"; },
+            get esCliente() { return getRol() === "Cliente"; }
         }}>
             {children}
         </AuthContext.Provider>

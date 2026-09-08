@@ -103,4 +103,44 @@ export const quitarInsumoDeOrden = async (req, res) => {
     }
 };
 
-export default { listarInsumosUsadosAdmin, listarMisInsumos, agregarInsumoAOrden, quitarInsumoDeOrden };
+// Ajustar cantidad de un insumo ya agregado (botones +/- en la Cotización)
+export const actualizarCantidadInsumo = async (req, res) => {
+    try {
+        const { id: id_tecnico } = req.user;
+        const { id_insumos_orden } = req.params;
+        const { nueva_cantidad } = req.body;
+
+        const cant = Number(nueva_cantidad);
+        if (!Number.isInteger(cant) || cant <= 0) {
+            return res.status(400).json({ message: "La cantidad debe ser un número entero mayor a cero." });
+        }
+
+        const registro = await prodtsUseService.findInsumoUsadoPorId(id_insumos_orden);
+        if (!registro) return res.status(404).json({ message: "Registro no encontrado." });
+
+        const orden = await ordenes_de_servicio.findById(registro.id_orden);
+        if (!orden) return res.status(404).json({ message: "Orden no encontrada." });
+
+        if (orden.id_tecnico_asignado !== id_tecnico) {
+            return res.status(403).json({ message: "No autorizado para modificar esta orden." });
+        }
+        if (orden.nombre_estado !== "EN PROCESO") {
+            return res.status(400).json({ message: "Solo se pueden ajustar insumos de una orden EN PROCESO." });
+        }
+
+        const diferencia = cant - registro.cantidad;
+        if (diferencia > 0) {
+            const insumo = await prodtsUseService.getInsumoActivo(registro.id_insumo);
+            if (diferencia > insumo.cantidad_disponible) {
+                return res.status(400).json({ message: "No hay suficiente stock disponible para aumentar esa cantidad." });
+            }
+        }
+
+        await prodtsUseService.actualizarCantidad(id_insumos_orden, cant, registro.id_insumo, registro.cantidad);
+        res.json({ message: "Cantidad actualizada correctamente." });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export default { listarInsumosUsadosAdmin, listarMisInsumos, agregarInsumoAOrden, quitarInsumoDeOrden, actualizarCantidadInsumo };

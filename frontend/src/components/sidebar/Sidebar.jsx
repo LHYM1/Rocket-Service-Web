@@ -7,7 +7,7 @@ import { useNotif } from "../../context/NotifContext";
 
 const Sidebar = () => {
     const navigate = useNavigate();
-    const { esAdmin } = useAuth();
+    const { esAdmin, esTecnico, esCliente } = useAuth();
     const [abierto, setAbierto] = useState(true);
     const { mostrarToast } = useToast();
     const { ordenesEsperando } = useNotif();
@@ -90,23 +90,19 @@ const Sidebar = () => {
                         {abierto && <span>Roles</span>}
                     </Link>
                 )}
-                 */}
-               
-                <Link to="/panel/orders" className="item" title={esAdmin ? "Ordenes de servicio" : "Mis Órdenes"}>
+
+                {/* Órdenes / Seguimiento -- para todos los roles, cada uno ve su propia vista */}
+                <Link to="/panel/orders" className="item" title={esAdmin ? "Ordenes de servicio" : esCliente ? "Seguimiento de mi Orden" : "Mis Órdenes"}>
                     <i className="fa-solid fa-briefcase"></i>
-                    {abierto && <span>{esAdmin ? "Ordenes de servicio" : "Mis Órdenes"}</span>}
+                    {abierto && <span>{esAdmin ? "Ordenes de servicio" : esCliente ? "Seguimiento" : "Mis Órdenes"}</span>}
                 </Link>
 
-                {/*
-                
-                 {esAdmin && (
+                {esAdmin && (
                     <Link to="/panel/est-ord" className="item" title="Estado orden">
                         <i className="fa-solid fa-business-time"></i>
                         {abierto && <span>Estado orden</span>}
                     </Link>
                 )}
-                
-                */}
                 
                 {esAdmin && (
                     <Link to="/panel/regist-act" className="item" title="Registro actividad">
@@ -136,26 +132,34 @@ const Sidebar = () => {
                     )}
                 /*}        
 
-                {/* Imagenes — con badge para técnico */}
-                <Link to="/panel/imagenes-danos" className="item" title="Imagenes"
-                    style={{ position: "relative" }}>
-                    <i className="fa-solid fa-photo-film"></i>
-                    {abierto && <span>Imagenes</span>}
-                    {!esAdmin && <Badge count={ordenesEsperando} />}
-                </Link>
+                {/* Imagenes -- solo Admin y Técnico (el Cliente no gestiona evidencias) */}
+                {(esAdmin || esTecnico) && (
+                    <Link to="/panel/imagenes-danos" className="item" title="Imagenes"
+                        style={{ position: "relative" }}>
+                        <i className="fa-solid fa-photo-film"></i>
+                        {abierto && <span>Imagenes</span>}
+                        {esTecnico && <Badge count={ordenesEsperando} />}
+                    </Link>
+                )}
 
-                {/* Insumos usados — con badge y texto completo */}
-                <Link to="/panel/insumos-usados" className="item" title="Insumos usados en servicio"
-                    style={{ position: "relative" }}>
-                    <i className="fa-solid fa-boxes-stacked"></i>
-                    {abierto && <span>Insumos usados</span>}
-                    {!esAdmin && <Badge count={ordenesEsperando} />}
-                </Link>
+                {/* Insumos usados -- solo Admin y Técnico */}
+                {(esAdmin || esTecnico) && (
+                    <Link to="/panel/insumos-usados" className="item" title="Insumos usados en servicio"
+                        style={{ position: "relative" }}>
+                        <i className="fa-solid fa-boxes-stacked"></i>
+                        {abierto && <span>Insumos usados</span>}
+                        {esTecnico && <Badge count={ordenesEsperando} />}
+                    </Link>
+                )}
 
-                <Link to="/panel/type-services" className="item" title="Tipo servicio">
-                    <i className="fa-solid fa-screwdriver-wrench"></i>
-                    {abierto && <span>Tipo servicio</span>}
-                </Link>
+                {/* Tipo servicio -- solo Admin y Técnico */}
+                {(esAdmin || esTecnico) && (
+                    <Link to="/panel/type-services" className="item" title="Tipo servicio">
+                        <i className="fa-solid fa-screwdriver-wrench"></i>
+                        {abierto && <span>Tipo servicio</span>}
+                    </Link>
+                )}
+
                 {esAdmin && (
                     <Link to="/panel/moto" className="item" title="Motocicleta">
                         <i className="fa-solid fa-motorcycle"></i>
@@ -169,10 +173,13 @@ const Sidebar = () => {
                     </Link>
                 )}
 
-                <Link to="/panel/pre-revision" className="item" title={esAdmin ? "Pre-revisiones" : "Mis Pre-revisiones"}>
-                    <i className="fa-solid fa-magnifying-glass"></i>
-                    {abierto && <span>{esAdmin ? "Pre-revisiones" : "Mis Pre-revisiones"}</span>}
-                </Link>
+                {/* Pre-revisiones -- solo Admin y Técnico (el Cliente no interviene en esta parte) */}
+                {(esAdmin || esTecnico) && (
+                    <Link to="/panel/pre-revision" className="item" title={esAdmin ? "Pre-revisiones" : "Mis Pre-revisiones"}>
+                        <i className="fa-solid fa-magnifying-glass"></i>
+                        {abierto && <span>{esAdmin ? "Pre-revisiones" : "Mis Pre-revisiones"}</span>}
+                    </Link>
+                )}
 
                 <button className="item btn-cerrar-sesion" onClick={cerrarSesion} title="Cerrar sesión">
                     <i className="fa-solid fa-right-from-bracket"></i>

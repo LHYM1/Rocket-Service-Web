@@ -2,8 +2,46 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import './login.css';
-// import GoogleButton from "../../components/btnLogin/googleButton";
 import { useToast } from "../../context/ToastContext";
+
+// Validaciones integradas directamente en el archivo
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const validarLogin = ({ email, password }) => {
+    const emailValido = typeof email === "string" && EMAIL_REGEX.test(email.trim());
+    const passValida = typeof password === "string" && password.length >= 8 && password.length <= 20;
+
+    let mensajeEmail = "";
+    let mensajePassword = "";
+
+    if (!emailValido) {
+        mensajeEmail = email.trim() === "" 
+            ? "El correo electrónico es obligatorio" 
+            : "Ingresa un correo electrónico válido (ejemplo@dominio.com)";
+    }
+
+    if (!passValida) {
+        mensajePassword = password === "" 
+            ? "La contraseña es obligatoria" 
+            : "La contraseña debe tener entre 8 y 20 caracteres";
+    }
+
+    if (!emailValido || !passValida) {
+        return {
+            mensajeGeneral: "Por favor corrige los errores antes de continuar",
+            erroresCampos: {
+                email: !emailValido,
+                password: !passValida
+            },
+            mensajesIndividuales: {
+                email: mensajeEmail,
+                password: mensajePassword
+            }
+        };
+    }
+
+    return null;
+};
 
 function Iniciarsesion() {
     const navigate = useNavigate();
@@ -11,7 +49,9 @@ function Iniciarsesion() {
 
     const [form, setForm] = useState({ usuario: "", contrasena: "" });
     const [errores, setErrores] = useState({ usuario: false, contrasena: false });
+    const [mensajesInvisibles, setMensajesInvisibles] = useState({ usuario: "", contrasena: "" });
     const [cargando, setCargando] = useState(false);
+    const [mostrarContrasena, setMostrarContrasena] = useState(false);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,15 +60,27 @@ function Iniciarsesion() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (form.usuario === "" || form.contrasena === "") {
+        // Validar directamente con la función local
+        const resultadoValidacion = validarLogin({
+            email: form.usuario,
+            password: form.contrasena
+        });
+
+        if (resultadoValidacion) {
             setErrores({
-                usuario: form.usuario === "",
-                contrasena: form.contrasena === ""
+                usuario: resultadoValidacion.erroresCampos.email,
+                contrasena: resultadoValidacion.erroresCampos.password
             });
-            mostrarToast("Por favor completa todos los campos", "warning");
+            setMensajesInvisibles({
+                usuario: resultadoValidacion.mensajesIndividuales.email,
+                contrasena: resultadoValidacion.mensajesIndividuales.password
+            });
+            mostrarToast(resultadoValidacion.mensajeGeneral, "warning");
             return;
         }
+
         setErrores({ usuario: false, contrasena: false });
+        setMensajesInvisibles({ usuario: "", contrasena: "" });
         setCargando(true);
 
         try {
@@ -48,11 +100,8 @@ function Iniciarsesion() {
                 setForm({ ...form, contrasena: "" });
                 setCargando(false);
                 return;
-
             }
 
-            // atob() por sí solo no maneja bien UTF-8 (rompe tildes/ñ en el payload del JWT).
-            // Este decode intermedio reconstruye correctamente los caracteres multibyte.
             const base64Url = data.token.split('.')[1];
             const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
             const jsonPayload = decodeURIComponent(
@@ -63,10 +112,6 @@ function Iniciarsesion() {
             );
             const payload = JSON.parse(jsonPayload);
 
-            // Sanitización con lista blanca: solo se acepta el valor si cumple
-            // exactamente el patrón/formato esperado. Cualquier otra cosa se descarta.
-            // .normalize("NFC") evita falsos negativos cuando la tilde viene representada
-            // con una codificación Unicode distinta (ej. "e" + acento combinado vs "é" como un solo carácter).
             const JWT_PATRON = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
             const ROLES_VALIDOS = ["Administrador", "Técnico", "Cliente"];
             const ID_PATRON = /^\d+$/;
@@ -90,8 +135,6 @@ function Iniciarsesion() {
             localStorage.setItem("userId", idSeguro);
             window.dispatchEvent(new CustomEvent('authChanged'));
 
-            // HU-004.6: al ingresar el Administrador, se notifica si hay insumos con stock bajo
-            // HU-006.8 CA-005: y si hay pre-revisiones listas para convertir en orden
             if (rolSeguro === "Administrador") {
                 fetch("http://localhost:4000/api/insumos/stock-bajo", {
                     headers: { Authorization: `Bearer ${tokenSeguro}` }
@@ -125,7 +168,6 @@ function Iniciarsesion() {
                     })
                     .catch(() => {});
 
-                // Notificaciones puntuales (por ejemplo, insumos sin stock reportados por un Técnico)
                 fetch("http://localhost:4000/api/notificaciones/pendientes-admin", {
                     headers: { Authorization: `Bearer ${tokenSeguro}` }
                 })
@@ -142,7 +184,6 @@ function Iniciarsesion() {
                     .catch(() => {});
             }
 
-            // HU-006.1/006.8: el Técnico se entera de sus nuevas asignaciones al ingresar
             if (rolSeguro === "Técnico") {
                 Promise.all([
                     fetch("http://localhost:4000/api/ordenes_de_servicio/listar", {
@@ -180,7 +221,6 @@ function Iniciarsesion() {
 
     return (
         <div className="login-wrapper">
-            {/* Lado izquierdo */}
             <div className="login-left">
                 <div className="login-left-content">
                     <img src="/logo.jpg" alt="Rocket Service" className="login-logo" />
@@ -208,7 +248,6 @@ function Iniciarsesion() {
                 </div>
             </div>
 
-            {/* Lado derecho */}
             <div className="login-right">
                 <div className="login-form-container">
                     <h2 className="login-title">Iniciar Sesión</h2>
@@ -222,7 +261,7 @@ function Iniciarsesion() {
                             <input
                                 id="login-usuario"
                                 className={`login-input ${errores.usuario ? "login-input-error" : ""}`}
-                                type="text"
+                                type="email"
                                 name="usuario"
                                 value={form.usuario}
                                 placeholder="correo@ejemplo.com"
@@ -234,7 +273,7 @@ function Iniciarsesion() {
                             {errores.usuario && (
                                 <small className="login-error-msg">
                                     <i className="fa-solid fa-circle-exclamation me-1"></i>
-                                    Este campo es obligatorio
+                                    {mensajesInvisibles.usuario}
                                 </small>
                             )}
                         </div>
@@ -243,22 +282,53 @@ function Iniciarsesion() {
                             <label className="login-label" htmlFor="login-contrasena">
                                 <i className="fa-solid fa-lock me-2"></i>Contraseña
                             </label>
-                            <input
-                                id="login-contrasena"
-                                className={`login-input ${errores.contrasena ? "login-input-error" : ""}`}
-                                type="password"
-                                name="contrasena"
-                                value={form.contrasena}
-                                placeholder="••••••••"
-                                onChange={(e) => {
-                                    handleChange(e);
-                                    setErrores(prev => ({ ...prev, contrasena: false }));
-                                }}
-                            />
+                            
+                            <div style={{ position: "relative", width: "100%", display: "block" }}>
+                                <input
+                                    id="login-contrasena"
+                                    className={`login-input ${errores.contrasena ? "login-input-error" : ""}`}
+                                    type={mostrarContrasena ? "text" : "password"}
+                                    name="contrasena"
+                                    maxLength={20}
+                                    value={form.contrasena}
+                                    placeholder="••••••••"
+                                    onChange={(e) => {
+                                        handleChange(e);
+                                        setErrores(prev => ({ ...prev, contrasena: false }));
+                                    }}
+                                    style={{ paddingRight: "40px", width: "100%", boxSizing: "border-box" }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setMostrarContrasena(prev => !prev)}
+                                    tabIndex="-1"
+                                    aria-label="Alternar visibilidad de la contraseña"
+                                    style={{
+                                        position: "absolute",
+                                        right: "12px",
+                                        top: "50%",
+                                        transform: "translateY(-50%)",
+                                        background: "none",
+                                        border: "none",
+                                        padding: "0",
+                                        margin: "0",
+                                        cursor: "pointer",
+                                        color: "#6b7280",
+                                        fontSize: "1rem",
+                                        zIndex: 10,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center"
+                                    }}
+                                >
+                                    <i className={`fa-solid ${mostrarContrasena ? "fa-eye-slash" : "fa-eye"}`}></i>
+                                </button>
+                            </div>
+
                             {errores.contrasena && (
                                 <small className="login-error-msg">
                                     <i className="fa-solid fa-circle-exclamation me-1"></i>
-                                    Este campo es obligatorio
+                                    {mensajesInvisibles.contrasena}
                                 </small>
                             )}
                         </div>
@@ -273,22 +343,6 @@ function Iniciarsesion() {
                                 : <><i className="fa-solid fa-right-to-bracket me-2"></i>Iniciar Sesión</>
                             }
                         </button>
-                        
-                        {/*
-                        <div className="login-register">
-                            <span>¿Primera vez en Rocket? </span>
-                            <Link to="/register" className="login-link">Registrarme</Link>
-                        </div>
-                        */}
-                        
-
-                        {/* <div className="login-divider">
-                            <span>o continúa con</span>
-                        </div>
-
-                        <div className="login-google">
-                            <GoogleButton />
-                        </div> */}
                     </form>
                 </div>
             </div>

@@ -1,531 +1,241 @@
 import { useState, useEffect } from 'react';
 import axios from '../../axiosConfig';
-import Card from '../../components/card/Card';
-import TechnicianCard from '../../components/card/technicianCard/technicianCard';
-import { useToast } from '../../context/ToastContext';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import './Dashboard.css';
 
+const coloresBadge = {
+    "ASIGNADA": "#3b82f6",
+    "EN PROCESO": "#0dcaf0",
+    "PENDIENTE APROBACIÓN": "#f59e0b",
+    "FINALIZADA": "#22c55e",
+    "CANCELADA": "#6b7280"
+};
+
+const coloresDisponibilidad = {
+    "Disponible": "#22c55e",
+    "Realizando servicio": "#ff8c00"
+};
+
+function EstrellasPromedio({ promedio }) {
+    const llenas = Math.round(promedio);
+    return (
+        <span>
+            {[1, 2, 3, 4, 5].map(n => (
+                <i key={n} className={`fa-star ${n <= llenas ? "fa-solid" : "fa-regular"}`}
+                    style={{ color: "#ff8c00", fontSize: "0.85rem" }}></i>
+            ))}
+            <span className="ms-1 fw-semibold" style={{ fontSize: "0.85rem" }}>{promedio}</span>
+        </span>
+    );
+}
+
 const Dashboard = () => {
-    const { mostrarToast } = useToast();
-
-
-    // ESTADOS DEL COMPONENTE
-  
-
-    const [ordenes, setOrdenes] = useState([]);
-    const [tecnicos, setTecnicos] = useState([]);
-
-    const [stats, setStats] = useState({
-        totales: 0,
-        pendientes: 0,
-        finalizadas: 0
-    });
-
-    // Card seleccionada por defecto
-    const [filtro, setFiltro] = useState('pendientes');
-
+    const [datos, setDatos] = useState(null);
     const [cargando, setCargando] = useState(true);
 
-
-  
-    // CARGAR DATOS DEL DASHBOARD
-    
-
-    const cargarDatos = async () => {
-        try {
-            setCargando(true);
-
-            const [
-                resOrdenes,
-                resStats,
-                resTecnicos
-            ] = await Promise.all([
-
-                // Listado de órdenes con detalle
-                axios.get(
-                    'http://localhost:4000/api/ordenes_de_servicio/detalle'
-                ),
-
-                // Estadísticas para las cards
-                axios.get(
-                    'http://localhost:4000/api/ordenes_de_servicio/estadisticas'
-                ),
-
-                // Disponibilidad de técnicos
-                axios.get(
-                    'http://localhost:4000/api/usuarios/tecnicos-disponibilidad'
-                )
-
-            ]);
-
-
-            // Guardar órdenes
-            setOrdenes(resOrdenes.data);
-
-
-            // Guardar estadísticas
-            setStats(resStats.data);
-
-
-            // Guardar técnicos
-            setTecnicos(resTecnicos.data);
-
-        } catch (error) {
-
-            console.error(
-                'Error al cargar los datos del dashboard:',
-                error
-            );
-
-            mostrarToast(
-                'Error al cargar los datos del dashboard',
-                'error'
-            );
-
-        } finally {
-
-            setCargando(false);
-
-        }
-    };
-
-
-    // CARGAR INFORMACIÓN AL ENTRAR AL DASHBOARD
-    
-
     useEffect(() => {
-        cargarDatos();
+        axios.get("http://localhost:4000/api/dashboard/resumen")
+            .then(res => setDatos(res.data))
+            .catch(err => console.error(err))
+            .finally(() => setCargando(false));
     }, []);
 
+    if (cargando) {
+        return <div className="dashboard-page p-4"><p className="text-muted">Cargando dashboard...</p></div>;
+    }
 
-    
-    // FILTRAR ÓRDENES SEGÚN LA CARD SELECCIONADA
+    if (!datos) {
+        return <div className="dashboard-page p-4"><p className="text-danger">No se pudo cargar la información del dashboard.</p></div>;
+    }
 
-    const ordenesFiltradas = ordenes.filter((orden) => {
+    const { conteos, ordenesRecientes, tecnicos, resenas } = datos;
 
-        // Mostrar todas las órdenes
-        if (filtro === 'totales') {
-            return true;
-        }
+    const datosGrafico = resenas.map(r => ({
+        nombre: r.nombre_tecnico.split(' ')[0], // solo el primer nombre, para que quepa en el eje
+        promedio: Number(r.promedio)
+    }));
 
-
-        // Mostrar únicamente las finalizadas
-        if (filtro === 'finalizadas') {
-            return orden.estado === 'FINALIZADA';
-        }
-
-
-        // Mostrar órdenes pendientes
-        if (filtro === 'pendientes') {
-            return (
-                orden.estado !== 'FINALIZADA' &&
-                orden.estado !== 'CANCELADA'
-            );
-        }
-
-
-        return true;
-
-    });
-
-
-
-    // COLOR DEL BADGE SEGÚN EL ESTADO
-    
-
-    const badgeColor = (estado) => {
-
-        switch (estado) {
-
-            case 'FINALIZADA':
-                return '#22c55e';
-
-            case 'CANCELADA':
-                return '#ef4444';
-
-            case 'ASIGNADA':
-                return '#f59e0b';
-
-            case 'EN PROCESO':
-                return '#3b82f6';
-
-            case 'EN REVISIÓN':
-                return '#8b5cf6';
-
-            case 'EN ESPERA':
-                return '#f97316';
-
-            case 'ESPERANDO REPUESTOS':
-                return '#ec4899';
-
-            case 'TÉCNICO EN RECESO':
-                return '#6b7280';
-
-            default:
-                return '#9ca3af';
-
-        }
-
-    };
-
-    const obtenerTitulo = () => {
-
-        switch (filtro) {
-
-            case 'totales':
-                return 'Todas las órdenes';
-
-            case 'pendientes':
-                return 'Órdenes pendientes';
-
-            case 'finalizadas':
-                return 'Órdenes finalizadas';
-
-            default:
-                return 'Listado de órdenes';
-
-        }
-
-    };
-
-
-
-    // FORMATEAR FECHA
-    
-    const formatearFecha = (fecha) => {
-
-        if (!fecha) {
-            return 'Sin fecha';
-        }
-
-        return new Date(fecha).toLocaleDateString(
-            'es-CO'
-        );
-
-    };
-
-
-
-    // RENDER DEL COMPONENTE
     return (
 
         <div className="dashboard-page">
+            <style>{`
+                @keyframes entradaDash {
+                    from { opacity: 0; transform: translateY(14px); }
+                    to   { opacity: 1; transform: translateY(0); }
+                }
+                .dash-card-animada { animation: entradaDash 0.35s ease both; }
+                .dash-card-animada:nth-child(1) { animation-delay: 0s; }
+                .dash-card-animada:nth-child(2) { animation-delay: 0.06s; }
+                .dash-card-animada:nth-child(3) { animation-delay: 0.12s; }
+            `}</style>
 
-
-            {/* 
-                CARDS DE ESTADÍSTICAS
-            */}
-
+            {/* Cards de resumen */}
             <div className="dash-container">
-
-
-                {/* ÓRDENES TOTALES */}
-
-                <Card
-                    title="Ordenes totales"
-
-                    icon={
-                        <img
-                            alt="ordenTotal"
-                            src="https://res.cloudinary.com/dtmmoziql/image/upload/v1768944919/clipboard-svgrepo-com_1_pwafgx.svg"
-                        />
-                    }
-
-                    onClick={() => setFiltro('totales')}
-
-                    active={filtro === 'totales'}
-                >
-
-                    <span>
-                        {stats.totales || 0}
-                    </span>
-
-                </Card>
-
-
-
-                {/* ÓRDENES PENDIENTES */}
-
-                <Card
-                    title="Ordenes pendientes"
-
-                    icon={
-                        <img
-                            alt="ordenPend"
-                            src="https://res.cloudinary.com/dtmmoziql/image/upload/v1768957469/clipboard-list-svgrepo-com_vgnp90.svg"
-                        />
-                    }
-
-                    onClick={() => setFiltro('pendientes')}
-
-                    active={filtro === 'pendientes'}
-                >
-
-                    <span>
-                        {stats.pendientes || 0}
-                    </span>
-
-                </Card>
-
-
-
-                {/* ÓRDENES FINALIZADAS */}
-
-                <Card
-                    title="Ordenes finalizadas"
-
-                    icon={
-                        <img
-                            alt="ordenFin"
-                            src="https://res.cloudinary.com/dtmmoziql/image/upload/v1768957848/clipboard-list-svgrepo-com_1_ywdaov.svg"
-                        />
-                    }
-
-                    onClick={() => setFiltro('finalizadas')}
-
-                    active={filtro === 'finalizadas'}
-                >
-
-                    <span>
-                        {stats.finalizadas || 0}
-                    </span>
-
-                </Card>
-
-
-            </div>
-
-
-
-            {/* =====================================
-                SECCIÓN PRINCIPAL
-            ===================================== */}
-
-            <div className="main-section">
-
-
-                {/* 
-                    LISTADO DE ÓRDENES
-                */}
-
-                <div className="ordenes-container">
-
-
-                    {/* TÍTULO */}
-
-                    <h3 className="ordenes-title">
-
-                        {obtenerTitulo()}
-
-                    </h3>
-
-
-
-                    {/* LISTADO */}
-
-                    <div className="ordenes-list">
-
-
-                        {/* CARGANDO */}
-
-                        {cargando && (
-                            <p>
-                                Cargando órdenes...
-                            </p>
-                        )}
-
-
-
-                        {/* NO HAY ÓRDENES */}
-
-                        {!cargando &&
-                            ordenesFiltradas.length === 0 && (
-
-                                <p
-                                    style={{
-                                        color: '#9ca3af'
-                                    }}
-                                >
-                                    No hay órdenes en esta categoría.
-                                </p>
-
-                            )
-                        }
-
-
-
-                        {/* LISTADO DE ÓRDENES */}
-
-                        {!cargando &&
-
-                            ordenesFiltradas.map((orden) => (
-
-                                <div
-                                    key={orden.id_orden}
-
-                                    style={{
-                                        border: '1px solid #e5e7eb',
-                                        borderRadius: '10px',
-                                        padding: '14px 16px',
-                                        backgroundColor: '#fff'
-                                    }}
-                                >
-
-
-                                    {/* CÓDIGO Y ESTADO */}
-
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center'
-                                        }}
-                                    >
-
-                                        <strong>
-                                            {orden.codigo}
-                                        </strong>
-
-
-                                        <span
-                                            style={{
-                                                backgroundColor: badgeColor(
-                                                    orden.estado
-                                                ),
-                                                color: '#fff',
-                                                fontSize: '12px',
-                                                padding: '3px 10px',
-                                                borderRadius: '999px'
-                                            }}
-                                        >
-                                            {orden.estado}
-
-                                        </span>
-
-                                    </div>
-
-
-                                    {/* CLIENTE */}
-
-                                    <p
-                                        style={{
-                                            margin: '6px 0 2px'
-                                        }}
-                                    >
-
-                                        <strong>
-                                            Cliente:
-                                        </strong>
-
-                                        {' '}
-
-                                        {orden.cliente}
-
-                                    </p>
-
-
-
-                                    {/* SERVICIO */}
-
-                                    <p
-                                        style={{
-                                            margin: '2px 0'
-                                        }}
-                                    >
-
-                                        <strong>
-                                            Servicio:
-                                        </strong>
-
-                                        {' '}
-
-                                        {orden.servicio}
-
-                                    </p>
-
-
-
-                                    {/* FECHA */}
-
-                                    <small
-                                        style={{
-                                            color: '#9ca3af'
-                                        }}
-                                    >
-
-                                        Fecha inicio:
-
-                                        {' '}
-
-                                        {formatearFecha(
-                                            orden.fechaInicio
-                                        )}
-
-                                    </small>
-
-
-                                </div>
-
-                            ))
-
-                        }
-
-
+                <div className="dash-card-animada" style={cardEstilo}>
+                    <div style={iconWrapEstilo("rgba(59,130,246,0.12)")}>
+                        <i className="fa-solid fa-clipboard-list" style={{ color: "#3b82f6" }}></i>
                     </div>
-
-
+                    <div>
+                        <small className="text-muted d-block">Órdenes totales</small>
+                        <span style={numEstilo}>{conteos.total}</span>
+                    </div>
                 </div>
 
+                <div className="dash-card-animada" style={cardEstilo}>
+                    <div style={iconWrapEstilo("rgba(245,158,11,0.12)")}>
+                        <i className="fa-solid fa-hourglass-half" style={{ color: "#f59e0b" }}></i>
+                    </div>
+                    <div>
+                        <small className="text-muted d-block">Órdenes pendientes</small>
+                        <span style={numEstilo}>{conteos.pendientes}</span>
+                    </div>
+                </div>
 
+                <div className="dash-card-animada" style={cardEstilo}>
+                    <div style={iconWrapEstilo("rgba(34,197,94,0.12)")}>
+                        <i className="fa-solid fa-circle-check" style={{ color: "#22c55e" }}></i>
+                    </div>
+                    <div>
+                        <small className="text-muted d-block">Órdenes finalizadas</small>
+                        <span style={numEstilo}>{conteos.finalizadas}</span>
+                    </div>
+                </div>
+            </div>
 
-                {/* =================================
-                    DISPONIBILIDAD DE TÉCNICOS
-                ================================= */}
+            {/* Órdenes recientes + Disponibilidad técnicos */}
+            <div className="main-section">
+                <div className="ordenes-container">
+                    <h3 className="ordenes-title">Órdenes recientes</h3>
+                    <div className="ordenes-list">
+                        {ordenesRecientes.length === 0 ? (
+                            <p className="text-muted p-3">No hay órdenes registradas todavía.</p>
+                        ) : (
+                            <table className="table table-hover mb-0">
+                                <thead className="table-light">
+                                    <tr>
+                                        <th>Orden</th>
+                                        <th>Cliente</th>
+                                        <th>Técnico</th>
+                                        <th>Servicio</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {ordenesRecientes.map(o => (
+                                        <tr key={o.id_orden}>
+                                            <td className="fw-semibold">{o.codigo_orden}</td>
+                                            <td>{o.nombre_cliente || "—"}</td>
+                                            <td>{o.nombre_tecnico || "Sin asignar"}</td>
+                                            <td>{o.nombre_servicio || "—"}</td>
+                                            <td>
+                                                <span className="badge" style={{ backgroundColor: coloresBadge[o.nombre_estado] || "#6b7280" }}>
+                                                    {o.nombre_estado}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+                </div>
 
                 <div className="tecnicos-container">
-
-
                     <h3 className="tecnicos-title">
-
-                        <img
-                            className="img-tec"
-                            alt="imgCardTecnicos"
-                            src="https://res.cloudinary.com/dtmmoziql/image/upload/v1769342546/users-svgrepo-com_twccwo.svg"
-                        />
-
+                        <i className="fa-solid fa-users me-2" style={{ color: "#ff8c00" }}></i>
                         Disponibilidad técnicos
-
                     </h3>
-
-
-
                     <div className="tecnicos-list">
+                        {tecnicos.length === 0 ? (
+                            <p className="text-muted p-3">No hay técnicos registrados.</p>
+                        ) : (
+                            tecnicos.map(t => (
+                                <div key={t.id_usuario} className="d-flex align-items-center justify-content-between p-2 mb-2 rounded"
+                                    style={{ backgroundColor: "#f8f9fa" }}>
+                                    <span className="fw-semibold">{t.nombre} {t.apellido}</span>
+                                    <span className="badge" style={{ backgroundColor: coloresDisponibilidad[t.disponibilidad] || "#6b7280" }}>
+                                        {t.disponibilidad}
+                                    </span>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            </div>
 
-
-                        {tecnicos.map((tecnico) => (
-
-                            <TechnicianCard
-                                key={tecnico.id}
-                                tecnico={tecnico}
-                                asignar={() => {}}
-                            />
-
-                        ))}
-
-
+            {/* Reseñas de técnicos: tabla + gráfico */}
+            <div className="main-section" style={{ marginTop: "24px" }}>
+                <div className="ordenes-container">
+                    <h3 className="ordenes-title">Reseñas de técnicos</h3>
+                    <div className="ordenes-list">
+                        {resenas.length === 0 ? (
+                            <p className="text-muted p-3">Todavía no hay calificaciones de clientes.</p>
+                        ) : (
+                            <table className="table table-hover mb-0">
+                                <thead className="table-light">
+                                    <tr>
+                                        <th>Técnico</th>
+                                        <th>Promedio</th>
+                                        <th>Total reseñas</th>
+                                        <th>Último comentario</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {resenas.map(r => (
+                                        <tr key={r.id_tecnico}>
+                                            <td className="fw-semibold">{r.nombre_tecnico}</td>
+                                            <td><EstrellasPromedio promedio={Number(r.promedio)} /></td>
+                                            <td>{r.total}</td>
+                                            <td className="text-muted" style={{ fontSize: "0.85rem" }}>
+                                                {r.ultimo_comentario || <span className="fst-italic">Sin comentario</span>}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
                     </div>
 
 
                 </div>
 
-
+                <div className="tecnicos-container">
+                    <h3 className="tecnicos-title">Promedio por técnico</h3>
+                    {datosGrafico.length === 0 ? (
+                        <p className="text-muted p-3">Sin datos suficientes para graficar.</p>
+                    ) : (
+                        <ResponsiveContainer width="100%" height={220}>
+                            <BarChart data={datosGrafico} layout="vertical" margin={{ left: 10 }}>
+                                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                                <XAxis type="number" domain={[0, 5]} />
+                                <YAxis type="category" dataKey="nombre" width={70} />
+                                <Tooltip />
+                                <Bar dataKey="promedio" radius={[0, 6, 6, 0]}>
+                                    {datosGrafico.map((entry, index) => (
+                                        <Cell key={index} fill="#ff8c00" />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    )}
+                </div>
             </div>
-
-
         </div>
 
     );
-
 };
+
+const cardEstilo = {
+    display: "flex", alignItems: "center", gap: "14px",
+    backgroundColor: "#fff", borderRadius: "14px", padding: "18px 20px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.08)", border: "1px solid #f0f0f0"
+};
+
+const iconWrapEstilo = (bg) => ({
+    width: "44px", height: "44px", borderRadius: "12px", backgroundColor: bg,
+    display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem"
+});
+
+const numEstilo = { fontSize: "1.6rem", fontWeight: "700", color: "#1a1a2e" };
 
 export default Dashboard;

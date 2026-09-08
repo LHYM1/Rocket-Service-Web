@@ -243,6 +243,23 @@ input[type="number"] {
     border-collapse: collapse;
 }
 
+@keyframes rsFilaEntrada {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.rs-table tbody tr {
+    animation: rsFilaEntrada 0.35s ease both;
+}
+.rs-table tbody tr:nth-child(1) { animation-delay: 0s; }
+.rs-table tbody tr:nth-child(2) { animation-delay: 0.05s; }
+.rs-table tbody tr:nth-child(3) { animation-delay: 0.10s; }
+.rs-table tbody tr:nth-child(4) { animation-delay: 0.15s; }
+.rs-table tbody tr:nth-child(5) { animation-delay: 0.20s; }
+.rs-table tbody tr:nth-child(6) { animation-delay: 0.25s; }
+.rs-table tbody tr:nth-child(7) { animation-delay: 0.30s; }
+.rs-table tbody tr:nth-child(8) { animation-delay: 0.35s; }
+
 .rs-table thead tr {
     background-color: var(--rs-bg-secondary);
     border-bottom: 1px solid var(--rs-bg-secondary);
@@ -320,36 +337,46 @@ input[type="number"] {
 .rs-pagination {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 8px;
     margin-top: 20px;
 }
 
 .rs-page-btn {
+    min-width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
     background-color: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: var(--rs-radius-sm);
     color: #374151;
-    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     font-size: 13px;
+    font-weight: 500;
     font-family: "Poppins", sans-serif;
-    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
 }
 
-.rs-page-btn:hover {
-    border-color: var(--rs-naranja);
+.rs-page-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
     color: var(--rs-naranja);
 }
 
 .rs-page-btn.active {
     background-color: var(--rs-naranja);
-    border-color: var(--rs-naranja);
     color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(255, 140, 0, 0.35);
 }
 
 .rs-page-btn:disabled {
-    opacity: 0.4;
+    color: #d1d5db;
     cursor: not-allowed;
+    box-shadow: none;
 }
 
 /* ==========================================
@@ -363,6 +390,7 @@ input[type="number"] {
     align-items: center;
     justify-content: center;
     z-index: 1050;
+    animation: rsModalFadeIn 0.2s ease both;
 }
 
 .rs-modal {
@@ -372,6 +400,18 @@ input[type="number"] {
     background-color: #ffffff;
     border: 1px solid #e5e7eb;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    animation: rsModalPopIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes rsModalFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes rsModalPopIn {
+    from { opacity: 0; transform: scale(0.92) translateY(12px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .rs-modal-header {

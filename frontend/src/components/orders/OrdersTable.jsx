@@ -1,6 +1,8 @@
 import axios from '../../axiosConfig';
 import { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
+import ModalAgregarFotoOrden from '../ModalAgregarFotoOrden';
+import ConfirmModal from '../ConfirmModal';
 
 const coloresBadge = {
     "ASIGNADA": "bg-primary",
@@ -22,6 +24,10 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     const [totalCotizado, setTotalCotizado] = useState(0);
     const [cargandoPanel, setCargandoPanel] = useState(false);
     const [tiposServicio, setTiposServicio] = useState([]);
+    const [tieneCotizacionPrevia, setTieneCotizacionPrevia] = useState({});
+    const [ordenParaFoto, setOrdenParaFoto] = useState(null);
+    const [ordenParaFinalizar, setOrdenParaFinalizar] = useState(null);
+    const [ordenParaCancelar, setOrdenParaCancelar] = useState(null); // id_orden -> true/false
 
     // Edición rápida de tipo de servicio / problema / fecha de entrega (Técnico)
     const [editandoDetalles, setEditandoDetalles] = useState(null); // id_orden que se está editando
@@ -32,10 +38,29 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     const { mostrarToast } = useToast();
     const mostrarNotificacion = (mensaje, tipo = "success") => mostrarToast(mensaje, tipo);
 
-    useEffect(() => {
+    const cargarInsumosDisponibles = () => {
         axios.get("http://localhost:4000/api/insumos/listar")
             .then(res => setInsumosDisponibles(res.data))
             .catch(err => console.error(err));
+    };
+
+    // Para saber si una orden EN PROCESO ya tuvo una cotización aprobada antes
+    // (le muestra al Técnico un aviso, en vez de verse "igual que la primera vez")
+    useEffect(() => {
+        ordenes.forEach(o => {
+            if (o.nombre_estado === "EN PROCESO" && tieneCotizacionPrevia[o.id_orden] === undefined) {
+                axios.get(`http://localhost:4000/api/ordenes_de_servicio/consultar/${o.id_orden}`)
+                    .then(res => {
+                        setTieneCotizacionPrevia(prev => ({ ...prev, [o.id_orden]: (res.data.insumos || []).length > 0 }));
+                    })
+                    .catch(() => {});
+            }
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ordenes]);
+
+    useEffect(() => {
+        cargarInsumosDisponibles();
         axios.get("http://localhost:4000/api/tipo_servicio/listar")
             .then(res => setTiposServicio(res.data))
             .catch(err => console.error(err));
@@ -64,6 +89,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
 
     const cargarDetalleOrden = (idOrden) => {
         setCargandoPanel(true);
+        cargarInsumosDisponibles(); // refresca el stock real, por si cambió con la última acción
         axios.get(`http://localhost:4000/api/ordenes_de_servicio/consultar/${idOrden}`)
             .then(res => {
                 setInsumosDeLaOrden(res.data.insumos || []);
@@ -95,18 +121,26 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
             mostrarNotificacion("Esta orden ya no se puede cancelar.", "error");
             return;
         }
-        if (window.confirm(`¿Cancelar la orden #${id}? Los insumos ya agregados volverán al stock.`)) {
-            axios.patch(`http://localhost:4000/api/ordenes_de_servicio/cancelar/${id}`)
-                .then(res => { mostrarNotificacion(res.data.message, "success"); getOrdenes(); })
-                .catch(err => {
-                    mostrarNotificacion(err.response?.data?.message || "No se pudo cancelar la orden.", "error");
-                });
-        }
+        setOrdenParaCancelar(id);
+    };
+
+    const confirmarCancelar = () => {
+        const id = ordenParaCancelar;
+        setOrdenParaCancelar(null);
+        axios.patch(`http://localhost:4000/api/ordenes_de_servicio/cancelar/${id}`)
+            .then(res => { mostrarNotificacion(res.data.message, "success"); getOrdenes(); })
+            .catch(err => {
+                mostrarNotificacion(err.response?.data?.message || "No se pudo cancelar la orden.", "error");
+            });
     };
 
     const aceptarOrden = (idOrden) => {
         axios.patch(`http://localhost:4000/api/ordenes_de_servicio/aceptar/${idOrden}`)
-            .then(res => { mostrarNotificacion(res.data.message, "success"); getOrdenes(); })
+            .then(res => {
+                mostrarNotificacion(res.data.message, "success");
+                window.dispatchEvent(new CustomEvent('disponibilidadCambiada', { detail: { estado: "Realizando servicio" } }));
+                getOrdenes();
+            })
             .catch(err => mostrarNotificacion(err.response?.data?.message || "No se pudo aceptar la orden.", "error"));
     };
 
@@ -135,6 +169,19 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
             .catch(err => mostrarNotificacion(err.response?.data?.message || "No se pudo quitar el insumo.", "error"));
     };
 
+    const ajustarCantidad = (idInsumosOrden, idOrden, cantidadActual, delta) => {
+        const nuevaCantidad = cantidadActual + delta;
+        if (nuevaCantidad <= 0) {
+            quitarInsumo(idInsumosOrden, idOrden);
+            return;
+        }
+        axios.patch(`http://localhost:4000/api/insumos_usados_en_servicio/actualizar-cantidad/${idInsumosOrden}`, {
+            nueva_cantidad: nuevaCantidad
+        })
+            .then(() => cargarDetalleOrden(idOrden))
+            .catch(err => mostrarNotificacion(err.response?.data?.message || "No se pudo ajustar la cantidad.", "error"));
+    };
+
     const enviarCotizacion = (idOrden) => {
         if (insumosDeLaOrden.length === 0) {
             mostrarNotificacion("Agrega al menos un insumo antes de enviar la cotización.", "warning");
@@ -146,9 +193,19 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     };
 
     const finalizarOrden = (idOrden) => {
-        if (!window.confirm("¿Finalizar esta orden directamente, sin enviar cotización al cliente?")) return;
+        setOrdenParaFinalizar(idOrden);
+    };
+
+    const confirmarFinalizar = () => {
+        const idOrden = ordenParaFinalizar;
+        setOrdenParaFinalizar(null);
         axios.patch(`http://localhost:4000/api/ordenes_de_servicio/finalizar/${idOrden}`)
-            .then(res => { mostrarNotificacion(res.data.message, "success"); cerrarPanel(); getOrdenes(); })
+            .then(res => {
+                mostrarNotificacion(res.data.message, "success");
+                window.dispatchEvent(new CustomEvent('disponibilidadCambiada', { detail: { estado: "Disponible" } }));
+                cerrarPanel();
+                getOrdenes();
+            })
             .catch(err => mostrarNotificacion(err.response?.data?.message || "No se pudo finalizar la orden.", "error"));
     };
 
@@ -369,6 +426,15 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                                 ) : (
                                     <div className="d-flex flex-column gap-2">
 
+                                        {(o.nombre_estado === "EN PROCESO" || o.nombre_estado === "ASIGNADA") && (
+                                            <button
+                                                onClick={() => setOrdenParaFoto(o)}
+                                                className="btn btn-sm w-100"
+                                                style={{ backgroundColor: "#f8f9fa", color: "#1a1a2e", border: "1px solid #e5e7eb" }}>
+                                                <i className="fa-solid fa-camera me-1"></i>Agregar foto (daño/reparación)
+                                            </button>
+                                        )}
+
                                         {o.nombre_estado === "ASIGNADA" && (
                                             <button
                                                 onClick={() => aceptarOrden(o.id_orden)}
@@ -378,7 +444,21 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                                             </button>
                                         )}
 
-                                        {o.nombre_estado === "EN PROCESO" && (
+                                        {o.nombre_estado === "EN PROCESO" && tieneCotizacionPrevia[o.id_orden] && (
+                                            <div className="text-center mb-1" style={{ fontSize: "0.78rem", color: "#28a745" }}>
+                                                <i className="fa-solid fa-circle-check me-1"></i>
+                                                Cotización aprobada por el cliente — continúa el trabajo
+                                            </div>
+                                        )}
+
+                                        {o.nombre_estado === "EN PROCESO" && tieneCotizacionPrevia[o.id_orden] ? (
+                                            <button
+                                                onClick={() => finalizarOrden(o.id_orden)}
+                                                className="btn btn-sm w-100 text-white fw-semibold"
+                                                style={{ backgroundColor: "#28a745" }}>
+                                                <i className="fa-solid fa-check me-1"></i>Finalizar
+                                            </button>
+                                        ) : o.nombre_estado === "EN PROCESO" && (
                                             <button
                                                 onClick={() => ordenEnRevision === o.id_orden ? cerrarPanel() : abrirPanel(o.id_orden)}
                                                 className="btn btn-sm w-100 text-white fw-semibold"
@@ -466,25 +546,41 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                                                             </p>
                                                         ) : (
                                                             <div className="d-flex flex-column gap-1 mb-2">
-                                                                {insumosDeLaOrden.map(insumo => (
-                                                                    <div key={insumo.id_insumos_orden}
-                                                                        className="d-flex align-items-center justify-content-between p-1 rounded"
-                                                                        style={{ backgroundColor: "#f8f9fa", fontSize: "0.82rem" }}>
-                                                                        <span className="fw-semibold">{insumo.nombre_insumo}</span>
-                                                                        <div className="d-flex align-items-center gap-1">
-                                                                            <span className="badge" style={{ backgroundColor: "#ff8c00" }}>
-                                                                                {insumo.cantidad} {insumo.nombre_unidad}
-                                                                            </span>
-                                                                            <span className="text-muted">
-                                                                                ${Number(insumo.precio_unitario_snapshot * insumo.cantidad).toLocaleString('es-CO')}
-                                                                            </span>
-                                                                            <button className="btn btn-danger btn-sm py-0 px-1"
-                                                                                onClick={() => quitarInsumo(insumo.id_insumos_orden, o.id_orden)}>
-                                                                                <i className="fa-solid fa-xmark" style={{ fontSize: "0.7rem" }}></i>
-                                                                            </button>
+                                                                {insumosDeLaOrden.map(insumo => {
+                                                                    const insumoOriginal = insumosDisponibles.find(i => i.id_insumo === insumo.id_insumo);
+                                                                    const stockRestante = insumoOriginal ? insumoOriginal.cantidad_disponible : 0;
+                                                                    return (
+                                                                        <div key={insumo.id_insumos_orden}
+                                                                            className="d-flex align-items-center justify-content-between p-1 rounded"
+                                                                            style={{ backgroundColor: "#f8f9fa", fontSize: "0.82rem" }}>
+                                                                            <span className="fw-semibold">{insumo.nombre_insumo}</span>
+                                                                            <div className="d-flex align-items-center gap-1">
+                                                                                <button className="btn btn-sm py-0 px-1" style={{ backgroundColor: "#e9ecef" }}
+                                                                                    onClick={() => ajustarCantidad(insumo.id_insumos_orden, o.id_orden, insumo.cantidad, -1)}>
+                                                                                    <i className="fa-solid fa-minus" style={{ fontSize: "0.65rem" }}></i>
+                                                                                </button>
+                                                                                <span className="badge" style={{ backgroundColor: "#ff8c00" }}>
+                                                                                    {insumo.cantidad} {insumo.nombre_unidad}
+                                                                                </span>
+                                                                                <button className="btn btn-sm py-0 px-1" style={{ backgroundColor: "#e9ecef" }}
+                                                                                    disabled={stockRestante <= 0}
+                                                                                    onClick={() => ajustarCantidad(insumo.id_insumos_orden, o.id_orden, insumo.cantidad, 1)}>
+                                                                                    <i className="fa-solid fa-plus" style={{ fontSize: "0.65rem" }}></i>
+                                                                                </button>
+                                                                                <span className="text-muted" style={{ fontSize: "0.7rem" }} title="Stock restante disponible">
+                                                                                    (stock: {stockRestante})
+                                                                                </span>
+                                                                                <span className="text-muted">
+                                                                                    ${Number(insumo.precio_unitario_snapshot * insumo.cantidad).toLocaleString('es-CO')}
+                                                                                </span>
+                                                                                <button className="btn btn-danger btn-sm py-0 px-1"
+                                                                                    onClick={() => quitarInsumo(insumo.id_insumos_orden, o.id_orden)}>
+                                                                                    <i className="fa-solid fa-trash" style={{ fontSize: "0.7rem" }}></i>
+                                                                                </button>
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
-                                                                ))}
+                                                                    );
+                                                                })}
                                                                 <div className="text-end fw-bold" style={{ fontSize: "0.85rem", color: "#ff8c00" }}>
                                                                     Total: ${Number(totalCotizado).toLocaleString('es-CO')}
                                                                 </div>
@@ -519,6 +615,36 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                     </div>
                 ))}
             </div>
+
+            {ordenParaFoto && (
+                <ModalAgregarFotoOrden
+                    orden={ordenParaFoto}
+                    onClose={() => setOrdenParaFoto(null)}
+                    onSuccess={() => {}}
+                />
+            )}
+
+            {ordenParaFinalizar && (
+                <ConfirmModal
+                    title="¿Finalizar esta orden?"
+                    message="Se cerrará directamente, sin enviar cotización al cliente."
+                    confirmLabel="Sí, finalizar"
+                    icon="fa-solid fa-check"
+                    onConfirm={confirmarFinalizar}
+                    onCancel={() => setOrdenParaFinalizar(null)}
+                />
+            )}
+
+            {ordenParaCancelar && (
+                <ConfirmModal
+                    title="¿Cancelar esta orden?"
+                    message="Los insumos ya agregados volverán al stock."
+                    confirmLabel="Sí, cancelar"
+                    icon="fa-solid fa-ban"
+                    onConfirm={confirmarCancelar}
+                    onCancel={() => setOrdenParaCancelar(null)}
+                />
+            )}
         </>
     );
 }
