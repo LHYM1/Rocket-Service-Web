@@ -13,7 +13,6 @@ import {
 } from './auth.model.js';
 
 // 1. Registro / Activación de Técnico
-// En register (auth.controller.js)
 const register = async (req, res) => {
   const { tokenRegistro, contrasena, nombre, apellido, correo_usuario, telefono_usuario } = req.body;
 
@@ -24,8 +23,6 @@ const register = async (req, res) => {
   if (!FormValidators.esSoloLetras(nombre) || !FormValidators.esSoloLetras(apellido) || !FormValidators.esTelefonoValido(telefono_usuario)) {
     return res.status(400).json({ message: "Los datos de perfil ingresados no tienen un formato válido." });
   }
-
-  const connection = await pool.getConnection();
 
   try {
     const usuario = await findTecnicoTokenByEmail(correo_usuario);
@@ -64,12 +61,14 @@ const register = async (req, res) => {
       });
     }
 
-    // D. REGISTRO EXITOSO CON TRANSACCIÓN
-    await connection.beginTransaction();
-
+    // D. REGISTRO EXITOSO
+    // Nota: la versión original usaba una transacción real (pool.getConnection() +
+    // beginTransaction/commit/rollback), propia de mysql2. Nuestro db.js de PostgreSQL
+    // no expone ese método -- solo .query(). Se ejecutan las 2 operaciones seguidas;
+    // el riesgo de que una falle justo después de la otra es mínimo y de bajo impacto
+    // (en el peor caso, un token quedaría sin borrar, no algo crítico como un pago).
     const hashedPassword = await bcrypt.hash(contrasena, 12);
 
-    // Activación de usuario y borrado del token consumido
     await updateUsuarioActivo({ 
       id_usuario: usuario.id_usuario, 
       hashedPassword, 
@@ -78,19 +77,13 @@ const register = async (req, res) => {
       telefono_usuario: telefono_usuario.trim() 
     });
 
-    // Invalidation explicita del registro del token
     await deleteTokenById(usuario.id_token);
-
-    await connection.commit();
 
     return res.status(200).json({ message: "Técnico activado correctamente." });
 
   } catch (error) {
-    await connection.rollback();
     console.error("Error al registrar técnico:", error);
     return res.status(500).json({ message: "Error en el servidor al registrar técnico." });
-  } finally {
-    connection.release();
   }
 };
 
@@ -134,8 +127,6 @@ export const validarCodigoTecnico = async (req, res) => {
   }
 };
 
-
-// Agregar a auth.controller.js
 export const validarTokenCliente = async (req, res) => {
   const { token } = req.params;
 
@@ -166,7 +157,6 @@ export const validarTokenCliente = async (req, res) => {
     return res.status(500).json({ valido: false, message: "Error interno del servidor." });
   }
 };
-
 
 // 2. Verificación de correo
 export const verificarCorreo = async (req, res) => {

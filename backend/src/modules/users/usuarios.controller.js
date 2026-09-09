@@ -24,10 +24,9 @@ const esRolAdministrador = async (id_tipo_usuario) => {
 export const listarUsuario = async (req, res) => {
     try {
         const users = await usuarios.findAll();
-        // Garantiza que el admin reciba 'Activo' cuando estado === 1
         const usersMapped = users.map(u => ({
             ...u,
-            estado_texto: u.estado === 1 || u.estado === '1' ? 'Activo' : 'Inactivo'
+            estado_texto: u.estado === 2 || u.estado === '2' ? 'Activo' : 'Inactivo'
         }));
         res.json(usersMapped);
     } catch (error) {
@@ -69,7 +68,7 @@ export const verificarCorreo = async (req, res) => {
     }
 };
 
-// Creación de cliente con ESTADO ACTIVO (1)
+// Creación de cliente con ESTADO PENDIENTE (1) -- se activa cuando establece su contraseña
 export const crearCliente = async (req, res) => {
     try {
         const { nombre, apellido, correo_usuario, telefono_usuario, id_tipo_usuario } = req.body;
@@ -94,7 +93,6 @@ export const crearCliente = async (req, res) => {
             return res.status(409).json({ message: "Este correo ya está registrado." });
         }
 
-        // Se inserta explícitamente con estado: 1 (Activo)
         const clienteCreado = await usuarios.create({
             nombre: FormValidators.normalizarTexto(nombre),
             apellido: FormValidators.normalizarTexto(apellido),
@@ -122,7 +120,7 @@ export const crearCliente = async (req, res) => {
         await enviarTokenCliente(correo_usuario, urlCliente);
 
         res.status(201).json({
-            message: "Cliente creado correctamente con estado Activo. Enlace enviado al correo.",
+            message: "Cliente creado correctamente, pendiente de activación. Enlace enviado al correo.",
         });
 
     } catch (error) {
@@ -131,7 +129,7 @@ export const crearCliente = async (req, res) => {
     }
 };
 
-// Invitación de Técnico con ESTADO ACTIVO (1)
+// Invitación de Técnico con ESTADO PENDIENTE (1) -- se activa con el código de 6 dígitos
 export const invitarTecnico = async (req, res) => {
     const { correo_usuario, id_tipo_usuario } = req.body;
 
@@ -158,7 +156,6 @@ export const invitarTecnico = async (req, res) => {
         const codigoHash = await bcrypt.hash(codigo, salt);
         const expiracion = new Date(Date.now() + TECNICO_TOKEN_VIGENCIA_MS);
 
-        // Se asigna estado: 1 (Activo)
         const tecnicoCreado = await usuarios.create({
             nombre: '',
             apellido: '',
@@ -179,7 +176,7 @@ export const invitarTecnico = async (req, res) => {
         await enviarTokenTecnico(correo_usuario, codigo);
 
         return res.status(201).json({
-            message: "Código de activación enviado. Técnico en estado Activo."
+            message: "Código de activación enviado. Técnico pendiente de activación."
         });
 
     } catch (error) {
@@ -218,7 +215,6 @@ export const actualizarUsuario = async (req, res) => {
             delete datosAActualizar.contrasena;
         }
 
-        // Asegurarse de mantener el estado si se envía
         if (req.body.estado !== undefined) {
             datosAActualizar.estado = req.body.estado;
         }
@@ -249,7 +245,7 @@ export const restaurarUsuario = async (req, res) => {
     try {
         const restaurado = await usuarios.restaurar(req.params.id);
         if (!restaurado) return res.status(404).json({ message: "Usuario no encontrado" });
-        res.json({ message: "Usuario activado (Estado: 1)" });
+        res.json({ message: "Usuario activado (Estado: 2)" });
     } catch (error) {
         console.error("ERROR ACTIVAR:", error);
         res.status(500).json({ message: "Error interno del servidor" });
@@ -274,7 +270,7 @@ export const listarTecnicosDisponibilidad = async (req, res) => {
                     SELECT id_estado_de_servicio FROM estado_de_orden_de_servicio 
                     WHERE nombre_estado NOT IN ('FINALIZADA', 'CANCELADA')
                 )
-            WHERE c.categoria_usuario = 'Técnico' AND u.estado = 1
+            WHERE c.categoria_usuario = 'Técnico' AND u.estado = 2
             GROUP BY u.id_usuario, u.nombre, u.apellido
         `;
         const [rows] = await pool.query(query);
@@ -290,13 +286,11 @@ export const reenviarToken = async (req, res) => {
     const { id } = req.params;
 
     try {
-        // 1. Obtener usuario y su categoría
         const user = await usuarios.findById(id);
         if (!user) {
             return res.status(404).json({ message: "Usuario no encontrado." });
         }
 
-        // 2. Obtener el nombre de la categoría para distinguir entre Técnico y Cliente
         const [categorias] = await pool.query(
             'SELECT categoria_usuario FROM clasificacion_de_usuarios WHERE id_tipo_usuario = ?',
             [user.id_tipo_usuario]
@@ -309,7 +303,6 @@ export const reenviarToken = async (req, res) => {
         const categoriaNombre = categorias[0].categoria_usuario.toLowerCase();
         const esTecnico = categoriaNombre.includes('tecnico') || categoriaNombre.includes('técnico');
 
-        // 3. Generar nuevo token/código según el rol
         if (esTecnico) {
             const codigo = generarCodigo6Digitos();
             const salt = await bcrypt.genSalt(12);
@@ -328,7 +321,6 @@ export const reenviarToken = async (req, res) => {
             return res.json({ message: "Nuevo código de activación enviado al técnico." });
 
         } else {
-            // Es Cliente
             const rawToken = crypto.randomBytes(32).toString('hex');
             const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
             const expiracion = new Date(Date.now() + CLIENTE_TOKEN_VIGENCIA_MS);
@@ -347,7 +339,7 @@ export const reenviarToken = async (req, res) => {
         }
 
     } catch (error) {
-        console.error("ERROR REENVIAR TOKEN:", error); // Token registro
+        console.error("ERROR REENVIAR TOKEN:", error);
         return res.status(500).json({ message: "Error interno al reenviar el token." });
     }
 };

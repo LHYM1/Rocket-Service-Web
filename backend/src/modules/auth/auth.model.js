@@ -4,7 +4,7 @@ export const findTecnicoTokenByEmail = async (correo_usuario) => {
   const correoLimpio = correo_usuario ? correo_usuario.trim().toLowerCase() : '';
   const [rows] = await pool.query(
     `SELECT u.id_usuario, u.correo_usuario, t.id_token, t.token, t.intentos,
-            TIMESTAMPDIFF(MINUTE, t.fecha_creacion, NOW()) AS minutos_transcurridos
+            FLOOR(EXTRACT(EPOCH FROM (NOW() - t.fecha_creacion)) / 60)::INTEGER AS minutos_transcurridos
      FROM usuarios u
      INNER JOIN tokens_autenticacion t ON u.id_usuario = t.id_usuario
      WHERE LOWER(TRIM(u.correo_usuario)) = LOWER(?) 
@@ -71,7 +71,7 @@ export const findUsuarioLoginByEmail = async (correo_usuario) => {
 export const findClienteTokenByHash = async (tokenHash) => {
   const [rows] = await pool.query(
     `SELECT t.id_token, t.id_usuario, t.intentos,
-            TIMESTAMPDIFF(HOUR, t.fecha_creacion, NOW()) AS horas_transcurridas
+            FLOOR(EXTRACT(EPOCH FROM (NOW() - t.fecha_creacion)) / 3600)::INTEGER AS horas_transcurridas
      FROM tokens_autenticacion t
      INNER JOIN usuarios u ON t.id_usuario = u.id_usuario
      WHERE t.token = ? 
