@@ -32,6 +32,8 @@ function EstrellasPromedio({ promedio }) {
 const Dashboard = () => {
     const [datos, setDatos] = useState(null);
     const [cargando, setCargando] = useState(true);
+    const [expandido, setExpandido] = useState(null); // id_tecnico cuyas reseñas están desplegadas
+    const [expandidoOrden, setExpandidoOrden] = useState(null); // id_orden cuyo motivo de cancelación está desplegado
 
     useEffect(() => {
         axios.get("http://localhost:4000/api/dashboard/resumen")
@@ -48,7 +50,7 @@ const Dashboard = () => {
         return <div className="dashboard-page p-4"><p className="text-danger">No se pudo cargar la información del dashboard.</p></div>;
     }
 
-    const { conteos, ordenesRecientes, tecnicos, resenas } = datos;
+    const { conteos, ordenesRecientes, tecnicos, resenas, preRevisiones } = datos;
 
     const datosGrafico = resenas.map(r => ({
         nombre: r.nombre_tecnico.split(' ')[0], // solo el primer nombre, para que quepa en el eje
@@ -101,6 +103,50 @@ const Dashboard = () => {
                 </div>
             </div>
 
+            {/* Resumen de Pre-revisiones */}
+            <h6 className="text-muted mt-4 mb-2" style={{ fontSize: "0.8rem", letterSpacing: "0.03em" }}>PRE-REVISIONES</h6>
+            <div className="dash-container">
+                <div className="dash-card-animada" style={cardEstiloChico}>
+                    <div style={iconWrapEstilo("rgba(107,114,128,0.12)")}>
+                        <i className="fa-solid fa-clock" style={{ color: "#6b7280" }}></i>
+                    </div>
+                    <div>
+                        <small className="text-muted d-block">Pendientes</small>
+                        <span style={numEstiloChico}>{preRevisiones.pendientes}</span>
+                    </div>
+                </div>
+
+                <div className="dash-card-animada" style={cardEstiloChico}>
+                    <div style={iconWrapEstilo("rgba(220,53,69,0.12)")}>
+                        <i className="fa-solid fa-wrench" style={{ color: "#dc3545" }}></i>
+                    </div>
+                    <div>
+                        <small className="text-muted d-block">Requieren reparación</small>
+                        <span style={numEstiloChico}>{preRevisiones.requierenReparacion}</span>
+                    </div>
+                </div>
+
+                <div className="dash-card-animada" style={cardEstiloChico}>
+                    <div style={iconWrapEstilo("rgba(34,197,94,0.12)")}>
+                        <i className="fa-solid fa-thumbs-up" style={{ color: "#22c55e" }}></i>
+                    </div>
+                    <div>
+                        <small className="text-muted d-block">No requirieron reparación</small>
+                        <span style={numEstiloChico}>{preRevisiones.noRequierenReparacion}</span>
+                    </div>
+                </div>
+
+                <div className="dash-card-animada" style={cardEstiloChico}>
+                    <div style={iconWrapEstilo("rgba(59,130,246,0.12)")}>
+                        <i className="fa-solid fa-magnifying-glass" style={{ color: "#3b82f6" }}></i>
+                    </div>
+                    <div>
+                        <small className="text-muted d-block">Total</small>
+                        <span style={numEstiloChico}>{preRevisiones.total}</span>
+                    </div>
+                </div>
+            </div>
+
             {/* Órdenes recientes + Disponibilidad técnicos */}
             <div className="main-section">
                 <div className="ordenes-container">
@@ -121,17 +167,33 @@ const Dashboard = () => {
                                 </thead>
                                 <tbody>
                                     {ordenesRecientes.map(o => (
-                                        <tr key={o.id_orden}>
-                                            <td className="fw-semibold">{o.codigo_orden}</td>
-                                            <td>{o.nombre_cliente || "—"}</td>
-                                            <td>{o.nombre_tecnico || "Sin asignar"}</td>
-                                            <td>{o.nombre_servicio || "—"}</td>
-                                            <td>
-                                                <span className="badge" style={{ backgroundColor: coloresBadge[o.nombre_estado] || "#6b7280" }}>
-                                                    {o.nombre_estado}
-                                                </span>
-                                            </td>
-                                        </tr>
+                                        <>
+                                            <tr key={o.id_orden}
+                                                onClick={() => o.nombre_estado === "CANCELADA" && setExpandidoOrden(exp => exp === o.id_orden ? null : o.id_orden)}
+                                                style={{ cursor: o.nombre_estado === "CANCELADA" ? "pointer" : "default" }}>
+                                                <td className="fw-semibold">{o.codigo_orden}</td>
+                                                <td>{o.nombre_cliente || "—"}</td>
+                                                <td>{o.nombre_tecnico || "Sin asignar"}</td>
+                                                <td>{o.nombre_servicio || "—"}</td>
+                                                <td>
+                                                    <span className="badge" style={{ backgroundColor: coloresBadge[o.nombre_estado] || "#6b7280" }}>
+                                                        {o.nombre_estado}
+                                                    </span>
+                                                    {o.nombre_estado === "CANCELADA" && (
+                                                        <i className={`fa-solid fa-chevron-${expandidoOrden === o.id_orden ? "down" : "right"} ms-2`}
+                                                           style={{ fontSize: "0.65rem", color: "#9ca3af" }}></i>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                            {expandidoOrden === o.id_orden && (
+                                                <tr>
+                                                    <td colSpan={5} style={{ backgroundColor: "#fff5f5", padding: "10px 20px", fontSize: "0.85rem" }}>
+                                                        <strong style={{ color: "#dc3545" }}>Motivo de cancelación:</strong>{" "}
+                                                        {o.motivo_rechazo || <span className="fst-italic text-muted">No se registró un motivo.</span>}
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </>
                                     ))}
                                 </tbody>
                             </table>
@@ -173,22 +235,58 @@ const Dashboard = () => {
                             <table className="table table-hover mb-0">
                                 <thead className="table-light">
                                     <tr>
+                                        <th style={{ width: 30 }}></th>
                                         <th>Técnico</th>
                                         <th>Promedio</th>
                                         <th>Total reseñas</th>
-                                        <th>Último comentario</th>
+                                        <th>Última reseña</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {resenas.map(r => (
-                                        <tr key={r.id_tecnico}>
-                                            <td className="fw-semibold">{r.nombre_tecnico}</td>
-                                            <td><EstrellasPromedio promedio={Number(r.promedio)} /></td>
-                                            <td>{r.total}</td>
-                                            <td className="text-muted" style={{ fontSize: "0.85rem" }}>
-                                                {r.ultimo_comentario || <span className="fst-italic">Sin comentario</span>}
-                                            </td>
-                                        </tr>
+                                        <>
+                                            <tr key={r.id_tecnico}
+                                                onClick={() => setExpandido(exp => exp === r.id_tecnico ? null : r.id_tecnico)}
+                                                style={{ cursor: "pointer" }}>
+                                                <td className="text-center">
+                                                    <i className={`fa-solid fa-chevron-${expandido === r.id_tecnico ? "down" : "right"}`}
+                                                       style={{ fontSize: "0.7rem", color: "#9ca3af" }}></i>
+                                                </td>
+                                                <td className="fw-semibold">{r.nombre_tecnico}</td>
+                                                <td><EstrellasPromedio promedio={Number(r.promedio)} /></td>
+                                                <td>{Number(r.total)}</td>
+                                                <td className="text-muted" style={{ fontSize: "0.85rem" }}>
+                                                    {r.resenas?.[0]?.comentario || <span className="fst-italic">Sin comentario</span>}
+                                                </td>
+                                            </tr>
+                                            {expandido === r.id_tecnico && (
+                                                <tr>
+                                                    <td colSpan={5} style={{ backgroundColor: "#f8f9fa", padding: 0 }}>
+                                                        <div style={{ padding: "12px 20px" }}>
+                                                            {r.resenas.map((res, i) => (
+                                                                <div key={i} style={{
+                                                                    padding: "10px 0",
+                                                                    borderBottom: i < r.resenas.length - 1 ? "1px solid #e5e7eb" : "none"
+                                                                }}>
+                                                                    <div className="d-flex justify-content-between align-items-center mb-1">
+                                                                        <EstrellasPromedio promedio={res.calificacion} />
+                                                                        <small className="text-muted">
+                                                                            {res.codigo_orden} — {new Date(res.fecha).toLocaleDateString('es-CO')}
+                                                                        </small>
+                                                                    </div>
+                                                                    <p className="mb-1" style={{ fontSize: "0.72rem", color: "#9ca3af" }}>
+                                                                        <i className="fa-solid fa-user me-1"></i>{res.nombre_cliente || "Cliente"}
+                                                                    </p>
+                                                                    <p className="mb-0" style={{ fontSize: "0.85rem", color: "#374151" }}>
+                                                                        {res.comentario || <span className="fst-italic text-muted">Sin comentario</span>}
+                                                                    </p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </>
                                     ))}
                                 </tbody>
                             </table>
@@ -233,5 +331,13 @@ const iconWrapEstilo = (bg) => ({
 });
 
 const numEstilo = { fontSize: "1.6rem", fontWeight: "700", color: "#1a1a2e" };
+
+const cardEstiloChico = {
+    display: "flex", alignItems: "center", gap: "12px",
+    backgroundColor: "#fff", borderRadius: "12px", padding: "14px 16px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.08)", border: "1px solid #f0f0f0"
+};
+
+const numEstiloChico = { fontSize: "1.3rem", fontWeight: "700", color: "#1a1a2e" };
 
 export default Dashboard;

@@ -4,6 +4,7 @@ import { useToast } from '../../context/ToastContext';
 import ModalRechazarCotizacion from '../ModalRechazarCotizacion';
 import ModalCalificarServicio from '../ModalCalificarServicio';
 import ModalEvidenciasOrden from '../ModalEvidenciasOrden';
+import ModalOrdenFinalizada from '../ModalOrdenFinalizada';
 import ConfirmModal from '../ConfirmModal';
 
 const coloresBadge = {
@@ -69,8 +70,33 @@ function ClienteOrdersTable({ ordenes, getOrdenes }) {
     const [paraRechazar, setParaRechazar] = useState(null);
     const [paraCalificar, setParaCalificar] = useState(null);
     const [yaCalificadas, setYaCalificadas] = useState({});
+    const [paraAceptarFinalizada, setParaAceptarFinalizada] = useState(null);
+
+    // Órdenes finalizadas que el Cliente ya "aceptó" (le salió el aviso y le dio Aceptar)
+    const claveAceptadas = "ordenes_finalizadas_aceptadas";
+    const getAceptadas = () => {
+        try { return new Set(JSON.parse(localStorage.getItem(claveAceptadas) || "[]")); }
+        catch { return new Set(); }
+    };
+    const aceptarFinalizada = (id_orden) => {
+        const aceptadas = getAceptadas();
+        aceptadas.add(id_orden);
+        localStorage.setItem(claveAceptadas, JSON.stringify([...aceptadas]));
+        setParaAceptarFinalizada(null);
+    };
     const [paraAprobar, setParaAprobar] = useState(null);
     const [paraVerEvidencias, setParaVerEvidencias] = useState(null);
+    const [notisPorOrden, setNotisPorOrden] = useState({}); // { id_orden: cantidad }
+
+    const cargarNotisPorOrden = () => {
+        axios.get("http://localhost:4000/api/notificaciones/no-leidas-por-orden")
+            .then(res => {
+                const mapa = {};
+                res.data.forEach(n => { mapa[n.id_orden] = n.cantidad; });
+                setNotisPorOrden(mapa);
+            })
+            .catch(() => {});
+    };
 
     useEffect(() => {
         ordenes.forEach(o => {
@@ -82,6 +108,36 @@ function ClienteOrdersTable({ ordenes, getOrdenes }) {
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ordenes]);
+
+    // Detecta la primera orden finalizada que el Cliente todavía no ha "aceptado"
+    // (visto el aviso de "ya puedes recoger tu moto"), y le muestra el modal
+    useEffect(() => {
+        if (paraAceptarFinalizada) return; // ya hay uno mostrándose, no interrumpir
+        const aceptadas = getAceptadas();
+        const pendiente = ordenes.find(o => o.nombre_estado === "FINALIZADA" && !aceptadas.has(o.id_orden));
+        if (pendiente) setParaAceptarFinalizada(pendiente);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ordenes]);
+
+    useEffect(() => {
+        cargarNotisPorOrden();
+
+        // Polling: revisa si hay notificaciones nuevas cada 15 segundos,
+        // mientras el Cliente tenga esta pantalla abierta (sin necesitar recargar)
+        const intervalo = setInterval(cargarNotisPorOrden, 15000);
+        return () => clearInterval(intervalo);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const abrirEvidencias = (orden) => {
+        setParaVerEvidencias(orden);
+        // Al abrir, se marcan como leídas las notificaciones de ESA orden
+        if (notisPorOrden[orden.id_orden]) {
+            axios.patch(`http://localhost:4000/api/notificaciones/marcar-leidas-orden/${orden.id_orden}`)
+                .then(() => setNotisPorOrden(prev => ({ ...prev, [orden.id_orden]: 0 })))
+                .catch(() => {});
+        }
+    };
 
     const verDetalle = (idOrden) => {
         if (ordenAbierta === idOrden) {
@@ -132,6 +188,11 @@ function ClienteOrdersTable({ ordenes, getOrdenes }) {
                 .cliente-card-animada:nth-child(4) { animation-delay: 0.21s; }
                 .cliente-card-animada:nth-child(5) { animation-delay: 0.28s; }
                 .cliente-card-animada:nth-child(6) { animation-delay: 0.35s; }
+
+                @keyframes notiPop {
+                    from { transform: scale(0); }
+                    to   { transform: scale(1); }
+                }
             `}</style>
 
             <div className="row g-4 align-items-start">
@@ -188,13 +249,32 @@ function ClienteOrdersTable({ ordenes, getOrdenes }) {
 
                                 <button
                                     className="btn btn-sm w-100 mb-2"
-                                    style={{ backgroundColor: "#f8f9fa", color: "#1a1a2e", border: "1px solid #e5e7eb" }}
-                                    onClick={() => setParaVerEvidencias(o)}>
+                                    style={{ backgroundColor: "#f8f9fa", color: "#1a1a2e", border: "1px solid #e5e7eb", position: "relative" }}
+                                    onClick={() => abrirEvidencias(o)}>
                                     <i className="fa-solid fa-images me-1"></i>Evidencias
+                                    {notisPorOrden[o.id_orden] > 0 && (
+                                        <span style={{
+                                            position: "absolute", top: -6, right: -6,
+                                            backgroundColor: "#dc3545", color: "white",
+                                            borderRadius: "50%", minWidth: 20, height: 20, padding: "0 4px",
+                                            fontSize: "0.68rem", fontWeight: "700",
+                                            display: "flex", alignItems: "center", justifyContent: "center",
+                                            boxShadow: "0 2px 6px rgba(220,53,69,0.5)",
+                                            animation: "notiPop 0.3s cubic-bezier(0.34,1.56,0.64,1) both"
+                                        }}>
+                                            {notisPorOrden[o.id_orden]}
+                                        </span>
+                                    )}
                                 </button>
 
                                 {o.nombre_estado === "PENDIENTE APROBACIÓN" && (
                                     <>
+                                        {o.motivo_rechazo && (
+                                            <div className="mb-2 p-2 rounded text-center" style={{ backgroundColor: "rgba(40,167,69,0.1)", border: "1px solid #28a74540", fontSize: "0.78rem", color: "#1e7e34" }}>
+                                                <i className="fa-solid fa-rotate me-1"></i>
+                                                <strong>Reajuste realizado</strong> — el técnico ajustó la cotización según lo que pediste.
+                                            </div>
+                                        )}
                                         <button
                                             className="btn btn-sm w-100 mb-2"
                                             style={{ backgroundColor: "#1a1a2e", color: "white" }}
@@ -235,7 +315,7 @@ function ClienteOrdersTable({ ordenes, getOrdenes }) {
                                     </>
                                 )}
 
-                                {o.nombre_estado === "FINALIZADA" && !yaCalificadas[o.id_orden] && (
+                                {o.nombre_estado === "FINALIZADA" && !yaCalificadas[o.id_orden] && getAceptadas().has(o.id_orden) && (
                                     <button className="btn btn-sm w-100 text-white fw-semibold" style={{ backgroundColor: "#ff8c00" }}
                                         onClick={() => setParaCalificar(o)}>
                                         <i className="fa-solid fa-star me-1"></i>Calificar servicio
@@ -285,6 +365,13 @@ function ClienteOrdersTable({ ordenes, getOrdenes }) {
                 <ModalEvidenciasOrden
                     orden={paraVerEvidencias}
                     onClose={() => setParaVerEvidencias(null)}
+                />
+            )}
+
+            {paraAceptarFinalizada && (
+                <ModalOrdenFinalizada
+                    orden={paraAceptarFinalizada}
+                    onAceptar={() => aceptarFinalizada(paraAceptarFinalizada.id_orden)}
                 />
             )}
         </>

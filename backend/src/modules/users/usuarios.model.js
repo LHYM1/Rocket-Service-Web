@@ -47,7 +47,7 @@ const users = {
         const [result] = await db.query(
             `INSERT INTO usuarios 
             (nombre, apellido, correo_usuario, telefono_usuario, contrasena, id_tipo_usuario, estado) 
-            VALUES (?, ?, ?, ?, ?, ?, 1)`,
+            VALUES (?, ?, ?, ?, ?, ?, true)`,
             [nombre, apellido, correo_usuario, telefono_usuario, contrasena, id_tipo_usuario]
         );
 
@@ -92,7 +92,7 @@ const users = {
     // Activar usuario inactivo
     restaurar: async (id) => {
         const [result] = await db.query(
-            'UPDATE usuarios SET estado = 1 WHERE id_usuario = ?',
+            'UPDATE usuarios SET estado = true WHERE id_usuario = ?',
             [id]
         );
         return result.affectedRows > 0;
@@ -101,7 +101,7 @@ const users = {
     // Desactivar softDelete 
     remove: async (id) => {
         const [result] = await db.query(
-            'UPDATE usuarios SET estado = 0 WHERE id_usuario = ?',
+            'UPDATE usuarios SET estado = false WHERE id_usuario = ?',
             [id]
         );
         return result.affectedRows > 0;

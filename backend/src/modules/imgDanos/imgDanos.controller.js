@@ -1,4 +1,7 @@
 import imgDanosModel from './imgDanos.model.js';
+import ordenesModel from '../orders/orders.model.js';
+import notificacionesModel from '../notificaciones/notificaciones.model.js';
+import { subirACloudinary } from '../../config/subirACloudinary.js';
 
 export const listarImgDanos = async (req, res) => {
     try {
@@ -22,15 +25,15 @@ export const ObtenerImgDanos = async (req, res) => {
 export const crearImagenDanos = async (req, res) => {
     try {
         const { id_orden, descripcion, tipo } = req.body;
-        
+        const { id: id_tecnico } = req.user;
+
         // Si no hay archivo, avisamos
         if (!req.file) {
             return res.status(400).json({ message: "No se seleccionó ninguna imagen" });
         }
 
-        // Guardamos la ruta relativa a la carpeta uploads
-        const nombreArchivo = req.file.filename;
-        const url_imagen = `/uploads/${nombreArchivo}`;
+        // Con multer en memoria, el archivo llega como buffer -- se sube manualmente a Cloudinary
+        const url_imagen = await subirACloudinary(req.file.buffer);
 
         const nuevoRegistro = await imgDanosModel.create({
             id_orden,
@@ -38,6 +41,23 @@ export const crearImagenDanos = async (req, res) => {
             url_imagen,
             tipo
         });
+
+        // Notificar al Cliente dueño de la orden (si se puede identificar la orden)
+        try {
+            const orden = await ordenesModel.findById(id_orden);
+            if (orden?.id_usuario) {
+                const tipoTexto = tipo === "Reparación" ? "una foto de reparación" : "una foto de un daño";
+                await notificacionesModel.crearParaOrden({
+                    id_usuario_origen: id_tecnico,
+                    id_usuario_destino: orden.id_usuario,
+                    mensaje: `El técnico agregó ${tipoTexto} a tu orden ${orden.codigo_orden}.`,
+                    id_orden
+                });
+            }
+        } catch (errorNotif) {
+            // No bloquea la subida de la foto si la notificación falla por algún motivo
+            console.error("No se pudo crear la notificación:", errorNotif.message);
+        }
 
         res.status(201).json(nuevoRegistro);
     } catch (error) {
@@ -63,7 +83,7 @@ export const actImgDanos = async (req, res) => {
         let datosActualizar = { id_orden, descripcion, tipo };
 
         if (req.file) {
-            datosActualizar.url_imagen = `/uploads/${req.file.filename}`;
+            datosActualizar.url_imagen = await subirACloudinary(req.file.buffer);
         } else {
             const actual = await imgDanosModel.findById(id);
             datosActualizar.url_imagen = actual?.url_imagen;

@@ -14,7 +14,7 @@ const dashboard = {
     ordenesRecientes: async (limite = 8) => {
         const [rows] = await db.query(`
             SELECT
-                o.id_orden, o.codigo_orden, o.fecha_de_creacion,
+                o.id_orden, o.codigo_orden, o.fecha_de_creacion, o.motivo_rechazo,
                 CONCAT(cli.nombre, ' ', cli.apellido) AS nombre_cliente,
                 CONCAT(t.nombre, ' ', t.apellido) AS nombre_tecnico,
                 ts.nombre_servicio,
@@ -42,12 +42,13 @@ const dashboard = {
                 ) AS disponibilidad
             FROM usuarios u
             JOIN clasificacion_de_usuarios c ON u.id_tipo_usuario = c.id_tipo_usuario
-            WHERE c.categoria_usuario = 'Técnico' AND u.estado = 1
+            WHERE c.categoria_usuario = 'Técnico' AND u.estado = true
         `);
         return rows;
     },
 
-    // Promedio, total y último comentario de cada técnico calificado
+    // Promedio, total, y TODAS las reseñas individuales de cada técnico calificado
+    // (json_agg empaqueta cada reseña en un array, para poder desplegarlas todas en el Dashboard)
     resumenCalificaciones: async () => {
         const [rows] = await db.query(`
             SELECT
@@ -55,18 +56,40 @@ const dashboard = {
                 CONCAT(t.nombre, ' ', t.apellido) AS nombre_tecnico,
                 ROUND(AVG(cal.calificacion), 1) AS promedio,
                 COUNT(cal.id_calificacion) AS total,
-                (SELECT c2.comentario FROM calificaciones_tecnicos c2
-                 WHERE c2.id_tecnico = t.id_usuario
-                 ORDER BY c2.fecha_calificacion DESC LIMIT 1) AS ultimo_comentario
+                json_agg(
+                    json_build_object(
+                        'calificacion', cal.calificacion,
+                        'comentario', cal.comentario,
+                        'fecha', cal.fecha_calificacion,
+                        'codigo_orden', o.codigo_orden,
+                        'nombre_cliente', CONCAT(cli.nombre, ' ', cli.apellido)
+                    ) ORDER BY cal.fecha_calificacion DESC
+                ) AS resenas
             FROM usuarios t
             JOIN clasificacion_de_usuarios cu ON t.id_tipo_usuario = cu.id_tipo_usuario
             LEFT JOIN calificaciones_tecnicos cal ON cal.id_tecnico = t.id_usuario
+            LEFT JOIN ordenes_de_servicio o ON cal.id_orden = o.id_orden
+            LEFT JOIN usuarios cli ON cal.id_usuario = cli.id_usuario
             WHERE cu.categoria_usuario = 'Técnico'
             GROUP BY t.id_usuario
-            HAVING total > 0
+            HAVING COUNT(cal.id_calificacion) > 0
             ORDER BY promedio DESC
         `);
         return rows;
+    },
+
+    // Resumen de Pre-revisiones: cuántas están pendientes, cuántas terminaron
+    // requiriendo reparación (se volvieron orden), y cuántas no la necesitaron
+    contarPreRevisiones: async () => {
+        const [rows] = await db.query(`
+            SELECT
+                COUNT(*) FILTER (WHERE estado = 'PENDIENTE') AS pendientes,
+                COUNT(*) FILTER (WHERE estado = 'COMPLETADA') AS requieren_reparacion,
+                COUNT(*) FILTER (WHERE estado = 'FINALIZADA') AS no_requieren_reparacion,
+                COUNT(*) AS total
+            FROM pre_revision
+        `);
+        return rows[0];
     }
 };
 

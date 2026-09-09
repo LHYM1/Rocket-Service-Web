@@ -16,17 +16,17 @@ const categoria = {
     create: async (data) => {
         const { 
             nombre, 
-            Descripcion
+            descripcion
         } = data;
 
         const [result] = await db.query(
             `INSERT INTO categoria
             
-            (nombre, Descripcion)
+            (nombre, descripcion)
 
             VALUES (?, ?)`,
             [
-                nombre, Descripcion
+                nombre, descripcion
             ]
         );
         return result.insertId;
@@ -35,17 +35,17 @@ const categoria = {
     update: async (id, data) => {
         const { 
             nombre, 
-            Descripcion
+            descripcion
         } = data;
 
         const [result] = await db.query(
             `UPDATE categoria
-             SET nombre = ?, Descripcion = ?
+             SET nombre = ?, descripcion = ?
 
              WHERE id_categoria = ?`,
             [
                 nombre, 
-                Descripcion,
+                descripcion,
             id]
         );
         return result.affectedRows > 0;

@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
+import { urlFoto } from "../../utils/urlFoto";
 import axios from "../../axiosConfig";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import ConfirmModal from "../../components/ConfirmModal";
+import Lightbox from "../../components/Lightbox";
 
 const estiloTipo = {
     "Daño": { bg: "rgba(255, 68, 68, 0.1)", color: "#b91c1c", icon: "fa-triangle-exclamation" },
@@ -17,6 +19,7 @@ function ImgDanos() {
     const [filtroTipo, setFiltroTipo] = useState("");
     const [pagina, setPagina] = useState(1);
     const [paraEliminar, setParaEliminar] = useState(null);
+    const [lightboxIndice, setLightboxIndice] = useState(null);
     const porPagina = 8;
 
     const getImgDanos = useCallback(() => {
@@ -165,19 +168,17 @@ function ImgDanos() {
                 </div>
             ) : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "20px" }}>
-                    {paginadas.map(img => {
+                    {paginadas.map((img, i) => {
                         const tipo = img.tipo || "Daño";
                         const estilo = estiloTipo[tipo];
                         return (
                             <div key={img.id_imagen} className="rs-foto-card">
-                                <div className="rs-foto-img-wrap">
-                                    <a href={`http://localhost:4000${img.url_imagen}`} target="_blank" rel="noreferrer">
-                                        <img src={`http://localhost:4000${img.url_imagen}`} alt={img.descripcion || tipo} />
-                                    </a>
+                                <div className="rs-foto-img-wrap" onClick={() => setLightboxIndice(i)} style={{ cursor: "zoom-in" }}>
+                                    <img src={urlFoto(img.url_imagen)} alt={img.descripcion || tipo} />
                                     <span className="rs-foto-tipo-badge" style={{ backgroundColor: estilo.bg, color: estilo.color }}>
                                         <i className={`fa-solid ${estilo.icon} me-1`}></i>{tipo}
                                     </span>
-                                    <button className="rs-foto-delete" onClick={() => setParaEliminar(img.id_imagen)} title="Eliminar">
+                                    <button className="rs-foto-delete" onClick={(e) => { e.stopPropagation(); setParaEliminar(img.id_imagen); }} title="Eliminar">
                                         <i className="fa-solid fa-trash" style={{ fontSize: "0.75rem" }}></i>
                                     </button>
                                 </div>
@@ -185,9 +186,15 @@ function ImgDanos() {
                                     <span className="rs-id-badge">
                                         {img.codigo_orden || `ORD-${String(img.id_orden).padStart(3, "0")}`}
                                     </span>
-                                    <p style={{ fontSize: "13px", color: "#374151", margin: "8px 0 0", minHeight: "18px" }}>
+                                    <p style={{ fontSize: "13px", color: "#374151", margin: "8px 0 4px", minHeight: "18px" }}>
                                         {img.descripcion || <span className="text-muted fst-italic">Sin descripción</span>}
                                     </p>
+                                    {esAdmin && (
+                                        <div style={{ fontSize: "11px", color: "#9ca3af", borderTop: "1px solid #f3f4f6", paddingTop: "6px", marginTop: "4px" }}>
+                                            <div><i className="fa-solid fa-user me-1"></i>{img.nombre_cliente || "—"}</div>
+                                            <div><i className="fa-solid fa-helmet-safety me-1"></i>{img.nombre_tecnico || "—"}</div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         );
@@ -219,6 +226,17 @@ function ImgDanos() {
                     icon="fa-solid fa-trash"
                     onConfirm={confirmarEliminar}
                     onCancel={() => setParaEliminar(null)}
+                />
+            )}
+
+            {lightboxIndice !== null && (
+                <Lightbox
+                    imagenes={paginadas.map(img => ({
+                        url: urlFoto(img.url_imagen),
+                        descripcion: img.descripcion
+                    }))}
+                    indiceInicial={lightboxIndice}
+                    onClose={() => setLightboxIndice(null)}
                 />
             )}
         </div>

@@ -48,7 +48,7 @@ export const agregarInsumoAOrden = async (req, res) => {
 
         // RN-002 / CA-005: insumo debe existir y estar activo
         const insumo = await prodtsUseService.getInsumoActivo(id_insumo);
-        if (!insumo || insumo.estado !== 1) {
+        if (!insumo || !insumo.estado) {
             return res.status(400).json({ message: "El insumo no está disponible." });
         }
 

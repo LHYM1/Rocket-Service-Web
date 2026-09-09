@@ -65,7 +65,7 @@ function UsersTable ({ user, setIdSeleccionado, getUsuarios}) {
                                 Editar
                             </button>
 
-                            {u.estado === 1 ? (
+                            {u.estado ? (
                                 <button 
                                     onClick={() => eliminarUsuario(u.id_usuario)}
                                     className="btn btn-danger btn-color"
@@ -91,4 +91,3 @@ function UsersTable ({ user, setIdSeleccionado, getUsuarios}) {
 }
 
 export default UsersTable;
-  
