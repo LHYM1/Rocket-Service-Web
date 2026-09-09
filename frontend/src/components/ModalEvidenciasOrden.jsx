@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
+import { urlFoto } from "../utils/urlFoto";
 import axios from "../axiosConfig";
+import Lightbox from "./Lightbox";
 
 function ModalEvidenciasOrden({ orden, onClose }) {
     const [fotos, setFotos] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [pestana, setPestana] = useState("Daño");
+    const [lightboxIndice, setLightboxIndice] = useState(null);
 
     useEffect(() => {
         axios.get(`http://localhost:4000/api/imagenes_danos/por-orden/${orden.id_orden}`)
@@ -64,19 +67,25 @@ function ModalEvidenciasOrden({ orden, onClose }) {
                             </p>
                         ) : (
                             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: "12px" }}>
-                                {fotosFiltradas.map(foto => (
-                                    <a key={foto.id_imagen} href={`http://localhost:4000${foto.url_imagen}`} target="_blank" rel="noreferrer">
+                                {fotosFiltradas.map((foto, i) => (
+                                    <div
+                                        key={foto.id_imagen}
+                                        onClick={() => setLightboxIndice(i)}
+                                        style={{ cursor: "zoom-in" }}
+                                    >
                                         <img
-                                            src={`http://localhost:4000${foto.url_imagen}`}
+                                            src={urlFoto(foto.url_imagen)}
                                             alt={foto.descripcion || pestana}
-                                            style={{ width: "100%", height: 100, objectFit: "cover", borderRadius: 8, border: "1px solid #e5e7eb" }}
+                                            style={{ width: "100%", height: 100, objectFit: "cover", borderRadius: 8, border: "1px solid #e5e7eb", transition: "transform 0.15s" }}
+                                            onMouseEnter={e => e.currentTarget.style.transform = "scale(1.04)"}
+                                            onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
                                         />
                                         {foto.descripcion && (
                                             <p style={{ fontSize: "11px", color: "#6b7280", margin: "4px 0 0", textAlign: "center" }}>
                                                 {foto.descripcion}
                                             </p>
                                         )}
-                                    </a>
+                                    </div>
                                 ))}
                             </div>
                         )}
@@ -87,6 +96,17 @@ function ModalEvidenciasOrden({ orden, onClose }) {
                     <button className="rs-btn rs-btn-secondary" onClick={onClose}>Cerrar</button>
                 </div>
             </div>
+
+            {lightboxIndice !== null && (
+                <Lightbox
+                    imagenes={fotosFiltradas.map(f => ({
+                        url: urlFoto(f.url_imagen),
+                        descripcion: f.descripcion
+                    }))}
+                    indiceInicial={lightboxIndice}
+                    onClose={() => setLightboxIndice(null)}
+                />
+            )}
         </div>
     );
 }

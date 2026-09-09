@@ -7,6 +7,7 @@ function ModalRechazarCotizacion({ orden, onClose, onSuccess }) {
     const [tipoRechazo, setTipoRechazo] = useState("");
     const [motivo, setMotivo] = useState("");
     const [enviando, setEnviando] = useState(false);
+    const [ordenCancelada, setOrdenCancelada] = useState(false); // pantalla de cierre, solo si eligió "Cancelar"
 
     const handleEnviar = async () => {
         if (!tipoRechazo) {
@@ -24,15 +25,51 @@ function ModalRechazarCotizacion({ orden, onClose, onSuccess }) {
                 `http://localhost:4000/api/ordenes_de_servicio/rechazar/${orden.id_orden}`,
                 { tipo_rechazo: tipoRechazo, motivo }
             );
-            mostrarToast(res.data.message, "success");
             onSuccess();
-            onClose();
+
+            if (tipoRechazo === "Cancelar") {
+                setOrdenCancelada(true);
+            } else {
+                mostrarToast(res.data.message, "success");
+                onClose();
+            }
         } catch (error) {
             mostrarToast(error.response?.data?.message || "Hubo un error al procesar el rechazo.", "error");
         } finally {
             setEnviando(false);
         }
     };
+
+    if (ordenCancelada) {
+        return (
+            <div className="rs-modal-overlay">
+                <div className="rs-modal" style={{ maxWidth: "400px" }}>
+                    <div className="rs-modal-body" style={{ alignItems: "center", textAlign: "center", paddingTop: "36px" }}>
+                        <div style={{
+                            width: 64, height: 64, borderRadius: "50%",
+                            backgroundColor: "rgba(220,53,69,0.1)", color: "#dc3545",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            fontSize: "28px", margin: "0 auto 12px"
+                        }}>
+                            <i className="fa-solid fa-face-sad-tear"></i>
+                        </div>
+                        <h5 className="rs-modal-title" style={{ fontSize: "18px" }}>Orden cancelada</h5>
+                        <p style={{ color: "#6b7280", fontSize: "14px", margin: "8px 0 4px" }}>
+                            Lamentamos mucho tu cancelación.
+                        </p>
+                        <p style={{ color: "#6b7280", fontSize: "14px", margin: 0 }}>
+                            Puedes recoger tu moto en el taller. ¡Esperamos que vuelvas pronto!
+                        </p>
+                    </div>
+                    <div className="rs-modal-footer" style={{ justifyContent: "center" }}>
+                        <button className="rs-btn rs-btn-primary" onClick={onClose}>
+                            Entendido
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="rs-modal-overlay">

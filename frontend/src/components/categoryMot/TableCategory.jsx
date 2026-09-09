@@ -40,7 +40,7 @@ function tableCategoriaProd ({ categoria, setIdSeleccionado, getCategoria }) {
                     {categoria.map((cat) => (
                         <tr key={cat.id_categoria}>
                             <td>{cat.nombre}</td>
-                            <td>{cat.Descripcion}</td>         
+                            <td>{cat.descripcion}</td>         
                     
                             <td>
                                 <button onClick={() => setIdSeleccionado(cat)}
@@ -63,4 +63,3 @@ function tableCategoriaProd ({ categoria, setIdSeleccionado, getCategoria }) {
 }
 
 export default tableCategoriaProd;
-  

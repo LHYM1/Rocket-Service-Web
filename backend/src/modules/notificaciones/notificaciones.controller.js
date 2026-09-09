@@ -36,4 +36,33 @@ export const marcarLeidas = async (req, res) => {
     }
 };
 
-export default { crearNotificacion, listarParaAdmin, marcarLeidas };
+// ── Notificaciones por orden, para el badge de "Evidencias" del Cliente ──
+
+export const obtenerNoLeidasPorOrden = async (req, res) => {
+    try {
+        const { id: id_usuario } = req.user;
+        const resultado = await notificaciones.contarNoLeidasPorOrden(id_usuario);
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const marcarLeidasDeOrden = async (req, res) => {
+    try {
+        const { id: id_usuario } = req.user;
+        const { id_orden } = req.params;
+        await notificaciones.marcarLeidasDeOrden(id_usuario, id_orden);
+        res.json({ message: "Notificaciones de esta orden marcadas como leídas." });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export default {
+    crearNotificacion,
+    listarParaAdmin,
+    marcarLeidas,
+    obtenerNoLeidasPorOrden,
+    marcarLeidasDeOrden
+};

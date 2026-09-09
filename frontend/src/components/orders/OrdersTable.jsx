@@ -1,6 +1,7 @@
 import axios from '../../axiosConfig';
 import { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
+import { useNotif } from '../../context/NotifContext';
 import ModalAgregarFotoOrden from '../ModalAgregarFotoOrden';
 import ConfirmModal from '../ConfirmModal';
 
@@ -37,6 +38,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
 
     const { mostrarToast } = useToast();
     const mostrarNotificacion = (mensaje, tipo = "success") => mostrarToast(mensaje, tipo);
+    const { marcarOrdenesVistas } = useNotif();
 
     const cargarInsumosDisponibles = () => {
         axios.get("http://localhost:4000/api/insumos/listar")
@@ -139,6 +141,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
             .then(res => {
                 mostrarNotificacion(res.data.message, "success");
                 window.dispatchEvent(new CustomEvent('disponibilidadCambiada', { detail: { estado: "Realizando servicio" } }));
+                marcarOrdenesVistas([idOrden]); // recién aceptada -- ya no cuenta como "nueva" en el badge
                 getOrdenes();
             })
             .catch(err => mostrarNotificacion(err.response?.data?.message || "No se pudo aceptar la orden.", "error"));
@@ -224,7 +227,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     }
 
     const insumosParaSelector = insumosDisponibles.filter(
-        i => i.estado === 1 && !insumosDeLaOrden.some(iu => iu.nombre_insumo === i.nombre_insumo)
+        i => i.estado && !insumosDeLaOrden.some(iu => iu.nombre_insumo === i.nombre_insumo)
     );
 
     return (
@@ -426,11 +429,21 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                                 ) : (
                                     <div className="d-flex flex-column gap-2">
 
-                                        {(o.nombre_estado === "EN PROCESO" || o.nombre_estado === "ASIGNADA") && (
+                                        {o.nombre_estado === "EN PROCESO" && (
                                             <button
                                                 onClick={() => setOrdenParaFoto(o)}
                                                 className="btn btn-sm w-100"
                                                 style={{ backgroundColor: "#f8f9fa", color: "#1a1a2e", border: "1px solid #e5e7eb" }}>
+                                                <i className="fa-solid fa-camera me-1"></i>Agregar foto (daño/reparación)
+                                            </button>
+                                        )}
+
+                                        {o.nombre_estado === "ASIGNADA" && (
+                                            <button
+                                                disabled
+                                                title="Primero debes aceptar la orden para poder subir fotos"
+                                                className="btn btn-sm w-100"
+                                                style={{ backgroundColor: "#f1f3f5", color: "#adb5bd", border: "1px solid #e5e7eb", cursor: "not-allowed" }}>
                                                 <i className="fa-solid fa-camera me-1"></i>Agregar foto (daño/reparación)
                                             </button>
                                         )}
@@ -444,14 +457,21 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                                             </button>
                                         )}
 
-                                        {o.nombre_estado === "EN PROCESO" && tieneCotizacionPrevia[o.id_orden] && (
+                                        {o.nombre_estado === "EN PROCESO" && tieneCotizacionPrevia[o.id_orden] && !o.motivo_rechazo && (
                                             <div className="text-center mb-1" style={{ fontSize: "0.78rem", color: "#28a745" }}>
                                                 <i className="fa-solid fa-circle-check me-1"></i>
                                                 Cotización aprobada por el cliente — continúa el trabajo
                                             </div>
                                         )}
 
-                                        {o.nombre_estado === "EN PROCESO" && tieneCotizacionPrevia[o.id_orden] ? (
+                                        {o.nombre_estado === "EN PROCESO" && o.motivo_rechazo && (
+                                            <div className="mb-2 p-2 rounded" style={{ backgroundColor: "#fff3cd", border: "1px solid #ffc10740", fontSize: "0.8rem", color: "#856404" }}>
+                                                <i className="fa-solid fa-triangle-exclamation me-1"></i>
+                                                <strong>El cliente pidió un reajuste:</strong> {o.motivo_rechazo}
+                                            </div>
+                                        )}
+
+                                        {o.nombre_estado === "EN PROCESO" && tieneCotizacionPrevia[o.id_orden] && !o.motivo_rechazo ? (
                                             <button
                                                 onClick={() => finalizarOrden(o.id_orden)}
                                                 className="btn btn-sm w-100 text-white fw-semibold"
@@ -596,13 +616,17 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                                                             </button>
                                                             <button
                                                                 className="btn text-white fw-semibold flex-fill btn-sm"
-                                                                style={{ backgroundColor: "#6c757d" }}
+                                                                disabled={totalCotizado > 0}
+                                                                title={totalCotizado > 0 ? "Solo disponible cuando el total cotizado es $0 -- si hay costo, el cliente debe aprobarlo primero" : "El cliente estuvo presente y ya sabe qué se le va a hacer"}
+                                                                style={{ backgroundColor: totalCotizado > 0 ? "#adb5bd" : "#6c757d", cursor: totalCotizado > 0 ? "not-allowed" : "pointer" }}
                                                                 onClick={() => finalizarOrden(o.id_orden)}>
                                                                 <i className="fa-solid fa-check me-1"></i>Finalizar directo
                                                             </button>
                                                         </div>
                                                         <small className="text-muted d-block mt-1 text-center" style={{ fontSize: "0.72rem" }}>
-                                                            "Enviar cotización" pide aprobación al cliente. "Finalizar directo" cierra la orden sin pasar por el cliente.
+                                                            {totalCotizado > 0
+                                                                ? "\"Finalizar directo\" solo está disponible cuando el total es $0 -- si hay costo, el cliente debe aprobarlo."
+                                                                : "\"Enviar cotización\" pide aprobación al cliente. \"Finalizar directo\" cierra la orden sin pasar por el cliente (solo si el cliente ya estuvo presente y no hay costo por aprobar)."}
                                                         </small>
                                                     </>
                                                 )}

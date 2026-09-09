@@ -4,7 +4,7 @@ import axios from "axios";
 const CategoriaEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
     const [ categoria, setCategoria ] = useState({
         nombre: "",
-        Descripcion: ""
+        descripcion: ""
     });
 
     // useEffect para precargar datos de DB si hay un idSeleccionado
@@ -12,7 +12,7 @@ const CategoriaEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
         if (idSeleccionado) {
             setCategoria({
                 nombre: idSeleccionado.nombre,
-                Descripcion: idSeleccionado.Descripcion, 
+                descripcion: idSeleccionado.descripcion, 
             })
         }
     }, [idSeleccionado]);
@@ -80,10 +80,10 @@ const CategoriaEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
                                     id="comentarios"
                                     className="form-control"
                                     placeholder="Descripción opcional..."
-                                    name="Descripcion"
+                                    name="descripcion"
                                     rows="4" 
                                     cols="50"
-                                    value={categoria.Descripcion }
+                                    value={categoria.descripcion }
                                     onChange={handleChange}
                                 />
                             </div>

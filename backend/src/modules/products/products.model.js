@@ -49,16 +49,6 @@ const product = {
         return rows[0];
     },
 
-    // HU-004.6 -- RN-001: insumos activos con stock bajo (entre 1 y 5 unidades)
-    findStockBajo: async () => {
-        const [rows] = await db.query(
-            `SELECT id_insumo, nombre_insumo, cantidad_disponible
-             FROM insumos
-             WHERE cantidad_disponible > 0 AND cantidad_disponible <= 5 AND estado = 1`
-        );
-        return rows;
-    },
-
     // RN-002 / CA-005 (registrar) y RN-004 / CA-004 (actualizar): validar existencia y estado de la categoría
     getCategoriaPorId: async (id_categoria) => {
         const [rows] = await db.query(
@@ -80,7 +70,7 @@ const product = {
 
         const [result] = await db.query(
             `INSERT INTO insumos (id_categoria, id_unidad, nombre_insumo, cantidad_disponible, precio_unitario, estado)
-            VALUES (?, ?, ?, ?, ?, 1)`,
+            VALUES (?, ?, ?, ?, ?, true)`,
 
             [id_categoria, id_unidad, nombre_insumo, cantidad_disponible, precio_unitario]
         );
@@ -111,8 +101,8 @@ const product = {
 
         // HU-004.4: automático — se reactiva si vuelve a haber stock, se desactiva si llega a cero
         let nuevoEstado = actual.estado;
-        if (nuevaCantidad > 0) nuevoEstado = 1;
-        if (nuevaCantidad === 0) nuevoEstado = 0;
+        if (nuevaCantidad > 0) nuevoEstado = true;
+        if (nuevaCantidad === 0) nuevoEstado = false;
 
         const [result] = await db.query(
             `UPDATE insumos SET id_categoria = ?, nombre_insumo = ?, cantidad_disponible = ?, precio_unitario = ?, estado = ?
@@ -135,7 +125,7 @@ const product = {
         const [rows] = await db.query(
             `SELECT id_insumo, nombre_insumo, cantidad_disponible
              FROM insumos
-             WHERE cantidad_disponible > 0 AND cantidad_disponible <= 5 AND estado = 1`
+             WHERE cantidad_disponible > 0 AND cantidad_disponible <= 5 AND estado = true`
         );
         return rows;
     }

@@ -322,6 +322,7 @@ export const aprobarCotizacion = async (req, res) => {
 
         const idEstado = await ordenes_de_servicio.getEstadoIdPorNombre("EN PROCESO");
         await ordenes_de_servicio.cambiarEstado(id, idEstado);
+        await ordenes_de_servicio.limpiarMotivoRechazo(id); // por si venía de un reajuste anterior ya resuelto
 
         res.json({ message: "Has aprobado la cotización. Tu moto está en proceso de reparación." });
     } catch (error) {

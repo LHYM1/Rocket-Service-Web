@@ -1,4 +1,5 @@
 import preRevision from './preRevision.model.js';
+import { subirACloudinary } from '../../config/subirACloudinary.js';
 
 // HU-006.8 -- RN-001: solo el Admin crea pre-revisiones
 export const crearPreRevision = async (req, res) => {
@@ -69,9 +70,22 @@ export const agregarFotoPreRevision = async (req, res) => {
         const pr = await preRevision.findById(id);
         if (!pr) return res.status(404).json({ message: "Pre-revisión no encontrada" });
 
-        const url_imagen = `/uploads/${req.file.filename}`;
-        await preRevision.agregarFoto(id, url_imagen);
-        res.status(201).json({ message: "Foto agregada correctamente.", url_imagen });
+        // Con multer en memoria, el archivo llega como buffer -- se sube manualmente a Cloudinary
+        const url_imagen = await subirACloudinary(req.file.buffer);
+        const id_foto = await preRevision.agregarFoto(id, url_imagen);
+        res.status(201).json({ message: "Foto agregada correctamente.", url_imagen, id_foto });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Quitar una foto ya subida (por si el Técnico subió una equivocada)
+export const eliminarFotoPreRevision = async (req, res) => {
+    try {
+        const { id_foto } = req.params;
+        const eliminado = await preRevision.eliminarFoto(id_foto);
+        if (!eliminado) return res.status(404).json({ message: "Foto no encontrada." });
+        res.json({ message: "Foto eliminada correctamente." });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -137,10 +151,22 @@ export const listarPendientesDeOrden = async (req, res) => {
 // Utilidad para pruebas: eliminar una pre-revisión que aún no se completó
 export const eliminarPreRevision = async (req, res) => {
     try {
-        const eliminado = await preRevision.eliminar(req.params.id);
+        const { id } = req.params;
+
+        // Se consulta ANTES de borrar, para saber a quién liberar después
+        const pr = await preRevision.findById(id);
+        if (!pr) {
+            return res.status(404).json({ message: "Pre-revisión no encontrada." });
+        }
+
+        const eliminado = await preRevision.eliminar(id);
         if (!eliminado) {
             return res.status(400).json({ message: "Solo se pueden eliminar pre-revisiones en estado PENDIENTE." });
         }
+
+        // Al eliminarse, el técnico que tenía asignada esta pre-revisión vuelve a estar disponible
+        await preRevision.marcarDisponibilidad(pr.id_tecnico_asignado, "Disponible");
+
         res.json({ message: "Pre-revisión eliminada correctamente." });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -152,6 +178,7 @@ export default {
     listarPreRevision,
     obtenerPreRevision,
     agregarFotoPreRevision,
+    eliminarFotoPreRevision,
     completarPreRevision,
     listarPendientesDeOrden,
     eliminarPreRevision

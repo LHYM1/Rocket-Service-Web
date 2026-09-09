@@ -3,10 +3,11 @@ import axios from "../../axiosConfig";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import ModalCrearPreRevision from "../../components/ModalCrearPreRevision";
-import ModalCompletarPreRevision from "../../components/ModalCompletarPreRevision";
+import ModalCompletarPreRevision, { hayBorrador } from "../../components/ModalCompletarPreRevision";
 import ModalCrearOrdenDesdePreRevision from "../../components/ModalCrearOrdenDesdePreRevision";
 import ConfirmModal from "../../components/ConfirmModal";
 import ModalDetallePreRevision from "../../components/ModalDetallePreRevision";
+import { useNotif } from "../../context/NotifContext";
 
 const ESTADOS_BADGE = {
     PENDIENTE: "rs-badge-warning",
@@ -15,7 +16,8 @@ const ESTADOS_BADGE = {
 };
 
 function PreRevisionPage() {
-    const { esAdmin } = useAuth();
+    const { esAdmin, esTecnico } = useAuth();
+    const { marcarPreRevisionesVistas, marcarPendientesOrdenVistas } = useNotif();
     const { mostrarToast } = useToast();
     const [lista, setLista] = useState([]);
     const [filtroEstado, setFiltroEstado] = useState("");
@@ -30,9 +32,22 @@ function PreRevisionPage() {
             ? `http://localhost:4000/api/pre_revision/listar?estado=${filtroEstado}`
             : `http://localhost:4000/api/pre_revision/listar`;
         axios.get(url)
-            .then(res => setLista(res.data))
+            .then(res => {
+                setLista(res.data);
+                if (esTecnico) {
+                    marcarPreRevisionesVistas(res.data.map(pr => pr.id_pre_revision));
+                }
+                if (esAdmin) {
+                    // Marca como vistas solo las que ya están COMPLETADA + Requiere reparación
+                    // (las mismas que cuenta el badge), no todas las de la tabla
+                    const conOrdenPendiente = res.data.filter(pr =>
+                        pr.estado === "COMPLETADA" && pr.resultado === "Requiere reparación" && !pr.id_orden_generada
+                    );
+                    marcarPendientesOrdenVistas(conOrdenPendiente.map(pr => pr.id_pre_revision));
+                }
+            })
             .catch(err => console.error(err));
-    }, [filtroEstado]);
+    }, [filtroEstado, esTecnico, esAdmin, marcarPreRevisionesVistas, marcarPendientesOrdenVistas]);
 
     useEffect(() => { cargar(); }, [cargar]);
 
@@ -138,7 +153,9 @@ function PreRevisionPage() {
                                                     className="rs-btn rs-btn-primary"
                                                     onClick={() => setSeleccionada(pr)}
                                                 >
-                                                    Aceptar Pre-Revisión
+                                                    {hayBorrador(pr.id_pre_revision) ? (
+                                                        <><i className="fa-solid fa-pen me-1"></i>Seguir editando</>
+                                                    ) : "Aceptar Pre-Revisión"}
                                                 </button>
                                             )}
                                             {esAdmin && pr.estado === "PENDIENTE" && (

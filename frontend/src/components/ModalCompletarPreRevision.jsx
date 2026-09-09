@@ -2,12 +2,29 @@ import { useState, useEffect } from "react";
 import axios from "../axiosConfig";
 import { useToast } from "../context/ToastContext";
 
+// Clave de almacenamiento del borrador, una por cada pre-revisión (para no mezclar datos entre distintas)
+const claveBorrador = (id) => `borrador_prerevision_${id}`;
+
+export function hayBorrador(id) {
+    return !!localStorage.getItem(claveBorrador(id));
+}
+
 function ModalCompletarPreRevision({ preRevision, onClose, onSuccess }) {
     const { mostrarToast } = useToast();
 
-    const [observaciones, setObservaciones] = useState("");
-    const [idTipoServicio, setIdTipoServicio] = useState("");
-    const [resultado, setResultado] = useState("");
+    // Al abrir, si existe un borrador guardado de esta misma pre-revisión, se recupera
+    const borrador = (() => {
+        try {
+            const guardado = localStorage.getItem(claveBorrador(preRevision.id_pre_revision));
+            return guardado ? JSON.parse(guardado) : null;
+        } catch {
+            return null;
+        }
+    })();
+
+    const [observaciones, setObservaciones] = useState(borrador?.observaciones || "");
+    const [idTipoServicio, setIdTipoServicio] = useState(borrador?.idTipoServicio || "");
+    const [resultado, setResultado] = useState(borrador?.resultado || "");
     const [tiposServicio, setTiposServicio] = useState([]);
     const [archivosNuevos, setArchivosNuevos] = useState([]); // { file, previewUrl }
     const [fotosSubidas, setFotosSubidas] = useState([]); // urls ya confirmadas en el servidor
@@ -21,6 +38,21 @@ function ModalCompletarPreRevision({ preRevision, onClose, onSuccess }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Guarda el borrador automáticamente cada vez que cambia algún campo de texto
+    useEffect(() => {
+        const tieneAlgo = observaciones.trim() || idTipoServicio || resultado;
+        if (tieneAlgo) {
+            localStorage.setItem(
+                claveBorrador(preRevision.id_pre_revision),
+                JSON.stringify({ observaciones, idTipoServicio, resultado })
+            );
+        }
+    }, [observaciones, idTipoServicio, resultado, preRevision.id_pre_revision]);
+
+    const limpiarBorrador = () => {
+        localStorage.removeItem(claveBorrador(preRevision.id_pre_revision));
+    };
+
     const onSeleccionarArchivos = (e) => {
         const archivos = Array.from(e.target.files);
         const nuevas = archivos.map(file => ({ file, previewUrl: URL.createObjectURL(file) }));
@@ -33,10 +65,20 @@ function ModalCompletarPreRevision({ preRevision, onClose, onSuccess }) {
         setArchivosNuevos(prev => prev.filter((_, i) => i !== idx));
     };
 
+    const quitarFotoSubida = async (id_foto) => {
+        try {
+            await axios.delete(`http://localhost:4000/api/pre_revision/fotos/${id_foto}`);
+            setFotosSubidas(prev => prev.filter(f => f.id_foto !== id_foto));
+            mostrarToast("Foto eliminada.", "success");
+        } catch (error) {
+            mostrarToast("No se pudo eliminar la foto.", "error");
+        }
+    };
+
     const subirFotosPendientes = async () => {
         if (archivosNuevos.length === 0) return [];
         setSubiendo(true);
-        const nuevasUrls = [];
+        const nuevasFotos = [];
         try {
             for (const a of archivosNuevos) {
                 const formData = new FormData();
@@ -46,9 +88,9 @@ function ModalCompletarPreRevision({ preRevision, onClose, onSuccess }) {
                     formData,
                     { headers: { "Content-Type": "multipart/form-data" } }
                 );
-                nuevasUrls.push(res.data.url_imagen);
+                nuevasFotos.push({ id_foto: res.data.id_foto, url: res.data.url_imagen });
             }
-            setFotosSubidas(prev => [...prev, ...nuevasUrls]);
+            setFotosSubidas(prev => [...prev, ...nuevasFotos]);
             archivosNuevos.forEach(a => URL.revokeObjectURL(a.previewUrl));
             setArchivosNuevos([]);
         } catch (error) {
@@ -56,7 +98,7 @@ function ModalCompletarPreRevision({ preRevision, onClose, onSuccess }) {
         } finally {
             setSubiendo(false);
         }
-        return nuevasUrls;
+        return nuevasFotos;
     };
 
     const handleConfirmar = async () => {
@@ -94,6 +136,7 @@ function ModalCompletarPreRevision({ preRevision, onClose, onSuccess }) {
                 { observaciones, id_tipo_servicio: idTipoServicio, resultado }
             );
 
+            limpiarBorrador(); // ya se guardó de verdad, el borrador temporal ya no hace falta
             mostrarToast(res.data.message, "success");
             onSuccess();
             onClose();
@@ -121,6 +164,13 @@ function ModalCompletarPreRevision({ preRevision, onClose, onSuccess }) {
                 </div>
 
                 <div className="rs-modal-body">
+                    {borrador && (
+                        <div style={{ backgroundColor: "#fff8ee", border: "1px solid #ff8c0040", borderRadius: 8, padding: "8px 12px", fontSize: "0.8rem", color: "#9a5b00" }}>
+                            <i className="fa-solid fa-circle-info me-1"></i>
+                            Recuperamos lo que habías escrito antes de salir. Las fotos que hubieras seleccionado sí tocan volver a agregarlas.
+                        </div>
+                    )}
+
                     <div className="rs-field">
                         <label className="rs-label">Observaciones <span className="rs-required">*</span></label>
                         <textarea
@@ -175,7 +225,21 @@ function ModalCompletarPreRevision({ preRevision, onClose, onSuccess }) {
                         {subiendo && <span className="rs-hint">Subiendo fotos...</span>}
 
                         {fotosSubidas.length > 0 && (
-                            <span className="rs-hint">{fotosSubidas.length} foto(s) ya guardada(s) en esta pre-revisión.</span>
+                            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                                {fotosSubidas.map((f) => (
+                                    <div key={f.id_foto} style={{ position: "relative" }}>
+                                        <img src={f.url} alt="foto guardada" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 6, border: "2px solid #28a745" }} />
+                                        <button
+                                            type="button"
+                                            onClick={() => quitarFotoSubida(f.id_foto)}
+                                            title="Quitar esta foto"
+                                            style={{ position: "absolute", top: -6, right: -6, background: "#dc3545", color: "white", borderRadius: "50%", width: 20, height: 20, border: "none", fontSize: "11px", cursor: "pointer" }}
+                                        >
+                                            <i className="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </div>
 
