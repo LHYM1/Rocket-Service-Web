@@ -42,7 +42,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     const { marcarOrdenesVistas } = useNotif();
 
     const cargarInsumosDisponibles = () => {
-        axios.get("http://localhost:4000/api/insumos/listar")
+        axios.get("/api/insumos/listar")
             .then(res => setInsumosDisponibles(res.data))
             .catch(err => console.error(err));
     };
@@ -52,7 +52,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     useEffect(() => {
         ordenes.forEach(o => {
             if (o.nombre_estado === "EN PROCESO" && tieneCotizacionPrevia[o.id_orden] === undefined) {
-                axios.get(`http://localhost:4000/api/ordenes_de_servicio/consultar/${o.id_orden}`)
+                axios.get(`/api/ordenes_de_servicio/consultar/${o.id_orden}`)
                     .then(res => {
                         setTieneCotizacionPrevia(prev => ({ ...prev, [o.id_orden]: (res.data.insumos || []).length > 0 }));
                     })
@@ -64,7 +64,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
 
     useEffect(() => {
         cargarInsumosDisponibles();
-        axios.get("http://localhost:4000/api/tipo_servicio/listar")
+        axios.get("/api/tipo_servicio/listar")
             .then(res => setTiposServicio(res.data))
             .catch(err => console.error(err));
     }, []);
@@ -81,7 +81,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     };
 
     const guardarDetalles = (idOrden) => {
-        axios.put(`http://localhost:4000/api/ordenes_de_servicio/modificar/${idOrden}`, detallesEditados)
+        axios.put(`/api/ordenes_de_servicio/modificar/${idOrden}`, detallesEditados)
             .then(res => {
                 mostrarNotificacion(res.data.message, "success");
                 setEditandoDetalles(null);
@@ -93,7 +93,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     const cargarDetalleOrden = (idOrden) => {
         setCargandoPanel(true);
         cargarInsumosDisponibles(); // refresca el stock real, por si cambió con la última acción
-        axios.get(`http://localhost:4000/api/ordenes_de_servicio/consultar/${idOrden}`)
+        axios.get(`/api/ordenes_de_servicio/consultar/${idOrden}`)
             .then(res => {
                 setInsumosDeLaOrden(res.data.insumos || []);
                 setTotalCotizado(res.data.total || 0);
@@ -130,7 +130,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     const confirmarCancelar = () => {
         const id = ordenParaCancelar;
         setOrdenParaCancelar(null);
-        axios.patch(`http://localhost:4000/api/ordenes_de_servicio/cancelar/${id}`)
+        axios.patch(`/api/ordenes_de_servicio/cancelar/${id}`)
             .then(res => { mostrarNotificacion(res.data.message, "success"); getOrdenes(); })
             .catch(err => {
                 mostrarNotificacion(err.response?.data?.message || "No se pudo cancelar la orden.", "error");
@@ -138,7 +138,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     };
 
     const aceptarOrden = (idOrden) => {
-        axios.patch(`http://localhost:4000/api/ordenes_de_servicio/aceptar/${idOrden}`)
+        axios.patch(`/api/ordenes_de_servicio/aceptar/${idOrden}`)
             .then(res => {
                 mostrarNotificacion(res.data.message, "success");
                 window.dispatchEvent(new CustomEvent('disponibilidadCambiada', { detail: { estado: "Realizando servicio" } }));
@@ -150,7 +150,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
 
     const agregarInsumo = (idOrden) => {
         if (!insumoSeleccionado || cantidadInsumo < 1) return;
-        axios.post("http://localhost:4000/api/insumos_usados_en_servicio/agregar", {
+        axios.post("/api/insumos_usados_en_servicio/agregar", {
             id_orden: idOrden,
             id_insumo: parseInt(insumoSeleccionado),
             cantidad: cantidadInsumo
@@ -165,7 +165,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     };
 
     const quitarInsumo = (idInsumosOrden, idOrden) => {
-        axios.delete(`http://localhost:4000/api/insumos_usados_en_servicio/quitar/${idInsumosOrden}`)
+        axios.delete(`/api/insumos_usados_en_servicio/quitar/${idInsumosOrden}`)
             .then(res => {
                 mostrarNotificacion(res.data.message, "success");
                 cargarDetalleOrden(idOrden);
@@ -179,7 +179,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
             quitarInsumo(idInsumosOrden, idOrden);
             return;
         }
-        axios.patch(`http://localhost:4000/api/insumos_usados_en_servicio/actualizar-cantidad/${idInsumosOrden}`, {
+        axios.patch(`/api/insumos_usados_en_servicio/actualizar-cantidad/${idInsumosOrden}`, {
             nueva_cantidad: nuevaCantidad
         })
             .then(() => cargarDetalleOrden(idOrden))
@@ -191,7 +191,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
             mostrarNotificacion("Agrega al menos un insumo antes de enviar la cotización.", "warning");
             return;
         }
-        axios.patch(`http://localhost:4000/api/ordenes_de_servicio/enviar-cotizacion/${idOrden}`)
+        axios.patch(`/api/ordenes_de_servicio/enviar-cotizacion/${idOrden}`)
             .then(res => { mostrarNotificacion(res.data.message, "success"); cerrarPanel(); getOrdenes(); })
             .catch(err => mostrarNotificacion(err.response?.data?.message || "No se pudo enviar la cotización.", "error"));
     };
@@ -203,7 +203,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     const confirmarFinalizar = () => {
         const idOrden = ordenParaFinalizar;
         setOrdenParaFinalizar(null);
-        axios.patch(`http://localhost:4000/api/ordenes_de_servicio/finalizar/${idOrden}`)
+        axios.patch(`/api/ordenes_de_servicio/finalizar/${idOrden}`)
             .then(res => {
                 mostrarNotificacion(res.data.message, "success");
                 window.dispatchEvent(new CustomEvent('disponibilidadCambiada', { detail: { estado: "Disponible" } }));
@@ -220,7 +220,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     const confirmarFinalizarDirecto = () => {
         const idOrden = ordenParaFinalizarDirecto;
         setOrdenParaFinalizarDirecto(null);
-        axios.patch(`http://localhost:4000/api/ordenes_de_servicio/finalizar/${idOrden}`)
+        axios.patch(`/api/ordenes_de_servicio/finalizar/${idOrden}`)
             .then(res => {
                 mostrarNotificacion(res.data.message, "success");
                 window.dispatchEvent(new CustomEvent('disponibilidadCambiada', { detail: { estado: "Disponible" } }));
@@ -567,7 +567,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                                                                 <button
                                                                     className="btn btn-danger btn-sm w-100"
                                                                     onClick={() => {
-                                                                        axios.post("http://localhost:4000/api/notificaciones/crear", {
+                                                                        axios.post("/api/notificaciones/crear", {
                                                                             mensaje: `El técnico reporta que no hay insumos con stock disponible para la orden #${o.id_orden}.`
                                                                         })
                                                                             .then(() => mostrarNotificacion("Se notificó al Administrador.", "success"))
