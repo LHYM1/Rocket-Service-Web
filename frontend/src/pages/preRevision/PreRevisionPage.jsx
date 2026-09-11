@@ -16,7 +16,7 @@ const ESTADOS_BADGE = {
 };
 
 function PreRevisionPage() {
-    const { esAdmin, esTecnico } = useAuth();
+    const { esAdmin } = useAuth();
     const { marcarPreRevisionesVistas, marcarPendientesOrdenVistas } = useNotif();
     const { mostrarToast } = useToast();
     const [lista, setLista] = useState([]);
