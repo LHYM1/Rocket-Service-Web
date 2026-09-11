@@ -199,7 +199,7 @@ function FormPassword() {
       const status = error.response?.status;
       const msg = error.response?.data?.message || 'Error al procesar la solicitud';
 
-      if (status === 401 || status === 400 && msg.includes('enlace')) {
+      if (status === 401 || (status === 400 && msg.includes('enlace'))) {
         setTokenInvalido(true);
         setMensajeEstado(msg);
       } else {
