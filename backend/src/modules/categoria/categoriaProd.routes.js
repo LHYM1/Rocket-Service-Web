@@ -1,12 +1,14 @@
 import express from 'express';
-const router = express.Router();
 import categoriaInsumo from './categoriaProd.controller.js';
+import { validarToken } from '../../middlewares/authMiddleware.js';
 
-// Rutas para registro de actividad 
-router.get('/listar', categoriaInsumo.listarCatInsumo);
-router.get('/consultar/:id', categoriaInsumo.obtenerCatgInsm); 
-router.post('/crear', categoriaInsumo.crearCatgInsm);
-router.put('/modificar/:id', categoriaInsumo.actualizarCatInsumo);    
-router.delete('/eliminar/:id', categoriaInsumo.eliminarCatgInsm);
+const router = express.Router();
+
+// Roles según RF-010 (Gestión de categorías de insumos)
+router.get('/listar', validarToken(["Administrador", "Técnico", "Cliente"]), categoriaInsumo.listarCatInsumo);
+router.get('/consultar/:id', validarToken(["Administrador", "Técnico", "Cliente"]), categoriaInsumo.obtenerCatgInsm);
+router.post('/crear', validarToken(["Administrador"]), categoriaInsumo.crearCatgInsm);
+router.put('/modificar/:id', validarToken(["Administrador"]), categoriaInsumo.actualizarCatInsumo);
+router.put('/estado/:id', validarToken(["Administrador"]), categoriaInsumo.cambiarEstadoCatInsumo);
 
 export default router;
