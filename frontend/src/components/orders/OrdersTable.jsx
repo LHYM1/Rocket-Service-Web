@@ -28,6 +28,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     const [tieneCotizacionPrevia, setTieneCotizacionPrevia] = useState({});
     const [ordenParaFoto, setOrdenParaFoto] = useState(null);
     const [ordenParaFinalizar, setOrdenParaFinalizar] = useState(null);
+    const [ordenParaFinalizarDirecto, setOrdenParaFinalizarDirecto] = useState(null);
     const [ordenParaCancelar, setOrdenParaCancelar] = useState(null); // id_orden -> true/false
 
     // Edición rápida de tipo de servicio / problema / fecha de entrega (Técnico)
@@ -202,6 +203,23 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     const confirmarFinalizar = () => {
         const idOrden = ordenParaFinalizar;
         setOrdenParaFinalizar(null);
+        axios.patch(`http://localhost:4000/api/ordenes_de_servicio/finalizar/${idOrden}`)
+            .then(res => {
+                mostrarNotificacion(res.data.message, "success");
+                window.dispatchEvent(new CustomEvent('disponibilidadCambiada', { detail: { estado: "Disponible" } }));
+                cerrarPanel();
+                getOrdenes();
+            })
+            .catch(err => mostrarNotificacion(err.response?.data?.message || "No se pudo finalizar la orden.", "error"));
+    };
+
+    const finalizarDirecto = (idOrden) => {
+        setOrdenParaFinalizarDirecto(idOrden);
+    };
+
+    const confirmarFinalizarDirecto = () => {
+        const idOrden = ordenParaFinalizarDirecto;
+        setOrdenParaFinalizarDirecto(null);
         axios.patch(`http://localhost:4000/api/ordenes_de_servicio/finalizar/${idOrden}`)
             .then(res => {
                 mostrarNotificacion(res.data.message, "success");
@@ -619,7 +637,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                                                                 disabled={totalCotizado > 0}
                                                                 title={totalCotizado > 0 ? "Solo disponible cuando el total cotizado es $0 -- si hay costo, el cliente debe aprobarlo primero" : "El cliente estuvo presente y ya sabe qué se le va a hacer"}
                                                                 style={{ backgroundColor: totalCotizado > 0 ? "#adb5bd" : "#6c757d", cursor: totalCotizado > 0 ? "not-allowed" : "pointer" }}
-                                                                onClick={() => finalizarOrden(o.id_orden)}>
+                                                                onClick={() => finalizarDirecto(o.id_orden)}>
                                                                 <i className="fa-solid fa-check me-1"></i>Finalizar directo
                                                             </button>
                                                         </div>
@@ -656,6 +674,17 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                     icon="fa-solid fa-check"
                     onConfirm={confirmarFinalizar}
                     onCancel={() => setOrdenParaFinalizar(null)}
+                />
+            )}
+
+            {ordenParaFinalizarDirecto && (
+                <ConfirmModal
+                    title="¿Finalizar directo, sin pasar por el cliente?"
+                    message="Esta orden se cerrará de inmediato SIN enviarle ninguna cotización al cliente para su aprobación. Úsalo solo si el cliente estuvo presente durante la reparación y ya acordaron el costo directamente contigo (en efectivo, transferencia, etc.), fuera del sistema. Si tienes dudas, cancela y usa 'Enviar cotización' en su lugar."
+                    confirmLabel="Sí, finalizar directo"
+                    icon="fa-solid fa-triangle-exclamation"
+                    onConfirm={confirmarFinalizarDirecto}
+                    onCancel={() => setOrdenParaFinalizarDirecto(null)}
                 />
             )}
 

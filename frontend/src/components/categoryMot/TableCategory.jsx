@@ -9,7 +9,7 @@ function tableCategoriaProd ({ categoria, setIdSeleccionado, getCategoria }) {
     const eliminarCatg = (id) => {
         
         if (window.confirm("¿Estás seguro de eliminar esta categoria?")) {
-            axios.delete(`http://localhost:4000/api/categoria/eliminar/${id}`)
+            axios.delete(`/api/categoria/eliminar/${id}`)
             .then(() => {
                 alert("Categoria insumo eliminada con éxito");
                 getCategoria();

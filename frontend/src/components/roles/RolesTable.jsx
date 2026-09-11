@@ -6,7 +6,7 @@ function RolesTable ({ roles, setIdSeleccionado, getRoles}) {
     }
 
     const eliminarRol = (id) => {
-        axios.delete(`http://localhost:4000/api/clasificacion_de_usuarios/eliminar/${id}`)
+        axios.delete(`/api/clasificacion_de_usuarios/eliminar/${id}`)
     
         .then(() => {
             alert("Rol eliminado con éxito");

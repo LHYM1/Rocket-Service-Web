@@ -45,8 +45,7 @@ function FormPassword() {
 
     const verificarTokenEnBackend = async () => {
       try {
-        // RUTA CORREGIDA: Apunta exactamente a /api/auth con barra inicial /
-        const res = await axios.get(`http://localhost:4000/api/auth/validar-token-cliente/${tokenActual}`);
+        const res = await axios.get(`/api/auth/validar-token-cliente/${tokenActual}`);
         if (res.data.valido) {
           setTokenInvalido(false);
         }
@@ -61,6 +60,7 @@ function FormPassword() {
     };
 
     verificarTokenEnBackend();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const regLongitud = form.contrasena.length >= 8;
@@ -70,6 +70,10 @@ function FormPassword() {
   const regEspecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(form.contrasena);
 
   const esContrasenaValida = regLongitud && regMayus && regMinus && regNum && regEspecial;
+
+  // Coincidencia de confirmar contraseña, en tiempo real
+  const contrasenasCoinciden = form.confirmarContrasena.length > 0 && form.confirmarContrasena === form.contrasena;
+  const contrasenasNoCoinciden = form.confirmarContrasena.length > 0 && form.confirmarContrasena !== form.contrasena;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -96,8 +100,7 @@ function FormPassword() {
     setCargando(true);
 
     try {
-      // Enviar datos al backend 
-      const response = await axios.post('http://localhost:4000/api/auth/establecer-contrasena-cliente', {
+      const response = await axios.post('/api/auth/establecer-contrasena-cliente', {
         token: tokenOculto,
         contrasena: form.contrasena
       });
@@ -206,17 +209,30 @@ function FormPassword() {
                   <i className="fa-solid fa-lock me-2"></i>Confirmar Contraseña
                 </label>
 
-                <input 
-                  className={`register-input ${errores.confirmarContrasena ? "register-input-error" : ""}`}
-                  type="password"
-                  name="confirmarContrasena"
-                  autoComplete="new-password"
-                  placeholder="••••••••"
-                  value={form.confirmarContrasena}
-                  onChange={handleChange}
-                />  
+                <div style={{ position: "relative", width: "100%" }}>
+                  <input 
+                    className={`register-input ${errores.confirmarContrasena || contrasenasNoCoinciden ? "register-input-error" : ""}`}
+                    type="password"
+                    name="confirmarContrasena"
+                    autoComplete="new-password"
+                    placeholder="••••••••"
+                    value={form.confirmarContrasena}
+                    onChange={handleChange}
+                    style={{ paddingRight: "36px" }}
+                  />
+                  {/* Check verde si coincide, X roja si no coincide (mientras haya algo escrito) */}
+                  {form.confirmarContrasena.length > 0 && (
+                    <i
+                      className={`fa-solid ${contrasenasCoinciden ? "fa-circle-check" : "fa-circle-xmark"}`}
+                      style={{
+                        position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)",
+                        color: contrasenasCoinciden ? "#28a745" : "#dc3545", fontSize: "16px"
+                      }}
+                    ></i>
+                  )}
+                </div>
 
-                {errores.confirmarContrasena && (
+                {(errores.confirmarContrasena || contrasenasNoCoinciden) && (
                   <small className="register-error-msg">
                     <i className="fa-solid fa-circle-exclamation me-1"></i>
                     Las contraseñas deben coincidir

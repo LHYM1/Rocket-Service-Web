@@ -36,7 +36,7 @@ const Dashboard = () => {
     const [expandidoOrden, setExpandidoOrden] = useState(null); // id_orden cuyo motivo de cancelación está desplegado
 
     useEffect(() => {
-        axios.get("http://localhost:4000/api/dashboard/resumen")
+        axios.get("/api/dashboard/resumen")
             .then(res => setDatos(res.data))
             .catch(err => console.error(err))
             .finally(() => setCargando(false));

@@ -23,7 +23,7 @@ function ImgDanos() {
     const porPagina = 8;
 
     const getImgDanos = useCallback(() => {
-        axios.get("http://localhost:4000/api/imagenes_danos/listar")
+        axios.get("/api/imagenes_danos/listar")
             .then(res => setImgDanos(res.data))
             .catch(err => console.error(err));
     }, []);
@@ -31,7 +31,7 @@ function ImgDanos() {
     useEffect(() => { getImgDanos(); }, [getImgDanos]);
 
     const confirmarEliminar = () => {
-        axios.delete(`http://localhost:4000/api/imagenes_danos/eliminar/${paraEliminar}`)
+        axios.delete(`/api/imagenes_danos/eliminar/${paraEliminar}`)
             .then(() => {
                 mostrarToast("Imagen eliminada correctamente.", "success");
                 setParaEliminar(null);

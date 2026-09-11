@@ -14,13 +14,18 @@ function UsersPage() {
     const usuariosPorPagina = 8;
 
     const getUsuarios = () => {
-        axios.get("http://localhost:4000/api/usuarios/listar")
+        axios.get("/api/usuarios/listar")
             .then(res => setUsuarios(res.data))
             .catch(err => console.error("Error al obtener usuarios:", err));
     };
 
     useEffect(() => {
         getUsuarios();
+        // Refresco automático cada 5 segundos, para que estados como "Pendiente"
+        // se actualicen solos a "Activo" sin tener que recargar la página a mano
+        const intervalo = setInterval(getUsuarios, 5000);
+        return () => clearInterval(intervalo);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Filtros combinados

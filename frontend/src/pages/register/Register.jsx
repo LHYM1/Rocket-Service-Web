@@ -15,7 +15,7 @@ function Registro() {
   const correoUrl = searchParams.get("correo") || searchParams.get("correo_usuario") || "";
 
   const [form, setForm] = useState({
-    tokenRegistro: "", // Vacío para que el técnico lo digite manualmente
+    tokenRegistro: "",
     contrasena: "",
     confirmarContrasena: "",
     nombre: "",
@@ -32,6 +32,7 @@ function Registro() {
 
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [mostrarConfirmarContrasena, setMostrarConfirmarContrasena] = useState(false);
+  const [registroExitoso, setRegistroExitoso] = useState(false);
 
   // Reglas de contraseña
   const regLongitud = form.contrasena.length >= 8;
@@ -41,6 +42,10 @@ function Registro() {
   const regEspecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(form.contrasena);
   const esContrasenaValida = regLongitud && regMayus && regMinus && regNum && regEspecial;
 
+  // Coincidencia de confirmar contraseña, en tiempo real
+  const contrasenasCoinciden = form.confirmarContrasena.length > 0 && form.confirmarContrasena === form.contrasena;
+  const contrasenasNoCoinciden = form.confirmarContrasena.length > 0 && form.confirmarContrasena !== form.contrasena;
+
   // Verificación en Backend
   const verificarEstadoInvitacion = async (correo) => {
     if (!correo || !FormValidators.esEmailValido(correo)) {
@@ -48,7 +53,7 @@ function Registro() {
     }
 
     try {
-      const res = await axios.get(`http://localhost:4000/api/auth/validar-codigo-tecnico?correo_usuario=${encodeURIComponent(correo)}`);
+      const res = await axios.get(`/api/auth/validar-codigo-tecnico?correo_usuario=${encodeURIComponent(correo)}`);
 
       if (res.data && res.data.valido) {
         setInvalido(false);
@@ -69,7 +74,6 @@ function Registro() {
 
   useEffect(() => {
     const init = async () => {
-      // Limpia los parámetros visibles (?correo=...) de la pestaña/barra de direcciones al cargar
       if (window.location.search) {
         window.history.replaceState({}, document.title, window.location.pathname);
       }
@@ -80,6 +84,7 @@ function Registro() {
       setValidandoInicial(false);
     };
     init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChange = (e) => {
@@ -87,7 +92,11 @@ function Registro() {
     let valorFormateado = value;
 
     if (name === "nombre" || name === "apellido") {
-      valorFormateado = FormValidators.normalizarNombreCompleto(value);
+      // Se filtran los caracteres MIENTRAS se escribe -- solo letras y espacios,
+      // nada de números ni símbolos (antes solo se corregía mayúsculas, no se
+      // bloqueaban los números realmente, por eso se podían escribir).
+      const soloLetras = value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]/g, "");
+      valorFormateado = FormValidators.normalizarNombreCompleto(soloLetras);
     } else if (name === "telefono_usuario") {
       valorFormateado = value.replace(/\D/g, "").slice(0, 10);
     }
@@ -123,20 +132,28 @@ function Registro() {
       return;
     }
 
-    // Re-verificar la invitación antes de procesar
+    // Re-verificar la invitación antes de procesar (solo aquí, al enviar --
+    // ya no en cada onBlur mientras se llena el formulario, era muy agresivo)
     const esValido = await verificarEstadoInvitacion(correoLimpio);
     if (!esValido) return;
 
     setCargando(true);
 
     try {
-      const response = await axios.post("http://localhost:4000/api/auth/register", {
+      const response = await axios.post("/api/auth/register", {
         ...form,
         correo_usuario: correoLimpio
       });
 
+      // Se limpia cualquier sesión anterior que hubiera en el navegador (por ejemplo,
+      // si quien está probando estaba antes logueado como Admin) -- así no hay
+      // confusión de quedar "en el panel de otra persona" sin haber iniciado sesión.
+      localStorage.removeItem("token");
+      localStorage.removeItem("rol");
+      localStorage.removeItem("userId");
+
       mostrarToast(response.data.message || "Técnico activado con éxito.", "success");
-      setTimeout(() => navigate("/panel/orders"), 1500);
+      setRegistroExitoso(true);
 
     } catch (error) {
       const msg = error.response?.data?.message || "Código de activación incorrecto o expirado.";
@@ -153,6 +170,34 @@ function Registro() {
       setCargando(false);
     }
   };
+
+  if (registroExitoso) {
+    return (
+      <div className="register-container">
+        <div className="register-form-container" style={{ textAlign: 'center', padding: '40px 20px' }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: "50%",
+            backgroundColor: "rgba(34,197,94,0.12)", color: "#22c55e",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: "32px", margin: "0 auto 20px"
+          }}>
+            <i className="fa-solid fa-check"></i>
+          </div>
+          <h2 className="register-title" style={{ color: '#1a1a2e' }}>¡Te registraste con éxito!</h2>
+          <p className="register-subtitle" style={{ color: '#4b5563', margin: '12px 0 28px' }}>
+            Tu cuenta ya está activa. Inicia sesión para entrar a tu panel.
+          </p>
+          <button
+            className="register-btn"
+            onClick={() => navigate("/")}
+            style={{ maxWidth: 260, margin: "0 auto" }}
+          >
+            <i className="fa-solid fa-right-to-bracket me-2"></i>Ir a Iniciar Sesión
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (validandoInicial) {
     return (
@@ -230,7 +275,6 @@ function Registro() {
                 className={`register-input ${errores.correo_usuario ? "register-input-error" : ""}`}
                 type="email" name="correo_usuario" value={form.correo_usuario}
                 placeholder="correo@ejemplo.com" onChange={handleChange}
-                onBlur={() => verificarEstadoInvitacion(form.correo_usuario)}
               />
               {errores.correo_usuario && <small className="register-error-msg">Correo no válido</small>}
             </div>
@@ -283,11 +327,21 @@ function Registro() {
               <label className="register-label"><i className="fa-solid fa-lock me-2"></i>Confirmar contraseña</label>
               <div style={{ position: "relative", width: "100%" }}>
                 <input 
-                  className={`register-input ${errores.confirmarContrasena ? "register-input-error" : ""}`}
+                  className={`register-input ${errores.confirmarContrasena || contrasenasNoCoinciden ? "register-input-error" : ""}`}
                   type={mostrarConfirmarContrasena ? "text" : "password"}
                   name="confirmarContrasena" autoComplete="new-password" placeholder="••••••••"
-                  value={form.confirmarContrasena} onChange={handleChange} style={{ paddingRight: "40px" }}
-                />  
+                  value={form.confirmarContrasena} onChange={handleChange} style={{ paddingRight: "68px" }}
+                />
+                {/* Check verde si coincide, X roja si no coincide (mientras haya algo escrito) */}
+                {form.confirmarContrasena.length > 0 && (
+                    <i
+                        className={`fa-solid ${contrasenasCoinciden ? "fa-circle-check" : "fa-circle-xmark"}`}
+                        style={{
+                            position: "absolute", right: "40px", top: "50%", transform: "translateY(-50%)",
+                            color: contrasenasCoinciden ? "#28a745" : "#dc3545", fontSize: "16px"
+                        }}
+                    ></i>
+                )}
                 <button
                   type="button" onClick={() => setMostrarConfirmarContrasena(!mostrarConfirmarContrasena)}
                   style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#6b7280" }}
@@ -296,7 +350,7 @@ function Registro() {
                   <i className={`fa-solid ${mostrarConfirmarContrasena ? "fa-eye" :"fa-eye-slash"}`}></i>
                 </button>
               </div>
-              {errores.confirmarContrasena && <small className="register-error-msg">Las contraseñas no coinciden</small>}  
+              {contrasenasNoCoinciden && <small className="register-error-msg">Las contraseñas no coinciden</small>}  
             </div>
           </div>
           

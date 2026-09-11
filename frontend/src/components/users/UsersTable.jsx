@@ -28,7 +28,7 @@ function UsersTable({ user, setIdSeleccionado, getUsuarios }) {
     const reenviarToken = async (u) => {
         try {
             setCargandoReenvio(u.id_usuario);
-            await axios.post(`http://localhost:4000/api/usuarios/reenviar-token/${u.id_usuario}`);
+            await axios.post(`/api/usuarios/reenviar-token/${u.id_usuario}`);
             mostrarToast(`Código de activación reenviado con éxito a ${u.correo_usuario}`, "success");
         } catch (error) {
             const msg = error.response?.data?.message || "Error al reenviar el token de activación.";
@@ -41,7 +41,7 @@ function UsersTable({ user, setIdSeleccionado, getUsuarios }) {
     const desactivarUsuario = async (id) => {
         if (window.confirm("¿Deseas desactivar este usuario?")) {
             try {
-                await axios.put(`http://localhost:4000/api/usuarios/eliminar/${id}`);
+                await axios.put(`/api/usuarios/eliminar/${id}`);
                 mostrarToast("Usuario desactivado correctamente.", "success");
                 getUsuarios();
             } catch (error) {
@@ -54,7 +54,7 @@ function UsersTable({ user, setIdSeleccionado, getUsuarios }) {
     const restaurarUsuario = async (id) => {
         if (window.confirm("¿Deseas reactivar este usuario?")) {
             try {
-                await axios.put(`http://localhost:4000/api/usuarios/restaurar/${id}`);
+                await axios.put(`/api/usuarios/restaurar/${id}`);
                 mostrarToast("Usuario reactivado correctamente.", "success");
                 getUsuarios();
             } catch (error) {

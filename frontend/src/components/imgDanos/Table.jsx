@@ -22,7 +22,7 @@ function TableImg ({ imgDanos, setIdSeleccionado, getImgDanos, esAdmin }) {
     const elimImgDanos = (id) => {
         
         if (window.confirm("¿Estás seguro de eliminar esta imagen de daño?")) {
-            axios.delete(`http://localhost:4000/api/imagenes_danos/eliminar/${id}`)
+            axios.delete(`/api/imagenes_danos/eliminar/${id}`)
             .then(() => {
                 alert("Imagen de daño eliminada con éxito");
                 getImgDanos();

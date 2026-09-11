@@ -14,7 +14,7 @@ function ProductsPage() {
     const productPorPagina = 8;
 
     const getProduct = () => {
-        axios.get("http://localhost:4000/api/insumos/listar")
+        axios.get("/api/insumos/listar")
             .then(res => setProduct(res.data))
             .catch(err => console.error(err));
     };

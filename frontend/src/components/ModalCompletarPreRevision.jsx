@@ -32,7 +32,7 @@ function ModalCompletarPreRevision({ preRevision, onClose, onSuccess }) {
     const [subiendo, setSubiendo] = useState(false);
 
     useEffect(() => {
-        axios.get("http://localhost:4000/api/tipo_servicio/listar")
+        axios.get("/api/tipo_servicio/listar")
             .then(res => setTiposServicio(res.data))
             .catch(() => mostrarToast("No se pudo cargar la lista de tipos de servicio.", "error"));
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -67,7 +67,7 @@ function ModalCompletarPreRevision({ preRevision, onClose, onSuccess }) {
 
     const quitarFotoSubida = async (id_foto) => {
         try {
-            await axios.delete(`http://localhost:4000/api/pre_revision/fotos/${id_foto}`);
+            await axios.delete(`/api/pre_revision/fotos/${id_foto}`);
             setFotosSubidas(prev => prev.filter(f => f.id_foto !== id_foto));
             mostrarToast("Foto eliminada.", "success");
         } catch (error) {
@@ -84,7 +84,7 @@ function ModalCompletarPreRevision({ preRevision, onClose, onSuccess }) {
                 const formData = new FormData();
                 formData.append("foto", a.file);
                 const res = await axios.post(
-                    `http://localhost:4000/api/pre_revision/${preRevision.id_pre_revision}/fotos`,
+                    `/api/pre_revision/${preRevision.id_pre_revision}/fotos`,
                     formData,
                     { headers: { "Content-Type": "multipart/form-data" } }
                 );
@@ -132,7 +132,7 @@ function ModalCompletarPreRevision({ preRevision, onClose, onSuccess }) {
         setGuardando(true);
         try {
             const res = await axios.patch(
-                `http://localhost:4000/api/pre_revision/completar/${preRevision.id_pre_revision}`,
+                `/api/pre_revision/completar/${preRevision.id_pre_revision}`,
                 { observaciones, id_tipo_servicio: idTipoServicio, resultado }
             );
 

@@ -17,7 +17,7 @@ function RegActPage() {
   const porPagina = 5;
 
   const getRegAct = () => {
-    axios.get("http://localhost:4000/api/registro_actividad/listar")
+    axios.get("/api/registro_actividad/listar")
       .then(res => setRegAct(res.data))
       .catch(err => console.error(err));
   };

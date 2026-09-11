@@ -89,7 +89,7 @@ function ClienteOrdersTable({ ordenes, getOrdenes }) {
     const [notisPorOrden, setNotisPorOrden] = useState({}); // { id_orden: cantidad }
 
     const cargarNotisPorOrden = () => {
-        axios.get("http://localhost:4000/api/notificaciones/no-leidas-por-orden")
+        axios.get("/api/notificaciones/no-leidas-por-orden")
             .then(res => {
                 const mapa = {};
                 res.data.forEach(n => { mapa[n.id_orden] = n.cantidad; });
@@ -101,7 +101,7 @@ function ClienteOrdersTable({ ordenes, getOrdenes }) {
     useEffect(() => {
         ordenes.forEach(o => {
             if (o.nombre_estado === "FINALIZADA" && yaCalificadas[o.id_orden] === undefined) {
-                axios.get(`http://localhost:4000/api/calificaciones/orden/${o.id_orden}`)
+                axios.get(`/api/calificaciones/orden/${o.id_orden}`)
                     .then(res => setYaCalificadas(prev => ({ ...prev, [o.id_orden]: !!res.data })))
                     .catch(() => {});
             }
@@ -133,7 +133,7 @@ function ClienteOrdersTable({ ordenes, getOrdenes }) {
         setParaVerEvidencias(orden);
         // Al abrir, se marcan como leídas las notificaciones de ESA orden
         if (notisPorOrden[orden.id_orden]) {
-            axios.patch(`http://localhost:4000/api/notificaciones/marcar-leidas-orden/${orden.id_orden}`)
+            axios.patch(`/api/notificaciones/marcar-leidas-orden/${orden.id_orden}`)
                 .then(() => setNotisPorOrden(prev => ({ ...prev, [orden.id_orden]: 0 })))
                 .catch(() => {});
         }
@@ -146,7 +146,7 @@ function ClienteOrdersTable({ ordenes, getOrdenes }) {
         }
         setOrdenAbierta(idOrden);
         if (!detalle[idOrden]) {
-            axios.get(`http://localhost:4000/api/ordenes_de_servicio/consultar/${idOrden}`)
+            axios.get(`/api/ordenes_de_servicio/consultar/${idOrden}`)
                 .then(res => setDetalle(prev => ({ ...prev, [idOrden]: { insumos: res.data.insumos, total: res.data.total } })))
                 .catch(() => {});
         }
@@ -159,7 +159,7 @@ function ClienteOrdersTable({ ordenes, getOrdenes }) {
     const confirmarAprobar = () => {
         const idOrden = paraAprobar;
         setParaAprobar(null);
-        axios.patch(`http://localhost:4000/api/ordenes_de_servicio/aprobar/${idOrden}`)
+        axios.patch(`/api/ordenes_de_servicio/aprobar/${idOrden}`)
             .then(res => { mostrarToast(res.data.message, "success"); getOrdenes(); })
             .catch(err => mostrarToast(err.response?.data?.message || "No se pudo aprobar.", "error"));
     };

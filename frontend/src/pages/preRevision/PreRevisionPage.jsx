@@ -34,9 +34,8 @@ function PreRevisionPage() {
         axios.get(url)
             .then(res => {
                 setLista(res.data);
-                if (esTecnico) {
-                    marcarPreRevisionesVistas(res.data.map(pr => pr.id_pre_revision));
-                }
+                // El Técnico ya NO se marca como "vista" solo por entrar aquí --
+                // se marca al Aceptar la pre-revisión (ver el botón más abajo)
                 if (esAdmin) {
                     // Marca como vistas solo las que ya están COMPLETADA + Requiere reparación
                     // (las mismas que cuenta el badge), no todas las de la tabla
@@ -47,7 +46,7 @@ function PreRevisionPage() {
                 }
             })
             .catch(err => console.error(err));
-    }, [filtroEstado, esTecnico, esAdmin, marcarPreRevisionesVistas, marcarPendientesOrdenVistas]);
+    }, [filtroEstado, esAdmin, marcarPendientesOrdenVistas]);
 
     useEffect(() => { cargar(); }, [cargar]);
 
@@ -151,7 +150,10 @@ function PreRevisionPage() {
                                             {!esAdmin && pr.estado === "PENDIENTE" && (
                                                 <button
                                                     className="rs-btn rs-btn-primary"
-                                                    onClick={() => setSeleccionada(pr)}
+                                                    onClick={() => {
+                                                        setSeleccionada(pr);
+                                                        marcarPreRevisionesVistas([pr.id_pre_revision]);
+                                                    }}
                                                 >
                                                     {hayBorrador(pr.id_pre_revision) ? (
                                                         <><i className="fa-solid fa-pen me-1"></i>Seguir editando</>

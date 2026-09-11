@@ -31,10 +31,10 @@ const register = async (req, res) => {
       return res.status(400).json({ message: "No existe una invitación pendiente para este correo o el usuario ya fue activado." });
     }
 
-    // A. VALIDACIÓN DE EXPIRACIÓN (10 MINUTOS)
-    if (usuario.minutos_transcurridos >= 10) {
+    // A. VALIDACIÓN DE EXPIRACIÓN (30 MINUTOS)
+    if (usuario.minutos_transcurridos >= 30) {
       await deleteTokenById(usuario.id_token);
-      return res.status(401).json({ message: "El código de activación ha expirado (límite 10 minutos). Solicita una nueva invitación." });
+      return res.status(401).json({ message: "El código de activación ha expirado (límite 30 minutos). Solicita una nueva invitación." });
     }
 
     // B. VALIDACIÓN DE INTENTOS MÁXIMOS (5 INTENTOS)
@@ -105,9 +105,9 @@ export const validarCodigoTecnico = async (req, res) => {
       });
     }
 
-    if (usuario.minutos_transcurridos >= 10) {
+    if (usuario.minutos_transcurridos >= 30) {
       await deleteTokenById(usuario.id_token);
-      return res.status(401).json({ valido: false, message: "El tiempo de activación (10 minutos) ha expirado." });
+      return res.status(401).json({ valido: false, message: "El tiempo de activación (30 minutos) ha expirado." });
     }
 
     if (usuario.intentos >= 5) {
@@ -118,7 +118,7 @@ export const validarCodigoTecnico = async (req, res) => {
     return res.json({ 
       valido: true, 
       correo_usuario, 
-      minutosRestantes: 10 - usuario.minutos_transcurridos 
+      minutosRestantes: 30 - usuario.minutos_transcurridos 
     });
 
   } catch (error) {

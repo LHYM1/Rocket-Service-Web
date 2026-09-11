@@ -8,7 +8,7 @@ function TablePrUSer ({ insUsaServ, setIdSeleccionado, getInsUsServ, esAdmin }) 
 
     const elimInsUseServ = (id) => {
         if (window.confirm("¿Estás seguro de eliminar este insumo de servicio?")) {
-            axios.delete(`http://localhost:4000/api/insumos_usados_en_servicio/eliminar/${id}`)
+            axios.delete(`/api/insumos_usados_en_servicio/eliminar/${id}`)
             .then(() => {
                 alert("Insumo de servicio eliminado con éxito");
                 getInsUsServ();

@@ -17,8 +17,8 @@ function OrdenesPage() {
 
   const getOrdenes = () => {
     const url = (esAdmin || esCliente)
-        ? "http://localhost:4000/api/ordenes_de_servicio/listar"
-        : "http://localhost:4000/api/ordenes_de_servicio/mis-ordenes";
+        ? "/api/ordenes_de_servicio/listar"
+        : "/api/ordenes_de_servicio/mis-ordenes";
 
     axios.get(url)
         .then(res => {

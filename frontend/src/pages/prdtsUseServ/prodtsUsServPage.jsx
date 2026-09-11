@@ -194,8 +194,8 @@ function PrUsServPage() {
 
     const getInsUsServ = useCallback(() => {
         const url = esAdmin
-            ? "http://localhost:4000/api/insumos_usados_en_servicio/listar"
-            : "http://localhost:4000/api/insumos_usados_en_servicio/mis-insumos";
+            ? "/api/insumos_usados_en_servicio/listar"
+            : "/api/insumos_usados_en_servicio/mis-insumos";
 
         axios.get(url)
             .then(res => setInsUsaServ(res.data))

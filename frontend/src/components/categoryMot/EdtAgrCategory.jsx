@@ -27,13 +27,13 @@ const CategoriaEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
             if (idSeleccionado) {
                 // Editar
                 await axios.put(
-                    `http://localhost:4000/api/categoria/modificar/${idSeleccionado.id_categoria }`, categoria
+                    `/api/categoria/modificar/${idSeleccionado.id_categoria }`, categoria
                 );
                 alert("Categoria insumo actualizada con éxito");
             } else {
                 // Agregar
                 await axios.post(
-                    `http://localhost:4000/api/categoria/crear`, categoria
+                    `/api/categoria/crear`, categoria
                 );
 
                 alert("Categoria insumo agregada con éxito");

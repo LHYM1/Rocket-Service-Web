@@ -25,7 +25,7 @@ function regstActTable ({ regstActv, setIdSeleccionado, getRegAct, esAdmin }) {
 
     const elimRegAct = (id) => {
         if (window.confirm("¿Estás seguro de eliminar este registro de actividad?")) {
-            axios.delete(`http://localhost:4000/api/registro_actividad/eliminar/${id}`)
+            axios.delete(`/api/registro_actividad/eliminar/${id}`)
             .then(() => { alert("Registro eliminado"); getRegAct(); })
             .catch(err => { console.error(err); alert("No se pudo eliminar"); });
         }

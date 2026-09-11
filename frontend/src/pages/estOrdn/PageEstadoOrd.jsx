@@ -14,7 +14,7 @@ function EstadoOrdenPage () {
   const porPagina = 5;
 
   const getEstadoOrden = () => {
-    axios.get("http://localhost:4000/api/estado_de_orden_de_servicio/listar")
+    axios.get("/api/estado_de_orden_de_servicio/listar")
       .then(res => setEstadoOrden(res.data))
       .catch(err => console.error(err));
   };

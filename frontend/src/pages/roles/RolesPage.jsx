@@ -14,7 +14,7 @@ function UsersPage() {
   const RolesPorPagina = 5;
 
   const getRoles = () => {
-    axios.get("http://localhost:4000/api/clasificacion_de_usuarios/listar")
+    axios.get("/api/clasificacion_de_usuarios/listar")
       .then(res => setRoles(res.data))
       .catch(err => console.error(err));
   };

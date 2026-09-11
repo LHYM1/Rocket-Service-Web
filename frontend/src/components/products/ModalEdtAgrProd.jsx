@@ -35,10 +35,10 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
     // useEffect para cargar categorias y unidades
     useEffect(() => {
         const fetchData = async () => {
-            const categoria = await axios.get("http://localhost:4000/api/categoria/listar");
+            const categoria = await axios.get("/api/categoria/listar");
             setCategorias(categoria.data);
 
-            const unidad = await axios.get("http://localhost:4000/api/unidad_de_medida/listar");
+            const unidad = await axios.get("/api/unidad_de_medida/listar");
             setUnidades(unidad.data);
         };
         fetchData();
@@ -77,7 +77,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                 }
 
                 await axios.put(
-                    `http://localhost:4000/api/insumos/modificar/${idSeleccionado.id_insumo}`,
+                    `/api/insumos/modificar/${idSeleccionado.id_insumo}`,
                     {
                         id_categoria: insumo.id_categoria,
                         nombre_insumo: insumo.nombre_insumo,
@@ -98,7 +98,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                 }
 
                 await axios.post(
-                    `http://localhost:4000/api/insumos/crear`, insumo
+                    `/api/insumos/crear`, insumo
                 );
 
                 mostrarToast("Insumo agregado con éxito", "success");

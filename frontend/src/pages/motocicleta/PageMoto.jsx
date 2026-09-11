@@ -4,7 +4,7 @@ import MotoEdAgr from "../../components/motocicleta/motoEdAgr";
 import TableMoto from "../../components/motocicleta/TableMoto";
 
 // URL absoluta del Backend Express
-const API_BASE_URL = "http://localhost:4000/api";
+const API_BASE_URL = "/api";
 
 function MotocicletaPage() {
     const [moto, setMoto] = useState([]);

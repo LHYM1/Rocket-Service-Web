@@ -14,7 +14,7 @@ function CategoryMotPage () {
   const porPagina = 4;
 
   const getCategoria = () => {
-    axios.get("http://localhost:4000/api/categoria/listar")
+    axios.get("/api/categoria/listar")
       .then(res => setCategoria(res.data))
       .catch(err => console.error(err));
   };

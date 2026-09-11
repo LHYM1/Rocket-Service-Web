@@ -20,7 +20,7 @@ function TypeServPage() {
     const getTipoServicio = async () => {
         setCargando(true);
         try {
-            const res = await axios.get("http://localhost:4000/api/tipo_servicio/listar");
+            const res = await axios.get("/api/tipo_servicio/listar");
             setTipServ(res.data);
         } catch (err) {
             console.error("Error al obtener tipos de servicio:", err);

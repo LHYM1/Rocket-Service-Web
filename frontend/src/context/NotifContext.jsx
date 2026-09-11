@@ -129,7 +129,7 @@ export const NotifProvider = ({ children }) => {
             actualizarPreRevisionesNuevas();
             actualizarPendientesOrden();
             actualizarOrdenesNuevas();
-        }, 10000);
+        }, 3000); // cada 3 segundos, en vez de 10
         return () => clearInterval(interval);
     }, [actualizarNotifs, actualizarPreRevisionesNuevas, actualizarPendientesOrden, actualizarOrdenesNuevas]);
 

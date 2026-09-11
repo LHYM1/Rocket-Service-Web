@@ -11,7 +11,7 @@ function ModalCrearOrdenDesdePreRevision({ preRevision, onClose, onSuccess }) {
     const [guardando, setGuardando] = useState(false);
 
     useEffect(() => {
-        axios.get("http://localhost:4000/api/ordenes_de_servicio/tecnicos-disponibles")
+        axios.get("/api/ordenes_de_servicio/tecnicos-disponibles")
             .then(res => setTecnicos(res.data))
             .catch(() => mostrarToast("No se pudo cargar la lista de técnicos disponibles.", "error"));
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -25,7 +25,7 @@ function ModalCrearOrdenDesdePreRevision({ preRevision, onClose, onSuccess }) {
 
         setGuardando(true);
         try {
-            const res = await axios.post("http://localhost:4000/api/ordenes_de_servicio/crear", {
+            const res = await axios.post("/api/ordenes_de_servicio/crear", {
                 id_pre_revision: preRevision.id_pre_revision,
                 id_tecnico_asignado: idTecnicoAsignado,
                 fecha_finalizacion_estimada: fechaEntrega
@@ -84,7 +84,7 @@ function ModalCrearOrdenDesdePreRevision({ preRevision, onClose, onSuccess }) {
                             onChange={e => setFechaEntrega(e.target.value)}
                             min={new Date().toISOString().split("T")[0]}
                         />
-                        <span className="rs-hint">Debe ser una fecha futura.</span>
+                        <span className="rs-hint">Puede ser hoy mismo o cualquier día posterior.</span>
                     </div>
                 </div>
 

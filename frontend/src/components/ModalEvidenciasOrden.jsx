@@ -10,7 +10,7 @@ function ModalEvidenciasOrden({ orden, onClose }) {
     const [lightboxIndice, setLightboxIndice] = useState(null);
 
     useEffect(() => {
-        axios.get(`http://localhost:4000/api/imagenes_danos/por-orden/${orden.id_orden}`)
+        axios.get(`/api/imagenes_danos/por-orden/${orden.id_orden}`)
             .then(res => setFotos(res.data))
             .catch(() => {})
             .finally(() => setCargando(false));

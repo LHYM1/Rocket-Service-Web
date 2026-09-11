@@ -25,13 +25,13 @@ const EditarAgrEstOrd = ({ idSeleccionado, onClose, onSuccess }) => {
             if (idSeleccionado) {
                 // Editar
                 await axios.put(
-                    `http://localhost:4000/api/estado_de_orden_de_servicio/modificar/${idSeleccionado.id_estado_de_servicio }`, estadoOrd
+                    `/api/estado_de_orden_de_servicio/modificar/${idSeleccionado.id_estado_de_servicio }`, estadoOrd
                 );
                 alert("Estado de orden actualizado con éxito");
             } else {
                 // Agregar
                 await axios.post(
-                    `http://localhost:4000/api/estado_de_orden_de_servicio/crear`, estadoOrd
+                    `/api/estado_de_orden_de_servicio/crear`, estadoOrd
                 );
 
                 alert("Estado de orden agregado con éxito");

@@ -9,7 +9,7 @@ function TableUnidadMed ({ undMed, setIdSeleccionado, getUnidadMed }) {
     const elimUnidadMed = (id) => {
         
         if (window.confirm("¿Estás seguro de eliminar esta unidad de medida?")) {
-            axios.delete(`http://localhost:4000/api/unidad_de_medida/eliminar/${id}`)
+            axios.delete(`/api/unidad_de_medida/eliminar/${id}`)
             .then(() => {
                 alert("Unidad de medida eliminada con éxito");
                 getUnidadMed();

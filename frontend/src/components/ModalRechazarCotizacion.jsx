@@ -22,7 +22,7 @@ function ModalRechazarCotizacion({ orden, onClose, onSuccess }) {
         setEnviando(true);
         try {
             const res = await axios.patch(
-                `http://localhost:4000/api/ordenes_de_servicio/rechazar/${orden.id_orden}`,
+                `/api/ordenes_de_servicio/rechazar/${orden.id_orden}`,
                 { tipo_rechazo: tipoRechazo, motivo }
             );
             onSuccess();

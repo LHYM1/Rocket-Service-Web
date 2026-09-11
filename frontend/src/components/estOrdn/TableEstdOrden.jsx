@@ -9,7 +9,7 @@ function TableEstdOrdenServ ({ estadoOrd, setIdSeleccionado, getEstadoOrden }) {
     const elimarEstadoOrden = (id) => {
         
         if (window.confirm("¿Estás seguro de eliminar este estado de orden?")) {
-            axios.delete(`http://localhost:4000/api/estado_de_orden_de_servicio/eliminar/${id}`)
+            axios.delete(`/api/estado_de_orden_de_servicio/eliminar/${id}`)
             .then(() => {
                 alert("Estado orden eliminado con éxito");
                 getEstadoOrden();

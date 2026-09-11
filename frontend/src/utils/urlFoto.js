@@ -7,5 +7,5 @@
 export function urlFoto(url_imagen) {
     if (!url_imagen) return "";
     if (url_imagen.startsWith("http")) return url_imagen; // ya es una URL completa (Cloudinary)
-    return `http://localhost:4000${url_imagen}`; // ruta vieja, local
+    return `${url_imagen}`; // ruta vieja, local
 }

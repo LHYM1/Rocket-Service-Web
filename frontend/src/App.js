@@ -66,14 +66,11 @@ function App() {
             </ProtectedRoute>
           }/>
 
-          {/* 
-            <Route path="roles" element={
+          <Route path="roles" element={
             <ProtectedRoute allowedRoles={["Administrador"]}>
               <RolesPage />
             </ProtectedRoute>
           }/>
-          */}
-          
 
           <Route path="est-ord" element={
             <ProtectedRoute allowedRoles={["Administrador"]}>
@@ -93,14 +90,11 @@ function App() {
             </ProtectedRoute>
           }/>
 
-          {/*
-            <Route path="unidad" element={
-              <ProtectedRoute allowedRoles={["Administrador"]}>
-                <UnidadMedPage />
-              </ProtectedRoute>
-            }/>
-          */}
-          
+          <Route path="unidad" element={
+            <ProtectedRoute allowedRoles={["Administrador"]}>
+              <UnidadMedPage />
+            </ProtectedRoute>
+          }/>
 
           <Route path="moto" element={
             <ProtectedRoute allowedRoles={["Administrador"]}>
@@ -121,14 +115,11 @@ function App() {
             </ProtectedRoute>
           }/>
 
-          {/** 
-           * <Route path="regist-act" element={
+          <Route path="regist-act" element={
             <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
               <RegistActv />
             </ProtectedRoute>
           }/>
-          */}
-          
 
           <Route path="insumos-usados" element={
             <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>

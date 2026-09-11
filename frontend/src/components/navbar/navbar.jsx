@@ -43,7 +43,7 @@ const Navbar = () => {
 
     useEffect(() => {
         if (esTecnico && userId) {
-            axios.get(`http://localhost:4000/api/registro_actividad/disponibilidad/${userId}`)
+            axios.get(`/api/registro_actividad/disponibilidad/${userId}`)
                 .then(res => {
                     if (res.data.estado_disponibilidad) {
                         setDisponibilidad(res.data.estado_disponibilidad);

@@ -4,6 +4,11 @@ import { Link } from "react-router-dom";
 import './login.css';
 import { useToast } from "../../context/ToastContext";
 
+// URL base del backend -- viene de la variable de entorno REACT_APP_API_URL
+// (igual que en axiosConfig.js). Este archivo usa fetch() nativo, no axios,
+// por eso necesita su propia constante en vez de heredar la configuración central.
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+
 // Validaciones integradas directamente en el archivo
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -60,7 +65,6 @@ function Iniciarsesion() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validar directamente con la función local
         const resultadoValidacion = validarLogin({
             email: form.usuario,
             password: form.contrasena
@@ -84,7 +88,7 @@ function Iniciarsesion() {
         setCargando(true);
 
         try {
-            const response = await fetch("http://localhost:4000/api/auth/login", {
+            const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -136,7 +140,7 @@ function Iniciarsesion() {
             window.dispatchEvent(new CustomEvent('authChanged'));
 
             if (rolSeguro === "Administrador") {
-                fetch("http://localhost:4000/api/insumos/stock-bajo", {
+                fetch(`${API_URL}/api/insumos/stock-bajo`, {
                     headers: { Authorization: `Bearer ${tokenSeguro}` }
                 })
                     .then(res => res.json())
@@ -152,7 +156,7 @@ function Iniciarsesion() {
                     })
                     .catch(() => {});
 
-                fetch("http://localhost:4000/api/pre_revision/pendientes-orden", {
+                fetch(`${API_URL}/api/pre_revision/pendientes-orden`, {
                     headers: { Authorization: `Bearer ${tokenSeguro}` }
                 })
                     .then(res => res.json())
@@ -168,14 +172,14 @@ function Iniciarsesion() {
                     })
                     .catch(() => {});
 
-                fetch("http://localhost:4000/api/notificaciones/pendientes-admin", {
+                fetch(`${API_URL}/api/notificaciones/pendientes-admin`, {
                     headers: { Authorization: `Bearer ${tokenSeguro}` }
                 })
                     .then(res => res.json())
                     .then(notifs => {
                         if (Array.isArray(notifs) && notifs.length > 0) {
                             notifs.forEach(n => mostrarToast(n.mensaje, "warning"));
-                            fetch("http://localhost:4000/api/notificaciones/marcar-leidas", {
+                            fetch(`${API_URL}/api/notificaciones/marcar-leidas`, {
                                 method: "PATCH",
                                 headers: { Authorization: `Bearer ${tokenSeguro}` }
                             }).catch(() => {});
@@ -186,10 +190,10 @@ function Iniciarsesion() {
 
             if (rolSeguro === "Técnico") {
                 Promise.all([
-                    fetch("http://localhost:4000/api/ordenes_de_servicio/listar", {
+                    fetch(`${API_URL}/api/ordenes_de_servicio/listar`, {
                         headers: { Authorization: `Bearer ${tokenSeguro}` }
                     }).then(r => r.json()),
-                    fetch("http://localhost:4000/api/pre_revision/listar", {
+                    fetch(`${API_URL}/api/pre_revision/listar`, {
                         headers: { Authorization: `Bearer ${tokenSeguro}` }
                     }).then(r => r.json())
                 ]).then(([ordenes, preRevisiones]) => {

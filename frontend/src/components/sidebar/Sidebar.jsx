@@ -99,6 +99,7 @@ const Sidebar = () => {
             localStorage.removeItem("token");
             localStorage.removeItem("rol");
             localStorage.removeItem("userId");
+            window.dispatchEvent(new CustomEvent('authChanged'));
             navigate("/");
         }, 1500);
     };

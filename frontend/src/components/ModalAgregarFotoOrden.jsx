@@ -31,7 +31,7 @@ function ModalAgregarFotoOrden({ orden, onClose, onSuccess }) {
             formData.append("tipo", tipo);
             formData.append("descripcion", descripcion);
 
-            await axios.post("http://localhost:4000/api/imagenes_danos/crear", formData, {
+            await axios.post("/api/imagenes_danos/crear", formData, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
 

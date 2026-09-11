@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import { enviarTokenTecnico, enviarTokenCliente } from '../../helpers/emailService.js';
 import { FormValidators } from '@rocket/shared';
 
-const TECNICO_TOKEN_VIGENCIA_MS = 10 * 60 * 1000;
+const TECNICO_TOKEN_VIGENCIA_MS = 30 * 60 * 1000;
 const CLIENTE_TOKEN_VIGENCIA_MS = 24 * 60 * 60 * 1000;
 
 const generarCodigo6Digitos = () => crypto.randomInt(100000, 999999).toString();

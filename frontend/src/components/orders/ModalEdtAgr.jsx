@@ -23,7 +23,7 @@ const ModalOrdenServicio = ({ idSeleccionado, onClose, onSuccess }) => {
 useEffect(() => {
     if (idSeleccionado) {
         // Al editar: técnicos sin orden + el técnico actual de esta orden
-        axios.get("http://localhost:4000/api/usuarios/tecnicos-sin-orden")
+        axios.get("/api/usuarios/tecnicos-sin-orden")
             .then(res => {
                 const tecnicoActual = {
                     id_usuario: idSeleccionado.id_tecnico_asignado,
@@ -37,20 +37,20 @@ useEffect(() => {
             })
             .catch(err => console.error(err));
     } else {
-        axios.get("http://localhost:4000/api/usuarios/tecnicos-sin-orden")
+        axios.get("/api/usuarios/tecnicos-sin-orden")
             .then(res => setTecnicos(res.data))
             .catch(err => console.error(err));
     }
 
-    axios.get("http://localhost:4000/api/usuarios/clientes-con-moto")
+    axios.get("/api/usuarios/clientes-con-moto")
         .then(res => setClientes(res.data))
         .catch(err => console.error(err));
 
-    axios.get("http://localhost:4000/api/tipo_servicio/listar")
+    axios.get("/api/tipo_servicio/listar")
         .then(res => setTiposServicio(res.data))
         .catch(err => console.error(err));
 
-    axios.get("http://localhost:4000/api/estado_de_orden_de_servicio/listar")
+    axios.get("/api/estado_de_orden_de_servicio/listar")
         .then(res => setEstadosOrden(res.data))
         .catch(err => console.error(err));
 
@@ -75,7 +75,7 @@ useEffect(() => {
         });
 
         if (idSeleccionado.id_usuario) {
-            axios.get(`http://localhost:4000/api/motocicleta/por-usuario/${idSeleccionado.id_usuario}`)
+            axios.get(`/api/motocicleta/por-usuario/${idSeleccionado.id_usuario}`)
                 .then(res => setMotoCliente(res.data))
                 .catch(err => console.error(err));
         }
@@ -90,7 +90,7 @@ useEffect(() => {
 
         if (idUsuario) {
             try {
-                const res = await axios.get(`http://localhost:4000/api/motocicleta/por-usuario/${idUsuario}`);
+                const res = await axios.get(`/api/motocicleta/por-usuario/${idUsuario}`);
                 setMotoCliente(res.data);
                 setOrden(prev => ({ ...prev, id_usuario: idUsuario, id_moto: res.data.id_moto }));
             } catch (err) {
@@ -115,12 +115,12 @@ useEffect(() => {
         try {
             if (idSeleccionado) {
                 await axios.put(
-                    `http://localhost:4000/api/ordenes_de_servicio/modificar/${idSeleccionado.id_orden}`,
+                    `/api/ordenes_de_servicio/modificar/${idSeleccionado.id_orden}`,
                     orden
                 );
                 alert("Orden actualizada con éxito");
             } else {
-                await axios.post("http://localhost:4000/api/ordenes_de_servicio/crear", orden);
+                await axios.post("/api/ordenes_de_servicio/crear", orden);
                 alert("Orden creada con éxito");
             }
             onSuccess();

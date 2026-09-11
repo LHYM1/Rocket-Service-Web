@@ -7,7 +7,7 @@ function ModalDetallePreRevision({ preRevision, onClose }) {
     const [cargando, setCargando] = useState(true);
 
     useEffect(() => {
-        axios.get(`http://localhost:4000/api/pre_revision/consultar/${preRevision.id_pre_revision}`)
+        axios.get(`/api/pre_revision/consultar/${preRevision.id_pre_revision}`)
             .then(res => setDetalle(res.data))
             .catch(() => {})
             .finally(() => setCargando(false));

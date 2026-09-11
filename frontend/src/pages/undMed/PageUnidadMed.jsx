@@ -14,7 +14,7 @@ function UnidadMedPage () {
   const porPagina = 5;
 
   const getUnidadMed = () => {
-    axios.get("http://localhost:4000/api/unidad_de_medida/listar")
+    axios.get("/api/unidad_de_medida/listar")
       .then(res => setUnidadMed(res.data))
       .catch(err => console.error(err));
   };

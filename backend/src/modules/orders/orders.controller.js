@@ -78,10 +78,15 @@ export const crearOrden = async (req, res) => {
             return res.status(400).json({ message: "Esta pre-revisión ya generó una orden de servicio." });
         }
 
-        // RN-007 / CA-004: la fecha de entrega debe ser futura
+        // RN-007 / CA-004: la fecha de entrega no puede ser un día ya pasado
+        // (se compara solo el día, no la hora exacta -- así "hoy mismo" sí es válido,
+        // por ejemplo para una reparación rápida que se resuelve el mismo día)
         const fechaEntrega = new Date(fecha_finalizacion_estimada);
-        if (isNaN(fechaEntrega.getTime()) || fechaEntrega <= new Date()) {
-            return res.status(400).json({ message: "La fecha de entrega debe ser una fecha futura." });
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        fechaEntrega.setHours(0, 0, 0, 0);
+        if (isNaN(fechaEntrega.getTime()) || fechaEntrega < hoy) {
+            return res.status(400).json({ message: "La fecha de entrega no puede ser un día anterior a hoy." });
         }
 
         // RN-006 / CA-003: el técnico debe existir y estar disponible
@@ -389,4 +394,3 @@ export default {
     aprobarCotizacion,
     rechazarCotizacion
 };
-

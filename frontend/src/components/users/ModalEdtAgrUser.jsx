@@ -45,6 +45,74 @@ const selectStyles = {
     }),
 };
 
+// Dominios de correo permitidos -- el Admin solo escribe la parte de antes del @,
+// y elige el dominio de esta lista. Así se elimina por completo la posibilidad
+// de escribir un dominio mal formado (como "gmail.com111").
+const DOMINIOS_CORREO = [
+    { value: "@gmail.com", label: "@gmail.com" },
+    { value: "@hotmail.com", label: "@hotmail.com" },
+    { value: "@outlook.com", label: "@outlook.com" },
+    { value: "@outlook.es", label: "@outlook.es" },
+    { value: "@yahoo.com", label: "@yahoo.com" },
+    { value: "@yahoo.es", label: "@yahoo.es" },
+    { value: "@icloud.com", label: "@icloud.com" },
+];
+
+// Separa un correo completo en { local, dominio } para precargar el formulario
+// al editar un usuario que ya existe (puede tener un dominio fuera de la lista)
+const separarCorreo = (correoCompleto) => {
+    if (!correoCompleto || !correoCompleto.includes("@")) {
+        return { local: "", dominio: DOMINIOS_CORREO[0].value };
+    }
+    const [local, ...restoDominio] = correoCompleto.split("@");
+    const dominio = "@" + restoDominio.join("@");
+    return { local, dominio };
+};
+
+// Campo reutilizable de correo: input de la parte local + selector de dominio.
+// Definido FUERA de ModalUser a propósito -- si estuviera adentro, cada tecla
+// que se escribe haría que ModalUser se re-renderice, creando una función
+// CampoCorreo "nueva" cada vez, y React remontaría el <input> desde cero,
+// perdiendo el foco en cada letra (por eso parecía "bloquearse").
+const CampoCorreo = ({ label, placeholder, correoLocal, onCorreoLocalChange, correoDominio, onDominioChange, error, verificando }) => (
+    <div className="rs-field">
+        <label className="rs-label">
+            {label} <span className="rs-required">*</span>
+        </label>
+        <div style={{ display: "flex", gap: "8px" }}>
+            <div style={{ position: "relative", flex: "1.2" }}>
+                <input
+                    type="text"
+                    className={`rs-input-white ${error ? 'error' : ''}`}
+                    value={correoLocal}
+                    onChange={onCorreoLocalChange}
+                    placeholder={placeholder}
+                />
+                {verificando && (
+                    <i className="fa-solid fa-spinner fa-spin"
+                       style={{ position: 'absolute', right: '12px', top: '12px', color: '#FF8C00' }}>
+                    </i>
+                )}
+            </div>
+            <div style={{ flex: "1" }}>
+                <Select
+                    options={DOMINIOS_CORREO}
+                    styles={selectStyles}
+                    value={DOMINIOS_CORREO.find(d => d.value === correoDominio) || { value: correoDominio, label: correoDominio }}
+                    onChange={(sel) => onDominioChange(sel.value)}
+                    isSearchable={false}
+                />
+            </div>
+        </div>
+        {error && (
+            <span className="rs-error-msg">
+                <i className="fa-solid fa-circle-exclamation"></i>
+                {error}
+            </span>
+        )}
+    </div>
+);
+
 const ModalUser = ({ idSeleccionado, onClose, onSuccess }) => {
     const { mostrarToast } = useToast();
 
@@ -56,6 +124,11 @@ const ModalUser = ({ idSeleccionado, onClose, onSuccess }) => {
         id_tipo_usuario: ""
     });
 
+    // Partes separadas del correo -- el usuario escribe "correoLocal" y elige
+    // "correoDominio"; ambos se combinan para formar usuario.correo_usuario
+    const [correoLocal, setCorreoLocal] = useState("");
+    const [correoDominio, setCorreoDominio] = useState(DOMINIOS_CORREO[0].value);
+
     const [errores, setErrores] = useState({});
     const [categoriaUser, setCategoriaUser] = useState([]);
     const [cargando, setCargando] = useState(false);
@@ -63,7 +136,7 @@ const ModalUser = ({ idSeleccionado, onClose, onSuccess }) => {
 
     // Cargar tipos de usuarios excluyendo administradores
     useEffect(() => {
-        axios.get("http://localhost:4000/api/clasificacion_de_usuarios/listar")
+        axios.get("/api/clasificacion_de_usuarios/listar")
             .then(res => {
                 const categoriasSinAdmin = res.data.filter(cat => 
                     !cat.categoria_usuario.toLowerCase().includes("admin")
@@ -75,11 +148,14 @@ const ModalUser = ({ idSeleccionado, onClose, onSuccess }) => {
                 })));
             })
             .catch(() => mostrarToast("Error al cargar tipos de usuario", "error"));
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Cargar datos en modo Edición
     useEffect(() => {
         if (idSeleccionado) {
+            const { local, dominio } = separarCorreo(idSeleccionado.correo_usuario);
+            setCorreoLocal(local);
+            setCorreoDominio(dominio);
             setUsuario({
               nombre: idSeleccionado.nombre || "",
               apellido: idSeleccionado.apellido || "",
@@ -89,6 +165,11 @@ const ModalUser = ({ idSeleccionado, onClose, onSuccess }) => {
             });
         }
     }, [idSeleccionado]);
+
+    // Cada vez que cambia la parte local o el dominio, se recompone el correo completo
+    useEffect(() => {
+        setUsuario(prev => ({ ...prev, correo_usuario: correoLocal ? `${correoLocal}${correoDominio}` : "" }));
+    }, [correoLocal, correoDominio]);
 
     const categoriaSeleccionadaObj = categoriaUser.find(c => c.value === usuario.id_tipo_usuario);
     const labelCategoria = (categoriaSeleccionadaObj?.label || idSeleccionado?.categoria_usuario || "").toLowerCase();
@@ -105,7 +186,7 @@ const ModalUser = ({ idSeleccionado, onClose, onSuccess }) => {
         const timer = setTimeout(async () => {
             setVerificandoCorreo(true);
             try {
-                const res = await axios.get("http://localhost:4000/api/usuarios/verificar-correo", {
+                const res = await axios.get("/api/usuarios/verificar-correo", {
                     params: { correo_usuario: usuario.correo_usuario }
                 });
                 if (!res.data.valido) {
@@ -127,8 +208,6 @@ const ModalUser = ({ idSeleccionado, onClose, onSuccess }) => {
         const { name, value } = e.target;
 
         if (name === "nombre" || name === "apellido") {
-            // Bloquea números y caracteres especiales en tiempo de escritura.
-            // Solo permite letras (incluyendo acentos y 'ñ') y espacios.
             const soloLetras = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "");
             setUsuario({ ...usuario, [name]: soloLetras });
         } else if (name === "telefono_usuario") {
@@ -143,6 +222,14 @@ const ModalUser = ({ idSeleccionado, onClose, onSuccess }) => {
         if (errores[name]) setErrores({ ...errores, [name]: "" });
     };
 
+    // Solo deja escribir la parte de antes del @: sin espacios ni el símbolo @ (ya que
+    // ese lo aporta el selector de dominio, no el usuario)
+    const handleCorreoLocalChange = (e) => {
+        const limpio = e.target.value.replace(/[\s@]/g, "");
+        setCorreoLocal(limpio);
+        if (errores.correo_usuario) setErrores({ ...errores, correo_usuario: "" });
+    };
+
     const handleSelectCategory = (selected) => {
         setUsuario({ ...usuario, id_tipo_usuario: selected ? selected.value : "" });
         if (errores.id_tipo_usuario) setErrores({ ...errores, id_tipo_usuario: "" });
@@ -155,7 +242,7 @@ const ModalUser = ({ idSeleccionado, onClose, onSuccess }) => {
             nuevosErrores.id_tipo_usuario = "Seleccione el tipo de usuario.";
         }
 
-        if (!usuario.correo_usuario.trim()) {
+        if (!correoLocal.trim()) {
             nuevosErrores.correo_usuario = "El correo electrónico es obligatorio.";
         } else if (!FormValidators.esEmailValido(usuario.correo_usuario)) {
             nuevosErrores.correo_usuario = "Ingrese un correo electrónico válido.";
@@ -194,11 +281,11 @@ const ModalUser = ({ idSeleccionado, onClose, onSuccess }) => {
             setCargando(true);
 
             if (idSeleccionado) {
-                await axios.put(`http://localhost:4000/api/usuarios/modificar/${idSeleccionado.id_usuario}`, usuario);
+                await axios.put(`/api/usuarios/modificar/${idSeleccionado.id_usuario}`, usuario);
                 mostrarToast("Usuario actualizado correctamente.", "success");
 
             } else if (esTecnico) {
-                await axios.post("http://localhost:4000/api/usuarios/invitar-tecnico", {
+                await axios.post("/api/usuarios/invitar-tecnico", {
                     correo_usuario: usuario.correo_usuario,
                     id_tipo_usuario: usuario.id_tipo_usuario
                 });
@@ -213,7 +300,7 @@ const ModalUser = ({ idSeleccionado, onClose, onSuccess }) => {
                     id_tipo_usuario: usuario.id_tipo_usuario
                 };
                 
-                await axios.post("http://localhost:4000/api/usuarios/invitar-cliente", datosCliente);
+                await axios.post("/api/usuarios/invitar-cliente", datosCliente);
                 mostrarToast("Cliente registrado en estado Pendiente. Enlace de contraseña enviado.", "success");
             }
 
@@ -293,35 +380,19 @@ const ModalUser = ({ idSeleccionado, onClose, onSuccess }) => {
                         {/* CAMPOS DINÁMICOS PARA TÉCNICO NUEVO */}
                         {esTecnico && !idSeleccionado && (
                             <div style={{ gridColumn: '1 / -1' }}>
-                                <div className="rs-field">
-                                    <label className="rs-label">
-                                        Correo electrónico del técnico <span className="rs-required">*</span>
-                                    </label>
-                                    <div style={{ position: 'relative' }}>
-                                        <input
-                                            type="email"
-                                            className={`rs-input-white ${errores.correo_usuario ? 'error' : ''}`}
-                                            name="correo_usuario"
-                                            value={usuario.correo_usuario}
-                                            onChange={handleChange}
-                                            placeholder="ejemplo@tecnico.com"
-                                        />
-                                        {verificandoCorreo && (
-                                            <i className="fa-solid fa-spinner fa-spin"
-                                               style={{ position: 'absolute', right: '12px', top: '12px', color: '#FF8C00' }}>
-                                            </i>
-                                        )}
-                                    </div>
-                                    {errores.correo_usuario && (
-                                        <span className="rs-error-msg">
-                                            <i className="fa-solid fa-circle-exclamation"></i>
-                                            {errores.correo_usuario}
-                                        </span>
-                                    )}
-                                </div>
+                                <CampoCorreo
+                                    label="Correo electrónico del técnico"
+                                    placeholder="usuario"
+                                    correoLocal={correoLocal}
+                                    onCorreoLocalChange={handleCorreoLocalChange}
+                                    correoDominio={correoDominio}
+                                    onDominioChange={setCorreoDominio}
+                                    error={errores.correo_usuario}
+                                    verificando={verificandoCorreo}
+                                />
                                 <small className="rs-hint" style={{ marginTop: '8px', display: 'block' }}>
                                     <i className="fa-solid fa-paper-plane me-1"></i>
-                                    Se enviará un código de activación válido por 10 minutos a este correo.
+                                    Se enviará un código de activación válido por 30 minutos a este correo.
                                 </small>
                             </div>
                         )}
@@ -371,31 +442,17 @@ const ModalUser = ({ idSeleccionado, onClose, onSuccess }) => {
                                     )}
                                 </div>
 
-                                <div className="rs-field">
-                                    <label className="rs-label">
-                                        Correo electrónico <span className="rs-required">*</span>
-                                    </label>
-                                    <div style={{ position: 'relative' }}>
-                                        <input
-                                            type="email"
-                                            className={`rs-input-white ${errores.correo_usuario ? 'error' : ''}`}
-                                            name="correo_usuario"
-                                            value={usuario.correo_usuario}
-                                            onChange={handleChange}
-                                            placeholder="correo@ejemplo.com"
-                                        />
-                                        {verificandoCorreo && (
-                                            <i className="fa-solid fa-spinner fa-spin"
-                                               style={{ position: 'absolute', right: '12px', top: '12px', color: '#FF8C00' }}>
-                                            </i>
-                                        )}
-                                    </div>
-                                    {errores.correo_usuario && (
-                                        <span className="rs-error-msg">
-                                            <i className="fa-solid fa-circle-exclamation"></i>
-                                            {errores.correo_usuario}
-                                        </span>
-                                    )}
+                                <div style={{ gridColumn: '1 / -1' }}>
+                                    <CampoCorreo
+                                        label="Correo electrónico"
+                                        placeholder="usuario"
+                                        correoLocal={correoLocal}
+                                        onCorreoLocalChange={handleCorreoLocalChange}
+                                        correoDominio={correoDominio}
+                                        onDominioChange={setCorreoDominio}
+                                        error={errores.correo_usuario}
+                                        verificando={verificandoCorreo}
+                                    />
                                 </div>
 
                                 <div className="rs-field">
