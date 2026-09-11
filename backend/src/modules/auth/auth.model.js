@@ -84,6 +84,26 @@ export const findClienteTokenByHash = async (tokenHash) => {
   return rows[0];
 };
 
+// Registra la motocicleta del Cliente en el mismo momento que activa su cuenta
+export const crearMotocicletaCliente = async ({ id_usuario, placa, id_modelo, kilometraje_actual }) => {
+  const [result] = await pool.query(
+    `INSERT INTO motocicleta (placa, id_modelo, kilometraje_actual, id_usuario, estado)
+     VALUES (?, ?, ?, ?, true)`,
+    [placa, id_modelo, kilometraje_actual, id_usuario]
+  );
+  return result.insertId;
+};
+
+// Crea un modelo de motocicleta nuevo (cuando el Cliente no encuentra el suyo
+// en la lista), y devuelve su ID recién creado
+export const crearModelo = async (nombre) => {
+  const [result] = await pool.query(
+    `INSERT INTO modelo (nombre) VALUES (?)`,
+    [nombre.trim()]
+  );
+  return result.insertId;
+};
+
 const authModel = {
   findTecnicoTokenByEmail,
   incrementarIntentosToken,
@@ -91,7 +111,9 @@ const authModel = {
   deleteTokenById,
   findUsuarioActivoByEmail,
   findUsuarioLoginByEmail,
-  findClienteTokenByHash
+  findClienteTokenByHash,
+  crearMotocicletaCliente,
+  crearModelo
 };
 
 export default authModel;

@@ -138,7 +138,7 @@ function MotocicletaPage() {
                         disabled={pagina === 1}
                         onClick={() => setPagina(pagina - 1)}
                     >
-                        Anterior
+                        <i className="fa-solid fa-chevron-left"></i>
                     </button>
                     {Array.from({ length: totalPaginas }, (_, i) => (
                         <button
@@ -154,7 +154,7 @@ function MotocicletaPage() {
                         disabled={pagina === totalPaginas}
                         onClick={() => setPagina(pagina + 1)}
                     >
-                        Siguiente
+                        <i className="fa-solid fa-chevron-right"></i>
                     </button>
                 </div>
             )}

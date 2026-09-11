@@ -9,7 +9,9 @@ import {
   deleteTokenById,
   incrementarIntentosToken,
   findUsuarioLoginByEmail,
-  findClienteTokenByHash
+  findClienteTokenByHash,
+  crearMotocicletaCliente,
+  crearModelo
 } from './auth.model.js';
 
 // 1. Registro / Activación de Técnico
@@ -233,12 +235,32 @@ const login = async (req, res) => {
   }
 };
 
-// 4. Establecer contraseña cliente
+// 4. Establecer contraseña cliente + registrar su motocicleta en el mismo paso
 const establecerContrasenaCliente = async (req, res) => {
-  const { token, contrasena } = req.body;
+  const { token, contrasena, placa, id_modelo, nombreModeloNuevo, kilometraje_actual } = req.body;
 
   if (!token || !contrasena) {
     return res.status(400).json({ message: "El token y la contraseña son obligatorios." });
+  }
+
+  // El modelo puede venir como id_modelo (ya existente) O como nombreModeloNuevo
+  // (cuando el Cliente no encontró el suyo en la lista y escribió uno nuevo)
+  const hayModeloExistente = !!id_modelo;
+  const hayModeloNuevo = !!nombreModeloNuevo && nombreModeloNuevo.trim().length > 0;
+
+  if (!placa || !placa.trim() || (!hayModeloExistente && !hayModeloNuevo) || kilometraje_actual === undefined || kilometraje_actual === '') {
+    return res.status(400).json({ message: "Los datos de tu motocicleta son obligatorios." });
+  }
+
+  // Placa: solo letras y números, exactamente 6 caracteres (formato típico: 3 letras + 3 números)
+  const placaLimpia = placa.trim().toUpperCase();
+  if (!/^[A-Z0-9]{6}$/.test(placaLimpia)) {
+    return res.status(400).json({ message: "La placa debe tener exactamente 6 caracteres (solo letras y números)." });
+  }
+
+  // Kilometraje: número entero positivo, sin decimales
+  if (!/^\d+$/.test(String(kilometraje_actual)) || Number(kilometraje_actual) < 0) {
+    return res.status(400).json({ message: "El kilometraje debe ser un número entero positivo." });
   }
 
   try {
@@ -264,6 +286,32 @@ const establecerContrasenaCliente = async (req, res) => {
     await updateUsuarioActivo({ id_usuario: registroToken.id_usuario, hashedPassword });
     await deleteTokenById(registroToken.id_token);
 
+    // Registra su motocicleta -- no bloquea la activación de la cuenta si esto
+    // llegara a fallar por alguna razón (la cuenta ya quedó activa de todas formas)
+    let motoRegistrada = true;
+    try {
+      let idModeloFinal = id_modelo;
+
+      // Si el Cliente escribió un modelo nuevo (no estaba en la lista), se crea primero
+      if (hayModeloNuevo) {
+        idModeloFinal = await crearModelo(nombreModeloNuevo);
+      }
+
+      // Se guarda con espacio en medio (ej. "PQZ 453"), igual que el resto de
+      // placas ya existentes en la base de datos (formato típico colombiano)
+      const placaConEspacio = `${placaLimpia.slice(0, 3)} ${placaLimpia.slice(3)}`;
+
+      await crearMotocicletaCliente({
+        id_usuario: registroToken.id_usuario,
+        placa: placaConEspacio,
+        id_modelo: idModeloFinal,
+        kilometraje_actual: Number(kilometraje_actual)
+      });
+    } catch (errorMoto) {
+      console.error("Error al registrar la motocicleta del cliente:", errorMoto);
+      motoRegistrada = false;
+    }
+
     const tokenSesion = jwt.sign(
       { id: registroToken.id_usuario, role: "Cliente" },
       process.env.JWT_SECRET || 'secret_key',
@@ -271,7 +319,9 @@ const establecerContrasenaCliente = async (req, res) => {
     );
 
     return res.json({ 
-      message: "Contraseña establecida con éxito", 
+      message: motoRegistrada
+        ? "Contraseña establecida y motocicleta registrada con éxito"
+        : "Contraseña establecida con éxito, pero hubo un problema al registrar tu motocicleta (puedes agregarla después).",
       token: tokenSesion 
     });
 
