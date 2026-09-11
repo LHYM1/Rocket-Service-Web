@@ -18,7 +18,7 @@ const modeloModel = {
 
     findById: async (id) => {
         const [rows] = await db.query('SELECT * FROM modelo WHERE id_modelo = ?', [id]);
-        return rows[0];
+        return rows[0] || null;
     },
 
     findByNombre: async (nombre) => {
@@ -26,6 +26,7 @@ const modeloModel = {
         return rows[0] || null;
     },
 
+    // Usado por updateModelo para validar duplicidad excluyendo el propio registro
     findByNombreExcluyendoId: async (nombre, id) => {
         const [rows] = await db.query(
             'SELECT * FROM modelo WHERE UPPER(nombre) = UPPER(?) AND id_modelo != ?',
@@ -34,21 +35,24 @@ const modeloModel = {
         return rows[0] || null;
     },
 
-
-    update: async (id, nombre) => {
-        const [result] = await db.query('UPDATE modelo SET nombre = ? WHERE id_modelo = ?', [nombre.trim(), id]);
-        return result.affectedRows > 0;
-    },
-
     create: async (nombre) => {
         const [result] = await db.query('INSERT INTO modelo (nombre) VALUES (?)', [nombre.trim()]);
         return result.insertId;
     },
 
+    // Recibe el nombre como string, tal como lo usa el controlador
+    update: async (id, nombre) => {
+        const [result] = await db.query(
+            'UPDATE modelo SET nombre = ? WHERE id_modelo = ?',
+            [nombre.trim(), id]
+        );
+        return result.affectedRows > 0;
+    },
+
     // Retorna la cantidad de motos asociadas a este modelo
     countMotosAsociadas: async (id_modelo) => {
         const [rows] = await db.query(
-            'SELECT COUNT(*) AS total FROM motocicleta WHERE id_modelo = ?', 
+            'SELECT COUNT(*) AS total FROM motocicleta WHERE id_modelo = ?',
             [id_modelo]
         );
         return rows[0].total;
