@@ -1,116 +1,158 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import EdtAgrCategoria from "../../components/categoryMot/EdtAgrCategory";
-import TableCategory from "../../components/categoryMot/TableCategory";
+import axios from "../../axiosConfig";
+import CategoriaEditAgr from "../../components/categoryProdts/EdtAgrCategory";
+import TableCategoria from "../../components/categoryProdts/TableCategory";
 
-function CategoryMotPage () {
-  const [categoria, setCategoria] = useState([]);
-  const [idSeleccionado, setIdSeleccionado] = useState(null);
-  const [busqueda, setBusqueda] = useState("");
-  const [showModal, setShowModal] = useState(false);
+const API_BASE_URL = "http://localhost:4000/api";
 
-   // Paginación
-  const [pagina, setPagina] = useState(1);
-  const porPagina = 4;
+function CategoriaPage() {
+    const [categorias, setCategorias] = useState([]);
+    const [idSeleccionado, setIdSeleccionado] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
-  const getCategoria = () => {
-    axios.get("http://localhost:4000/api/categoria/listar")
-      .then(res => setCategoria(res.data))
-      .catch(err => console.error(err));
-  };
+    // Filtros
+    const [busqueda, setBusqueda] = useState("");
+    const [filtroEstado, setFiltroEstado] = useState("");
 
-  useEffect(() => {
-    getCategoria();
-  }, []);
+    // Paginación
+    const [pagina, setPagina] = useState(1);
+    const porPagina = 5;
 
-  // Filtrar categorias según búsqueda
-  const catgFiltrados = categoria.filter(categoria => {
-    // Convertimos el ID a texto con string 
-    const idTexto = String(categoria.nombre || "");
-    return idTexto.toLowerCase().includes(busqueda.toLowerCase()); 
-  });
+    const getCategoria = () => {
+        axios.get(`${API_BASE_URL}/categoria/listar`)
+            .then(res => {
+                const dataExtraida = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+                setCategorias(dataExtraida);
+            })
+            .catch(err => {
+                console.error("Error al cargar categorías:", err);
+                setCategorias([]);
+            });
+    };
 
-  // Calcular usuarios de la página actual
-  const inicio = (pagina - 1) * porPagina;
-  const fin = inicio + porPagina;
-  const paginados = catgFiltrados.slice(inicio, fin);
+    useEffect(() => {
+        getCategoria();
+    }, []);
 
-  // Número total de páginas
-  const totalPaginas = Math.ceil(catgFiltrados.length / porPagina);
+    useEffect(() => {
+        setPagina(1);
+    }, [busqueda, filtroEstado]);
 
-  return (
-    <div className="container mt-4">
-      <h2>Gestión categorias Insumos</h2>
+    // Filtrado por nombre y por estado
+    const categoriasFiltradas = categorias.filter(c => {
+        const nombre = String(c.nombre || "").toLowerCase();
+        const termino = busqueda.toLowerCase();
 
-      {/* Barra de acciones */}
-      <div className="d-flex justify-content-between mb-3">
-        <button
-          className="btn btn-primary"
-          onClick={() => {
-            setIdSeleccionado(null);
-            setShowModal(true);
-          }}
-        >
-          Agregar 
-        </button>
+        const coincideTermino = nombre.includes(termino);
+        const coincideEstado = filtroEstado === "" || String(c.estado) === filtroEstado;
 
-        <input
-          type="text"
-          className="form-control w-50"
-          placeholder="Buscar categoria por nombre"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
-      </div>
+        return coincideTermino && coincideEstado;
+    });
 
-      {/* Tabla */}
-      <TableCategory
-        categoria={paginados}
-        setIdSeleccionado={(cat) => {
-          setIdSeleccionado(cat);
-          setShowModal(true);
-        }}
-        getCategoria={getCategoria}
-      />
+    const inicio = (pagina - 1) * porPagina;
+    const paginados = categoriasFiltradas.slice(inicio, inicio + porPagina);
+    const totalPaginas = Math.ceil(categoriasFiltradas.length / porPagina) || 1;
 
-      {/* Paginador */}
-      <div className="d-flex justify-content-center mt-3">
-        <nav>
-          <ul className="pagination">
-            <li className={`page-item ${pagina === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina - 1)}>
-                Anterior
-              </button>
-            </li>
-
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <li key={i} className={`page-item ${pagina === i + 1 ? "active" : ""}`}>
-                <button className="page-link" onClick={() => setPagina(i + 1)}>
-                  {i + 1}
+    return (
+        <div className="rs-page-light">
+            {/* Encabezado */}
+            <div className="rs-page-header">
+                <div>
+                    <h2 className="rs-page-title">
+                        <i className="fas fa-tags"></i>
+                        Gestión de Categorías de Insumos
+                    </h2>
+                    <p className="rs-page-subtitle">
+                        Administra las categorías utilizadas para clasificar los insumos
+                    </p>
+                </div>
+                <button
+                    className="rs-btn rs-btn-primary"
+                    onClick={() => {
+                        setIdSeleccionado(null);
+                        setShowModal(true);
+                    }}
+                >
+                    <i className="fas fa-plus"></i> Registrar Categoría
                 </button>
-              </li>
-            ))}
+            </div>
 
-            <li className={`page-item ${pagina === totalPaginas ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina + 1)}>
-                Siguiente
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
+            {/* Filtros: búsqueda + estado */}
+            <div className="rs-filters" style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                <div className="rs-search-wrapper" style={{ flex: 1 }}>
+                    <i className="fas fa-search rs-search-icon"></i>
+                    <input
+                        type="text"
+                        className="rs-search-input"
+                        placeholder="Buscar por nombre de categoría..."
+                        value={busqueda}
+                        onChange={(e) => setBusqueda(e.target.value)}
+                    />
+                </div>
 
-      {/* Modal de agregar/editar */}
-      {showModal && (
-        <EdtAgrCategoria
-          idSeleccionado={idSeleccionado}
-          getCategoria={getCategoria}
-          onClose={() => setShowModal(false)}
-          onSuccess={() => getCategoria()}
-        />
-      )}
-    </div>
-  );
+                <div style={{ minWidth: "180px" }}>
+                    <select
+                        className="rs-input-white"
+                        style={{ height: "42px" }}
+                        value={filtroEstado}
+                        onChange={(e) => setFiltroEstado(e.target.value)}
+                    >
+                        <option value="">Todos los estados</option>
+                        <option value="1">Activas</option>
+                        <option value="0">Inactivas</option>
+                    </select>
+                </div>
+            </div>
+
+            {/* Tabla con datos filtrados */}
+            <TableCategoria
+                categorias={paginados}
+                setIdSeleccionado={(cat) => {
+                    setIdSeleccionado(cat);
+                    setShowModal(true);
+                }}
+                getCategoria={getCategoria}
+            />
+
+            {/* Paginador */}
+            {totalPaginas > 1 && (
+                <div className="rs-pagination">
+                    <button
+                        className="rs-page-btn"
+                        disabled={pagina === 1}
+                        onClick={() => setPagina(pagina - 1)}
+                    >
+                        Anterior
+                    </button>
+                    {Array.from({ length: totalPaginas }, (_, i) => (
+                        <button
+                            key={i + 1}
+                            className={`rs-page-btn ${pagina === i + 1 ? "active" : ""}`}
+                            onClick={() => setPagina(i + 1)}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+                    <button
+                        className="rs-page-btn"
+                        disabled={pagina === totalPaginas}
+                        onClick={() => setPagina(pagina + 1)}
+                    >
+                        Siguiente
+                    </button>
+                </div>
+            )}
+
+            {/* Modal para Crear / Editar */}
+            {showModal && (
+                <CategoriaEditAgr
+                    idSeleccionado={idSeleccionado}
+                    onClose={() => setShowModal(false)}
+                    onSuccess={getCategoria}
+                />
+            )}
+        </div>
+    );
 }
 
-export default CategoryMotPage;
+export default CategoriaPage;
