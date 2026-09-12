@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../axiosConfig";
 import RolesTable from "../../components/roles/RolesTable";
 import ModalAgrEdt from "../../components/roles/ModalAgrEdt";
+import CategoriaBadge from "../../components/ui/CategoriaBadge";
 
-function UsersPage() {
+function RolesPage() {
   const [roles, setRoles] = useState([]);
   const [idSeleccionado, setIdSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-   // Paginación
   const [pagina, setPagina] = useState(1);
-  const RolesPorPagina = 5;
+  const rolesPorPagina = 8;
 
   const getRoles = () => {
     axios.get("/api/clasificacion_de_usuarios/listar")
@@ -23,82 +23,86 @@ function UsersPage() {
     getRoles();
   }, []);
 
-  // Filtrar usuarios según búsqueda
-  const RolesFiltrados = roles.filter(r =>
+  const rolesFiltrados = roles.filter(r =>
     (r.categoria_usuario || "").toLowerCase().includes(busqueda.toLowerCase())
   );
 
-  // Calcular usuarios de la página actual
-  const inicio = (pagina - 1) * RolesPorPagina;
-  const fin = inicio + RolesPorPagina;
-  const rolesPaginados = RolesFiltrados.slice(inicio, fin);
-
-  // Número total de páginas
-  const totalPaginas = Math.ceil(RolesFiltrados.length / RolesPorPagina);
+  const inicio = (pagina - 1) * rolesPorPagina;
+  const rolesPaginados = rolesFiltrados.slice(inicio, inicio + rolesPorPagina);
+  const totalPaginas = Math.ceil(rolesFiltrados.length / rolesPorPagina);
 
   return (
-    <div className="container mt-4">
-      <h2>Gestión de Roles</h2>
-
-      {/* Barra de acciones */}
-      <div className="d-flex justify-content-between mb-3">
+    <div className="rs-page-light">
+      {/* Header */}
+      <div className="rs-page-header">
+        <div>
+          <h2 className="rs-page-title">
+            <i className="fa-solid fa-user-tag"></i>{" "}
+            Gestión de Roles
+            <CategoriaBadge tipo="configuracion" />
+          </h2>
+          <p className="rs-page-subtitle">{roles.length} roles registrados</p>
+        </div>
         <button
-          className="btn btn-primary"
-          onClick={() => {
-            setIdSeleccionado(null);
-            setShowModal(true);
-          }}
+          className="rs-btn rs-btn-primary"
+          onClick={() => { setIdSeleccionado(null); setShowModal(true); }}
         >
+          <i className="fa-solid fa-plus"></i>{" "}
           Agregar Rol
         </button>
+      </div>
 
-        <input
-          type="text"
-          className="form-control w-50"
-          placeholder="Buscar rol..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
+      {/* Filtros */}
+      <div className="rs-filters">
+        <div className="rs-search-wrapper">
+          <i className="fa-solid fa-search rs-search-icon"></i>
+          <input
+            type="text"
+            className="rs-search-input"
+            placeholder="Buscar rol..."
+            value={busqueda}
+            onChange={(e) => { setBusqueda(e.target.value); setPagina(1); }}
+          />
+        </div>
       </div>
 
       {/* Tabla */}
       <RolesTable
         roles={rolesPaginados}
-        setIdSeleccionado={(u) => {
-          setIdSeleccionado(u);
-          setShowModal(true);
-        }}
+        setIdSeleccionado={(u) => { setIdSeleccionado(u); setShowModal(true); }}
         getRoles={getRoles}
       />
 
       {/* Paginador */}
-      <div className="d-flex justify-content-center mt-3">
-        <nav>
-          <ul className="pagination">
-            <li className={`page-item ${pagina === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina - 1)}>
-                Anterior
-              </button>
-            </li>
+      {totalPaginas > 1 && (
+        <div className="rs-pagination">
+          <button
+            className="rs-page-btn"
+            onClick={() => setPagina(pagina - 1)}
+            disabled={pagina === 1}
+          >
+            <i className="fa-solid fa-chevron-left"></i>
+          </button>
+          {Array.from({ length: totalPaginas }, (_, i) => (
+            <button
+              key={`pagina-${i + 1}`}
+              className={`rs-page-btn ${pagina === i + 1 ? 'active' : ''}`}
+              onClick={() => setPagina(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            className="rs-page-btn"
+            onClick={() => setPagina(pagina + 1)}
+            disabled={pagina === totalPaginas}
+          >
+            <i className="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      )}
 
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <li key={i} className={`page-item ${pagina === i + 1 ? "active" : ""}`}>
-                <button className="page-link" onClick={() => setPagina(i + 1)}>
-                  {i + 1}
-                </button>
-              </li>
-            ))}
-
-            <li className={`page-item ${pagina === totalPaginas ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina + 1)}>
-                Siguiente
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
-
-      {/* Modal de agregar/editar */}
+      {/* Modal */}
       {showModal && (
         <ModalAgrEdt
           idSeleccionado={idSeleccionado}
@@ -111,4 +115,4 @@ function UsersPage() {
   );
 }
 
-export default UsersPage;
+export default RolesPage;

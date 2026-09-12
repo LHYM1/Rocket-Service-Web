@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../axiosConfig";
 import TypeServTable from "../../components/typeServices/TypeServTable";
 import ModalEditAgrTs from "../../components/typeServices/ModalEditAgrTs";
 import { useAuth } from "../../context/AuthContext";
+import CategoriaBadge from "../../components/ui/CategoriaBadge";
 
 function TypeServPage() {
     const { esAdmin } = useAuth();
@@ -13,9 +14,8 @@ function TypeServPage() {
     const [showModal, setShowModal] = useState(false);
     const [cargando, setCargando] = useState(true);
 
-    // Paginación
     const [pagina, setPagina] = useState(1);
-    const tipServPorPagina = 5;
+    const tipServPorPagina = 8;
 
     const getTipoServicio = async () => {
         setCargando(true);
@@ -33,7 +33,6 @@ function TypeServPage() {
         getTipoServicio();
     }, []);
 
-    // Filtro por nombre, descripción y estado
     const tipServFiltrados = tipServ.filter(ts => {
         const texto = busqueda.toLowerCase();
         const coincideBusqueda =
@@ -61,6 +60,7 @@ function TypeServPage() {
                     <h2 className="rs-page-title">
                         <i className="fa-solid fa-screwdriver-wrench"></i>
                         Gestión de Tipo de Servicio
+                        <CategoriaBadge tipo="configuracion" />
                     </h2>
                     <p className="rs-page-subtitle">
                         Gestiona todos los servicios ofrecidos en el Taller

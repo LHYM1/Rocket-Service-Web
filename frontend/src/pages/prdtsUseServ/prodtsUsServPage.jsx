@@ -3,12 +3,12 @@ import axios from "../../axiosConfig";
 import ModalEdtAgrPrUser from "../../components/prodtsUseServ/ModalEdtAgrPrUSer";
 import TablePrUSer from "../../components/prodtsUseServ/TablePrUSer";
 import { useAuth } from "../../context/AuthContext";
+import CategoriaBadge from "../../components/ui/CategoriaBadge";
 
 // ─── Vista del técnico: cards agrupadas por orden ───────────────────────────
 function CardInsumosTecnico({ insUsaServ }) {
     const [visible, setVisible] = useState({});
 
-    // Agrupar insumos por id_orden
     const porOrden = insUsaServ.reduce((acc, item) => {
         const key = item.id_orden;
         if (!acc[key]) acc[key] = [];
@@ -123,8 +123,8 @@ function CardInsumosTecnico({ insUsaServ }) {
 
             <div className="d-flex flex-column gap-3">
                 {ordenes.map(([idOrden, insumos], idx) => {
-                    const abierto = visible[idOrden] !== false; // abierto por defecto
-                    const codigo = `ORD-${String(idOrden).padStart(3, "0")}`;
+                    const abierto = visible[idOrden] !== false;
+                    const codigo = insumos[0]?.codigo_orden || `ORD-${String(idOrden).padStart(3, "0")}`;
                     const total = insumos.reduce((s, i) => s + Number(i.cantidad), 0);
 
                     return (
@@ -132,7 +132,6 @@ function CardInsumosTecnico({ insUsaServ }) {
                             className="insumo-card orden-card"
                             style={{ animationDelay: `${idx * 0.07}s` }}>
 
-                            {/* Header oscuro */}
                             <div className="orden-header">
                                 <div className="d-flex align-items-center gap-3">
                                     <div style={{
@@ -159,7 +158,6 @@ function CardInsumosTecnico({ insUsaServ }) {
                                 </button>
                             </div>
 
-                            {/* Panel de chips */}
                             <div className={`insumos-panel ${abierto ? "abierto" : "cerrado"}`}>
                                 <div className="d-flex flex-wrap gap-2">
                                     {insumos.map(ins => (
@@ -190,7 +188,7 @@ function PrUsServPage() {
     const [showModal, setShowModal] = useState(false);
 
     const [pagina, setPagina] = useState(1);
-    const porPagina = 5;
+    const porPagina = 8;
 
     const getInsUsServ = useCallback(() => {
         const url = esAdmin
@@ -204,7 +202,6 @@ function PrUsServPage() {
 
     useEffect(() => { getInsUsServ(); }, [getInsUsServ]);
 
-    // ── Admin: filtra por id/nombre de insumo, número de orden (CA-003) o técnico (CA-004)
     const insSerFiltrados = insUsaServ.filter(ts => {
         const texto = busqueda.toLowerCase();
         return (
@@ -220,47 +217,50 @@ function PrUsServPage() {
     const totalPaginas = Math.ceil(insSerFiltrados.length / porPagina);
 
     return (
-        <div className="container mt-4">
-
-            {/* ── Título diferenciado por rol ── */}
+        <div className="rs-page-light">
             {esAdmin ? (
-                <>
-                    <h2 className="fw-bold mb-1">Insumos usados en servicio</h2>
-                    <p className="text-muted mb-3">Gestión completa de insumos por orden</p>
-                </>
+                <div className="rs-page-header">
+                    <div>
+                        <h2 className="rs-page-title">
+                            <i className="fa-solid fa-boxes-stacked"></i>{" "}
+                            Insumos Usados en Servicio
+                            <CategoriaBadge tipo="inventario" />
+                        </h2>
+                        <p className="rs-page-subtitle">Gestión completa de insumos por orden</p>
+                    </div>
+                </div>
             ) : (
-                <div className="mb-4">
-                    <h2 className="fw-bold mb-1">
-                        <i className="fa-solid fa-boxes-stacked me-2" style={{ color: "#ff8c00" }}></i>
-                        Mis insumos usados
-                    </h2>
-                    <p className="text-muted">Insumos que registraste en tus revisiones</p>
+                <div className="rs-page-header">
+                    <div>
+                        <h2 className="rs-page-title">
+                            <i className="fa-solid fa-boxes-stacked"></i>{" "}
+                            Mis Insumos Usados
+                            <CategoriaBadge tipo="operacion" />
+                        </h2>
+                        <p className="rs-page-subtitle">Insumos que registraste en tus revisiones</p>
+                    </div>
                 </div>
             )}
 
-            {/* ── Barra de acciones (solo admin) ── */}
             {esAdmin && (
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                    <button className="btn btn-primary"
-                        onClick={() => { setIdSeleccionado(null); setShowModal(true); }}>
-                        <i className="fa-solid fa-plus me-1"></i>Agregar
-                    </button>
-                    <input
-                        type="text"
-                        className="form-control w-50"
-                        placeholder="Buscar por insumo, N° orden o técnico..."
-                        value={busqueda}
-                        onChange={e => { setBusqueda(e.target.value); setPagina(1); }}
-                    />
+                <div className="rs-filters">
+                    <div className="rs-search-wrapper">
+                        <i className="fa-solid fa-search rs-search-icon"></i>
+                        <input
+                            type="text"
+                            className="rs-search-input"
+                            placeholder="Buscar por insumo, N° orden o técnico..."
+                            value={busqueda}
+                            onChange={e => { setBusqueda(e.target.value); setPagina(1); }}
+                        />
+                    </div>
                 </div>
             )}
 
-            {/* ── Vista técnico: cards ── */}
             {!esAdmin && (
                 <CardInsumosTecnico insUsaServ={insUsaServ} />
             )}
 
-            {/* ── Vista admin: tabla ── */}
             {esAdmin && (
                 <>
                     <TablePrUSer
@@ -270,34 +270,36 @@ function PrUsServPage() {
                         getInsUsServ={getInsUsServ}
                     />
 
-                    {/* Paginador */}
-                    <div className="d-flex justify-content-center mt-3">
-                        <nav>
-                            <ul className="pagination">
-                                <li className={`page-item ${pagina === 1 ? "disabled" : ""}`}>
-                                    <button className="page-link" onClick={() => setPagina(pagina - 1)}>
-                                        Anterior
-                                    </button>
-                                </li>
-                                {Array.from({ length: totalPaginas }, (_, i) => (
-                                    <li key={i} className={`page-item ${pagina === i + 1 ? "active" : ""}`}>
-                                        <button className="page-link" onClick={() => setPagina(i + 1)}>
-                                            {i + 1}
-                                        </button>
-                                    </li>
-                                ))}
-                                <li className={`page-item ${pagina === totalPaginas ? "disabled" : ""}`}>
-                                    <button className="page-link" onClick={() => setPagina(pagina + 1)}>
-                                        Siguiente
-                                    </button>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
+                    {totalPaginas > 1 && (
+                        <div className="rs-pagination">
+                            <button
+                                className="rs-page-btn"
+                                onClick={() => setPagina(pagina - 1)}
+                                disabled={pagina === 1}
+                            >
+                                <i className="fa-solid fa-chevron-left"></i>
+                            </button>
+                            {Array.from({ length: totalPaginas }, (_, i) => (
+                                <button
+                                    key={`pagina-${i + 1}`}
+                                    className={`rs-page-btn ${pagina === i + 1 ? 'active' : ''}`}
+                                    onClick={() => setPagina(i + 1)}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                            <button
+                                className="rs-page-btn"
+                                onClick={() => setPagina(pagina + 1)}
+                                disabled={pagina === totalPaginas}
+                            >
+                                <i className="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    )}
                 </>
             )}
 
-            {/* Modal editar/agregar (solo admin) */}
             {showModal && esAdmin && (
                 <ModalEdtAgrPrUser
                     idSeleccionado={idSeleccionado}

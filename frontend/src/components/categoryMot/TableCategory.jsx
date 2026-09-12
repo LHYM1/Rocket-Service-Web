@@ -1,65 +1,99 @@
-import axios from '../../axiosConfig'
+import { useState } from "react";
+import axios from '../../axiosConfig';
+import { useToast } from "../../context/ToastContext";
+import ConfirmModal from '../ConfirmModal';
 
-function tableCategoriaProd ({ categoria, setIdSeleccionado, getCategoria }) {
+function TableCategory({ categoria, setIdSeleccionado, getCategoria }) {
+    const { mostrarToast } = useToast();
+    const [categoriaParaEliminar, setCategoriaParaEliminar] = useState(null);
 
     if (!categoria || !Array.isArray(categoria)) {
-        return <p>No hay categorias disponibles</p>;
+        return (
+            <div className="rs-empty">
+                <i className="fa-solid fa-tags rs-empty-icon"></i>
+                <p className="rs-empty-text">No hay categorías disponibles.</p>
+            </div>
+        );
+    }
+
+    if (categoria.length === 0) {
+        return (
+            <div className="rs-empty">
+                <i className="fa-solid fa-magnifying-glass rs-empty-icon"></i>
+                <p className="rs-empty-text">No se encontraron categorías.</p>
+            </div>
+        );
     }
 
     const eliminarCatg = (id) => {
-        
-        if (window.confirm("¿Estás seguro de eliminar esta categoria?")) {
-            axios.delete(`/api/categoria/eliminar/${id}`)
+        setCategoriaParaEliminar(id);
+    };
+
+    const confirmarEliminar = () => {
+        const id = categoriaParaEliminar;
+        setCategoriaParaEliminar(null);
+        axios.delete(`/api/categoria/eliminar/${id}`)
             .then(() => {
-                alert("Categoria insumo eliminada con éxito");
+                mostrarToast("Categoría eliminada con éxito.", "success");
                 getCategoria();
             })
-            .catch(err =>  {
-                console.error(err);
-                alert("No se pudo eliminar la categoria");
-            }); 
-        } else {
-            alert("La categoria no fue eliminada");
-        }
-           
-    }
+            .catch(err => {
+                mostrarToast(err.response?.data?.message || "No se pudo eliminar la categoría.", "error");
+            });
+    };
 
     return (
-        <div>
-            <table className="table table-hover" border="1">
-                <thead className="table-light">
-                    <tr>
-                        <th>nombre</th>
-                        <th>Descripcion</th>
-    
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
+        <>
+            <div className="rs-table-wrapper">
+                <table className="rs-table rs-table-sm">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {categoria.map((cat) => (
+                            <tr key={cat.id_categoria}>
+                                <td style={{ color: '#1a1a2e', fontWeight: '500' }}>{cat.nombre}</td>
+                                <td>{cat.descripcion || <span className="rs-hint">Sin descripción</span>}</td>
+                                <td>
+                                    <div className="rs-actions">
+                                        <button
+                                            onClick={() => setIdSeleccionado(cat)}
+                                            className="rs-btn rs-btn-icon rs-btn-edit"
+                                            title="Editar"
+                                        >
+                                            <i className="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button
+                                            onClick={() => eliminarCatg(cat.id_categoria)}
+                                            className="rs-btn rs-btn-icon rs-btn-delete"
+                                            title="Eliminar"
+                                        >
+                                            <i className="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
-                <tbody>
-                    {categoria.map((cat) => (
-                        <tr key={cat.id_categoria}>
-                            <td>{cat.nombre}</td>
-                            <td>{cat.descripcion}</td>         
-                    
-                            <td>
-                                <button onClick={() => setIdSeleccionado(cat)}
-                                    type="button" className="btn btn-warning btn-color">
-                                    Editar
-                                </button>
-
-                                <button onClick={() => eliminarCatg(cat.id_categoria )}
-                                    type="button" className="btn btn-danger btn-color">
-                                    Eliminar
-                                </button>
-                            </td>
-                        </tr>                    
-                    ))}
-                    
-                </tbody>
-            </table>
-        </div> 
-    )
+            {categoriaParaEliminar && (
+                <ConfirmModal
+                    title="¿Eliminar esta categoría?"
+                    message="Esta acción no se puede deshacer. Si hay insumos usando esta categoría, no se podrá eliminar."
+                    confirmLabel="Sí, eliminar"
+                    icon="fa-solid fa-trash"
+                    onConfirm={confirmarEliminar}
+                    onCancel={() => setCategoriaParaEliminar(null)}
+                />
+            )}
+        </>
+    );
 }
 
-export default tableCategoriaProd;
+export default TableCategory;

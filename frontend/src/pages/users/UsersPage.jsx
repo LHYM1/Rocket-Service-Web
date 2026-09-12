@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "../../axiosConfig";
 import UsersTable from "../../components/users/UsersTable";
 import ModalEdtMod from "../../components/users/ModalEdtAgrUser";
+import CategoriaBadge from "../../components/ui/CategoriaBadge";
 
 function UsersPage() {
     const [usuarios, setUsuarios] = useState([]);
@@ -58,6 +59,7 @@ function UsersPage() {
                     <h2 className="rs-page-title">
                         <i className="fa-solid fa-users"></i>
                         Gestión de Usuarios
+                        <CategoriaBadge tipo="personas" />
                     </h2>
                     <p className="rs-page-subtitle">{usuarios.length} usuarios registrados</p>
                 </div>

@@ -225,12 +225,6 @@ const Sidebar = () => {
                         {abierto && <span>Motocicleta</span>}
                     </Link>
                 )}
-                {rolCongelado.esAdmin && (
-                    <Link to="/panel/modelo" className="item" title="Modelo">
-                        <i className="fa-solid fa-motorcycle"></i>
-                        {abierto && <span>Modelo</span>}
-                    </Link>
-                )}
 
                 {/* Pre-revisiones -- solo Admin y Técnico (el Cliente no interviene en esta parte) */}
                 {(rolCongelado.esAdmin || rolCongelado.esTecnico) && (

@@ -1,60 +1,99 @@
-import axios from '../../axiosConfig'
+import { useState } from "react";
+import axios from '../../axiosConfig';
+import { useToast } from "../../context/ToastContext";
+import ConfirmModal from '../ConfirmModal';
 
-function RolesTable ({ roles, setIdSeleccionado, getRoles}) {
+function RolesTable({ roles, setIdSeleccionado, getRoles }) {
+    const { mostrarToast } = useToast();
+    const [rolParaEliminar, setRolParaEliminar] = useState(null);
+
     if (!roles || !Array.isArray(roles)) {
-        return <p>No hay roles disponibles</p>;
+        return (
+            <div className="rs-empty">
+                <i className="fa-solid fa-user-tag rs-empty-icon"></i>
+                <p className="rs-empty-text">No hay roles disponibles.</p>
+            </div>
+        );
+    }
+
+    if (roles.length === 0) {
+        return (
+            <div className="rs-empty">
+                <i className="fa-solid fa-magnifying-glass rs-empty-icon"></i>
+                <p className="rs-empty-text">No se encontraron roles.</p>
+            </div>
+        );
     }
 
     const eliminarRol = (id) => {
+        setRolParaEliminar(id);
+    };
+
+    const confirmarEliminar = () => {
+        const id = rolParaEliminar;
+        setRolParaEliminar(null);
         axios.delete(`/api/clasificacion_de_usuarios/eliminar/${id}`)
-    
-        .then(() => {
-            alert("Rol eliminado con éxito");
-            getRoles();
-        })
-        .catch(err =>  {
-            console.error(err);
-            alert("No se pudo eliminar el Rol");
-        }); 
-    }
+            .then(() => {
+                mostrarToast("Rol eliminado con éxito.", "success");
+                getRoles();
+            })
+            .catch(err => {
+                mostrarToast(err.response?.data?.message || "No se pudo eliminar el rol.", "error");
+            });
+    };
 
     return (
-        <table className="table table-hover" border="1">
-            <thead className="table-light">
-                <tr>
-                    <th>Id</th>
-                    <th>Categoria</th>
-                    
-                    <th>Acciones</th>
-                </tr>
-            </thead>
+        <>
+            <div className="rs-table-wrapper">
+                <table className="rs-table rs-table-sm">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Categoría</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {roles.map((r) => (
+                            <tr key={r.id_tipo_usuario}>
+                                <td>{r.id_tipo_usuario}</td>
+                                <td style={{ color: '#1a1a2e', fontWeight: '500' }}>{r.categoria_usuario}</td>
+                                <td>
+                                    <div className="rs-actions">
+                                        <button
+                                            onClick={() => setIdSeleccionado(r)}
+                                            className="rs-btn rs-btn-icon rs-btn-edit"
+                                            title="Editar"
+                                        >
+                                            <i className="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button
+                                            onClick={() => eliminarRol(r.id_tipo_usuario)}
+                                            className="rs-btn rs-btn-icon rs-btn-delete"
+                                            title="Eliminar"
+                                        >
+                                            <i className="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
-            <tbody>
-                {roles.map((r) => (
-                    <tr key={r.id_tipo_usuario}>
-                        <td>{r.id_tipo_usuario}</td>
-                        <td>{r.categoria_usuario}</td>
-                       
-
-                        <td>
-                            <button onClick={() => setIdSeleccionado(r)}
-                                type="button" className="btn btn-warning btn-color">
-                                Editar
-                            </button>
-
-                            <button onClick={() => eliminarRol(r.id_tipo_usuario)}
-                                type="button" className="btn btn-danger btn-color">
-                                Eliminar
-                            </button>
-                        </td>
-                    </tr>                    
-                ))}
-                
-            </tbody>
-        </table>
-
-    )
+            {rolParaEliminar && (
+                <ConfirmModal
+                    title="¿Eliminar este rol?"
+                    message="Esta acción no se puede deshacer. Si hay usuarios usando este rol, no se podrá eliminar."
+                    confirmLabel="Sí, eliminar"
+                    icon="fa-solid fa-trash"
+                    onConfirm={confirmarEliminar}
+                    onCancel={() => setRolParaEliminar(null)}
+                />
+            )}
+        </>
+    );
 }
 
 export default RolesTable;
-  

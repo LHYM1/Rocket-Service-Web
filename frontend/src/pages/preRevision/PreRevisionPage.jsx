@@ -3,6 +3,7 @@ import axios from "../../axiosConfig";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import ModalCrearPreRevision from "../../components/ModalCrearPreRevision";
+import CategoriaBadge from "../../components/ui/CategoriaBadge";
 import ModalCompletarPreRevision, { hayBorrador } from "../../components/ModalCompletarPreRevision";
 import ModalCrearOrdenDesdePreRevision from "../../components/ModalCrearOrdenDesdePreRevision";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -29,8 +30,8 @@ function PreRevisionPage() {
 
     const cargar = useCallback(() => {
         const url = filtroEstado
-            ? `/api/pre_revision/listar?estado=${filtroEstado}`
-            : `/api/pre_revision/listar`;
+            ? `http://localhost:4000/api/pre_revision/listar?estado=${filtroEstado}`
+            : `http://localhost:4000/api/pre_revision/listar`;
         axios.get(url)
             .then(res => {
                 setLista(res.data);
@@ -57,7 +58,7 @@ function PreRevisionPage() {
     const confirmarEliminar = () => {
         const id = idParaEliminar;
         setIdParaEliminar(null);
-        axios.delete(`/api/pre_revision/eliminar/${id}`)
+        axios.delete(`http://localhost:4000/api/pre_revision/eliminar/${id}`)
             .then(res => {
                 mostrarToast(res.data.message, "success");
                 cargar();
@@ -91,6 +92,7 @@ function PreRevisionPage() {
                     <h2 className="rs-page-title">
                         <i className="fa-solid fa-magnifying-glass"></i>{" "}
                         {esAdmin ? "Pre-revisiones" : "Mis Pre-revisiones"}
+                        <CategoriaBadge tipo="operacion" />
                     </h2>
                     <p className="rs-page-subtitle">{lista.length} pre-revisiones</p>
                 </div>
@@ -146,7 +148,7 @@ function PreRevisionPage() {
                                     </td>
                                     <td>{pr.resultado || "—"}</td>
                                     <td>
-                                        <div className="rs-actions">
+                                        <div className="rs-actions" style={{ justifyContent: "center" }}>
                                             {!esAdmin && pr.estado === "PENDIENTE" && (
                                                 <button
                                                     className="rs-btn rs-btn-primary"
@@ -192,6 +194,18 @@ function PreRevisionPage() {
                                                 <span className="rs-badge rs-badge-success">Orden #{pr.id_orden_generada} creada</span>
                                             )}
                                             {!esAdmin && (pr.estado === "FINALIZADA" || pr.estado === "COMPLETADA") && (
+                                                <button
+                                                    className="rs-btn rs-btn-icon rs-btn-edit"
+                                                    onClick={() => setParaVerDetalle(pr)}
+                                                    title="Ver detalle"
+                                                >
+                                                    <i className="fa-solid fa-eye"></i>
+                                                </button>
+                                            )}
+
+                                            {/* Admin: mismo botón de "Ver detalle" para los casos que no tienen
+                                                ninguna acción pendiente (antes quedaban con la columna vacía) */}
+                                            {esAdmin && (pr.estado === "FINALIZADA" || (pr.estado === "COMPLETADA" && pr.id_orden_generada)) && (
                                                 <button
                                                     className="rs-btn rs-btn-icon rs-btn-edit"
                                                     onClick={() => setParaVerDetalle(pr)}

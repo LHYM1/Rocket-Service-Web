@@ -164,7 +164,8 @@ function Iniciarsesion() {
                             pendientes.forEach(pr => {
                                 mostrarToast(
                                     `La pre-revisión del cliente ${pr.cliente} requiere reparación. Puedes crear la orden de servicio.`,
-                                    "info"
+                                    "info",
+                                    { persistente: true, link: "/panel/pre-revision", textoLink: "Ir a Pre-revisiones" }
                                 );
                             });
                         }
@@ -204,10 +205,18 @@ function Iniciarsesion() {
                         : 0;
 
                     if (ordenesAsignadas > 0) {
-                        mostrarToast(`Tienes ${ordenesAsignadas} orden(es) de servicio asignada(s).`, "info");
+                        mostrarToast(
+                            `Tienes ${ordenesAsignadas} orden(es) de servicio asignada(s).`,
+                            "info",
+                            { persistente: true, link: "/panel/orders", textoLink: "Ir a Mis Órdenes" }
+                        );
                     }
                     if (preRevisionesPendientes > 0) {
-                        mostrarToast(`Tienes ${preRevisionesPendientes} pre-revisión(es) pendiente(s).`, "info");
+                        mostrarToast(
+                            `Tienes ${preRevisionesPendientes} pre-revisión(es) pendiente(s).`,
+                            "info",
+                            { persistente: true, link: "/panel/pre-revision", textoLink: "Ir a Pre-revisiones" }
+                        );
                     }
                 }).catch(() => {});
             }

@@ -5,6 +5,7 @@ import OrdersTable from "../../components/orders/OrdersTable";
 import ClienteOrdersTable from "../../components/orders/ClienteOrdersTable";
 import ModalEdtAgr from "../../components/orders/ModalEdtAgr";
 import { useAuth } from "../../context/AuthContext";
+import CategoriaBadge from "../../components/ui/CategoriaBadge";
 
 function OrdenesPage() {
   const { esAdmin, esCliente } = useAuth();
@@ -49,13 +50,19 @@ function OrdenesPage() {
   const totalPaginas = Math.ceil(ordenesFiltradas.length / ordenesPorPagina);
 
   return (
-    <div className="container mt-4">
-        <h2 className="fw-bold mb-4">
-            <i className="fa-solid fa-screwdriver-wrench me-2"></i>
-            {esAdmin ? "Gestión de Órdenes de Servicio" : esCliente ? "Seguimiento de mi Orden" : "Mis Órdenes"}
-        </h2>
+    <div className="rs-page-light">
+        <div className="rs-page-header">
+            <div>
+                <h2 className="rs-page-title">
+                    <i className="fa-solid fa-screwdriver-wrench"></i>{" "}
+                    {esAdmin ? "Gestión de Órdenes de Servicio" : esCliente ? "Seguimiento de mi Orden" : "Mis Órdenes"}
+                    <CategoriaBadge tipo="operacion" />
+                </h2>
+                <p className="rs-page-subtitle">{ordenes.length} órdenes</p>
+            </div>
+        </div>
 
-        <div className="d-flex justify-content-between mb-4 gap-3">
+        <div className="rs-filters">
             {esAdmin && (
                 <div className="d-flex align-items-center gap-2 px-3 py-2 rounded"
                     style={{ backgroundColor: "#fff8ee", border: "1px solid #ff8c0040", fontSize: "0.85rem", color: "#9a5b00" }}>
@@ -64,13 +71,16 @@ function OrdenesPage() {
                     <Link to="/panel/pre-revision" style={{ color: "#ff8c00", fontWeight: "600" }}>Ir a Pre-revisiones →</Link>
                 </div>
             )}
-            <input
-                type="text"
-                className="form-control w-50"
-                placeholder="Buscar por cliente, estado o problema..."
-                value={busqueda}
-                onChange={(e) => { setBusqueda(e.target.value); setPagina(1); }}
-            />
+            <div className="rs-search-wrapper">
+                <i className="fa-solid fa-search rs-search-icon"></i>
+                <input
+                    type="text"
+                    className="rs-search-input"
+                    placeholder="Buscar por cliente, estado o problema..."
+                    value={busqueda}
+                    onChange={(e) => { setBusqueda(e.target.value); setPagina(1); }}
+                />
+            </div>
         </div>
 
         {esCliente ? (
@@ -93,7 +103,7 @@ function OrdenesPage() {
                     className="rs-page-btn"
                     onClick={() => setPagina(pagina - 1)}
                     disabled={pagina === 1}>
-                    <i className="fa-solid fa-chevron-left" style={{ fontSize: "0.75rem" }}></i>
+                    <i className="fa-solid fa-chevron-left"></i>
                 </button>
 
                 {Array.from({ length: totalPaginas }, (_, i) => (
@@ -109,7 +119,7 @@ function OrdenesPage() {
                     className="rs-page-btn"
                     onClick={() => setPagina(pagina + 1)}
                     disabled={pagina === totalPaginas}>
-                    <i className="fa-solid fa-chevron-right" style={{ fontSize: "0.75rem" }}></i>
+                    <i className="fa-solid fa-chevron-right"></i>
                 </button>
             </div>
         )}

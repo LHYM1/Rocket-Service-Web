@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "../../axiosConfig";
 import MotoEdAgr from "../../components/motocicleta/motoEdAgr";
 import TableMoto from "../../components/motocicleta/TableMoto";
+import ModalGestionarModelos from "../../components/motocicleta/ModalGestionarModelos";
+import CategoriaBadge from "../../components/ui/CategoriaBadge";
 
 // URL absoluta del Backend Express
 const API_BASE_URL = "/api";
@@ -11,6 +13,7 @@ function MotocicletaPage() {
     const [modelos, setModelos] = useState([]);
     const [idSeleccionado, setIdSeleccionado] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [showModalModelos, setShowModalModelos] = useState(false);
 
     // Filtros
     const [busqueda, setBusqueda] = useState("");
@@ -74,20 +77,29 @@ function MotocicletaPage() {
                     <h2 className="rs-page-title">
                         <i className="fas fa-motorcycle"></i>
                         Gestión de Motocicletas
+                        <CategoriaBadge tipo="inventario" />
                     </h2>
                     <p className="rs-page-subtitle">
                         Administra el parque automotor y asignación de motocicletas
                     </p>
                 </div>
-                <button
-                    className="rs-btn rs-btn-primary"
-                    onClick={() => {
-                        setIdSeleccionado(null);
-                        setShowModal(true);
-                    }}
-                >
-                    <i className="fas fa-plus"></i> Registrar Motocicleta
-                </button>
+                <div style={{ display: "flex", gap: "10px" }}>
+                    <button
+                        className="rs-btn rs-btn-secondary"
+                        onClick={() => setShowModalModelos(true)}
+                    >
+                        <i className="fas fa-motorcycle"></i> Gestionar modelos
+                    </button>
+                    <button
+                        className="rs-btn rs-btn-primary"
+                        onClick={() => {
+                            setIdSeleccionado(null);
+                            setShowModal(true);
+                        }}
+                    >
+                        <i className="fas fa-plus"></i> Registrar Motocicleta
+                    </button>
+                </div>
             </div>
 
             {/* Filtros: Búsqueda global + Select de Modelo */}
@@ -168,6 +180,14 @@ function MotocicletaPage() {
                         getMoto();
                         getModelos();
                     }}
+                />
+            )}
+
+            {/* Modal de gestión de Modelos (fusionado aquí, ya no es una pestaña aparte) */}
+            {showModalModelos && (
+                <ModalGestionarModelos
+                    onClose={() => setShowModalModelos(false)}
+                    onCambio={() => getModelos()}
                 />
             )}
         </div>

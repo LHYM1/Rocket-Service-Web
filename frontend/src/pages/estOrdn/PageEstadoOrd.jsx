@@ -2,16 +2,16 @@ import { useEffect, useState } from "react";
 import axios from '../../axiosConfig';
 import EstadoOrden from "../../components/estOrdn/EstadoOrdnAgrEdt.jsx";
 import TableEstOrden from "../../components/estOrdn/TableEstdOrden.jsx";
+import CategoriaBadge from "../../components/ui/CategoriaBadge";
 
-function EstadoOrdenPage () {
+function EstadoOrdenPage() {
   const [estadoOrd, setEstadoOrden] = useState([]);
   const [idSeleccionado, setIdSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-   // Paginación
   const [pagina, setPagina] = useState(1);
-  const porPagina = 5;
+  const porPagina = 8;
 
   const getEstadoOrden = () => {
     axios.get("/api/estado_de_orden_de_servicio/listar")
@@ -23,84 +23,87 @@ function EstadoOrdenPage () {
     getEstadoOrden();
   }, []);
 
-  // Filtrar estado orden según búsqueda
   const estdOrdSerFiltrados = estadoOrd.filter(estdOrden => {
-    // Convertimos el ID a texto con string 
     const idTexto = String(estdOrden.nombre_estado || "");
-    return idTexto.toLowerCase().includes(busqueda.toLowerCase()); 
+    return idTexto.toLowerCase().includes(busqueda.toLowerCase());
   });
 
-  // Calcular usuarios de la página actual
   const inicio = (pagina - 1) * porPagina;
-  const fin = inicio + porPagina;
-  const paginados = estdOrdSerFiltrados.slice(inicio, fin);
-
-  // Número total de páginas
+  const paginados = estdOrdSerFiltrados.slice(inicio, inicio + porPagina);
   const totalPaginas = Math.ceil(estdOrdSerFiltrados.length / porPagina);
 
   return (
-    <div className="container mt-4">
-      <h2>Gestión de estados ordenes</h2>
-
-      {/* Barra de acciones */}
-      <div className="d-flex justify-content-between mb-3">
+    <div className="rs-page-light">
+      {/* Header */}
+      <div className="rs-page-header">
+        <div>
+          <h2 className="rs-page-title">
+            <i className="fa-solid fa-list-check"></i>{" "}
+            Estados de Orden de Servicio
+            <CategoriaBadge tipo="configuracion" />
+          </h2>
+          <p className="rs-page-subtitle">{estadoOrd.length} estados registrados</p>
+        </div>
         <button
-          className="btn btn-primary"
-          onClick={() => {
-            setIdSeleccionado(null);
-            setShowModal(true);
-          }}
+          className="rs-btn rs-btn-primary"
+          onClick={() => { setIdSeleccionado(null); setShowModal(true); }}
         >
-          Agregar 
+          <i className="fa-solid fa-plus"></i>{" "}
+          Agregar Estado
         </button>
+      </div>
 
-        <input
-          type="text"
-          className="form-control w-50"
-          placeholder="Buscar estado orden por nombre"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
+      {/* Filtros */}
+      <div className="rs-filters">
+        <div className="rs-search-wrapper">
+          <i className="fa-solid fa-search rs-search-icon"></i>
+          <input
+            type="text"
+            className="rs-search-input"
+            placeholder="Buscar estado por nombre..."
+            value={busqueda}
+            onChange={(e) => { setBusqueda(e.target.value); setPagina(1); }}
+          />
+        </div>
       </div>
 
       {/* Tabla */}
       <TableEstOrden
         estadoOrd={paginados}
-        setIdSeleccionado={(ts) => {
-          setIdSeleccionado(ts);
-          setShowModal(true);
-        }}
+        setIdSeleccionado={(ts) => { setIdSeleccionado(ts); setShowModal(true); }}
         getEstadoOrden={getEstadoOrden}
       />
 
       {/* Paginador */}
-      <div className="d-flex justify-content-center mt-3">
-        <nav>
-          <ul className="pagination">
-            <li className={`page-item ${pagina === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina - 1)}>
-                Anterior
-              </button>
-            </li>
+      {totalPaginas > 1 && (
+        <div className="rs-pagination">
+          <button
+            className="rs-page-btn"
+            onClick={() => setPagina(pagina - 1)}
+            disabled={pagina === 1}
+          >
+            <i className="fa-solid fa-chevron-left"></i>
+          </button>
+          {Array.from({ length: totalPaginas }, (_, i) => (
+            <button
+              key={`pagina-${i + 1}`}
+              className={`rs-page-btn ${pagina === i + 1 ? 'active' : ''}`}
+              onClick={() => setPagina(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            className="rs-page-btn"
+            onClick={() => setPagina(pagina + 1)}
+            disabled={pagina === totalPaginas}
+          >
+            <i className="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      )}
 
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <li key={i} className={`page-item ${pagina === i + 1 ? "active" : ""}`}>
-                <button className="page-link" onClick={() => setPagina(i + 1)}>
-                  {i + 1}
-                </button>
-              </li>
-            ))}
-
-            <li className={`page-item ${pagina === totalPaginas ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina + 1)}>
-                Siguiente
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
-
-      {/* Modal de agregar/editar */}
+      {/* Modal */}
       {showModal && (
         <EstadoOrden
           idSeleccionado={idSeleccionado}

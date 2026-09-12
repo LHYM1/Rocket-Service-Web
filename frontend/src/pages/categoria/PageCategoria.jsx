@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../axiosConfig";
 import EdtAgrCategoria from "../../components/categoryMot/EdtAgrCategory";
 import TableCategory from "../../components/categoryMot/TableCategory";
+import CategoriaBadge from "../../components/ui/CategoriaBadge";
 
-function CategoryMotPage () {
+function CategoryMotPage() {
   const [categoria, setCategoria] = useState([]);
   const [idSeleccionado, setIdSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-   // Paginación
   const [pagina, setPagina] = useState(1);
-  const porPagina = 4;
+  const porPagina = 8;
 
   const getCategoria = () => {
     axios.get("/api/categoria/listar")
@@ -23,84 +23,87 @@ function CategoryMotPage () {
     getCategoria();
   }, []);
 
-  // Filtrar categorias según búsqueda
-  const catgFiltrados = categoria.filter(categoria => {
-    // Convertimos el ID a texto con string 
-    const idTexto = String(categoria.nombre || "");
-    return idTexto.toLowerCase().includes(busqueda.toLowerCase()); 
+  const catgFiltrados = categoria.filter(cat => {
+    const idTexto = String(cat.nombre || "");
+    return idTexto.toLowerCase().includes(busqueda.toLowerCase());
   });
 
-  // Calcular usuarios de la página actual
   const inicio = (pagina - 1) * porPagina;
-  const fin = inicio + porPagina;
-  const paginados = catgFiltrados.slice(inicio, fin);
-
-  // Número total de páginas
+  const paginados = catgFiltrados.slice(inicio, inicio + porPagina);
   const totalPaginas = Math.ceil(catgFiltrados.length / porPagina);
 
   return (
-    <div className="container mt-4">
-      <h2>Gestión categorias Insumos</h2>
-
-      {/* Barra de acciones */}
-      <div className="d-flex justify-content-between mb-3">
+    <div className="rs-page-light">
+      {/* Header */}
+      <div className="rs-page-header">
+        <div>
+          <h2 className="rs-page-title">
+            <i className="fa-solid fa-tags"></i>{" "}
+            Categorías de Insumos
+            <CategoriaBadge tipo="configuracion" />
+          </h2>
+          <p className="rs-page-subtitle">{categoria.length} categorías registradas</p>
+        </div>
         <button
-          className="btn btn-primary"
-          onClick={() => {
-            setIdSeleccionado(null);
-            setShowModal(true);
-          }}
+          className="rs-btn rs-btn-primary"
+          onClick={() => { setIdSeleccionado(null); setShowModal(true); }}
         >
-          Agregar 
+          <i className="fa-solid fa-plus"></i>{" "}
+          Agregar Categoría
         </button>
+      </div>
 
-        <input
-          type="text"
-          className="form-control w-50"
-          placeholder="Buscar categoria por nombre"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
+      {/* Filtros */}
+      <div className="rs-filters">
+        <div className="rs-search-wrapper">
+          <i className="fa-solid fa-search rs-search-icon"></i>
+          <input
+            type="text"
+            className="rs-search-input"
+            placeholder="Buscar categoría por nombre..."
+            value={busqueda}
+            onChange={(e) => { setBusqueda(e.target.value); setPagina(1); }}
+          />
+        </div>
       </div>
 
       {/* Tabla */}
       <TableCategory
         categoria={paginados}
-        setIdSeleccionado={(cat) => {
-          setIdSeleccionado(cat);
-          setShowModal(true);
-        }}
+        setIdSeleccionado={(cat) => { setIdSeleccionado(cat); setShowModal(true); }}
         getCategoria={getCategoria}
       />
 
       {/* Paginador */}
-      <div className="d-flex justify-content-center mt-3">
-        <nav>
-          <ul className="pagination">
-            <li className={`page-item ${pagina === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina - 1)}>
-                Anterior
-              </button>
-            </li>
+      {totalPaginas > 1 && (
+        <div className="rs-pagination">
+          <button
+            className="rs-page-btn"
+            onClick={() => setPagina(pagina - 1)}
+            disabled={pagina === 1}
+          >
+            <i className="fa-solid fa-chevron-left"></i>
+          </button>
+          {Array.from({ length: totalPaginas }, (_, i) => (
+            <button
+              key={`pagina-${i + 1}`}
+              className={`rs-page-btn ${pagina === i + 1 ? 'active' : ''}`}
+              onClick={() => setPagina(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            className="rs-page-btn"
+            onClick={() => setPagina(pagina + 1)}
+            disabled={pagina === totalPaginas}
+          >
+            <i className="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      )}
 
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <li key={i} className={`page-item ${pagina === i + 1 ? "active" : ""}`}>
-                <button className="page-link" onClick={() => setPagina(i + 1)}>
-                  {i + 1}
-                </button>
-              </li>
-            ))}
-
-            <li className={`page-item ${pagina === totalPaginas ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina + 1)}>
-                Siguiente
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
-
-      {/* Modal de agregar/editar */}
+      {/* Modal */}
       {showModal && (
         <EdtAgrCategoria
           idSeleccionado={idSeleccionado}

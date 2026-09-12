@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "../../axiosConfig";
 import TableProdts from "../../components/products/TableProdts";
 import ModalEdtAgrProd from "../../components/products/ModalEdtAgrProd";
+import CategoriaBadge from "../../components/ui/CategoriaBadge";
 
 function ProductsPage() {
     const [product, setProduct] = useState([]);
@@ -42,6 +43,7 @@ function ProductsPage() {
                     <h2 className="rs-page-title">
                         <i className="fa-solid fa-boxes-stacked"></i>{" "}
                         Gestión de Insumos
+                        <CategoriaBadge tipo="inventario" />
                     </h2>
                     <p className="rs-page-subtitle">{product.length} insumos registrados</p>
                 </div>

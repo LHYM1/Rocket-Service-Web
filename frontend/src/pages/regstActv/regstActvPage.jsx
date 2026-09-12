@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../axiosConfig";
 import RegActAgrEdt from "../../components/regstActv/regActAgrEdt.jsx";
 import RegstActvTable from "../../components/regstActv/regstActvTable.jsx";
 import { useAuth } from "../../context/AuthContext";
+import CategoriaBadge from "../../components/ui/CategoriaBadge";
 
 function RegActPage() {
   const [regstActv, setRegAct] = useState([]);
@@ -10,11 +11,9 @@ function RegActPage() {
   const [busqueda, setBusqueda] = useState("");
   const [showModal, setShowModal] = useState(false);
   const { esAdmin } = useAuth();
-  
 
-   // Paginación
   const [pagina, setPagina] = useState(1);
-  const porPagina = 5;
+  const porPagina = 8;
 
   const getRegAct = () => {
     axios.get("/api/registro_actividad/listar")
@@ -26,41 +25,53 @@ function RegActPage() {
     getRegAct();
   }, []);
 
-  // Filtrar registros de actividad según búsqueda
-  const regActFiltrados = regstActv.filter(rg => 
-    (rg.estado_disponibilidad || "").toLowerCase().includes(busqueda.toLowerCase())
+  const regActFiltrados = regstActv.filter(rg =>
+    (rg.estado_disponibilidad || "").toLowerCase().includes(busqueda.toLowerCase()) ||
+    (rg.codigo_registro || "").toLowerCase().includes(busqueda.toLowerCase())
   );
 
-  // Calcular registros de la página actual
   const inicio = (pagina - 1) * porPagina;
-  const fin = inicio + porPagina;
-  const paginados = regActFiltrados.slice(inicio, fin);
-
-  // Número total de páginas
+  const paginados = regActFiltrados.slice(inicio, inicio + porPagina);
   const totalPaginas = Math.ceil(regActFiltrados.length / porPagina);
 
   return (
-    <div className="container mt-4">
-      <h2>Gestión de registros de actividad</h2>
-
-        {/* Botón solo Admin */}
-        <div className="d-flex justify-content-between mb-3">
+    <div className="rs-page-light">
+      {/* Header */}
+      <div className="rs-page-header">
+        <div>
+          <h2 className="rs-page-title">
+            <i className="fa-solid fa-clipboard-list"></i>{" "}
+            Registro de Actividad
+            <CategoriaBadge tipo="operacion" />
+          </h2>
+          <p className="rs-page-subtitle">{regstActv.length} registros</p>
+        </div>
         {esAdmin && (
-          <button className="btn btn-primary" onClick={() => { setIdSeleccionado(null); setShowModal(true); }}>
-            Agregar
+          <button
+            className="rs-btn rs-btn-primary"
+            onClick={() => { setIdSeleccionado(null); setShowModal(true); }}
+          >
+            <i className="fa-solid fa-plus"></i>{" "}
+            Agregar Registro
           </button>
         )}
-
-        <input
-          type="text"
-          className="form-control w-50"
-          placeholder="Buscar por estado del técnico"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
       </div>
 
-      {/* Pasar esAdmin a la tabla */}
+      {/* Filtros */}
+      <div className="rs-filters">
+        <div className="rs-search-wrapper">
+          <i className="fa-solid fa-search rs-search-icon"></i>
+          <input
+            type="text"
+            className="rs-search-input"
+            placeholder="Buscar por código o estado del técnico..."
+            value={busqueda}
+            onChange={(e) => { setBusqueda(e.target.value); setPagina(1); }}
+          />
+        </div>
+      </div>
+
+      {/* Tabla */}
       <RegstActvTable
         regstActv={paginados}
         setIdSeleccionado={(ts) => { setIdSeleccionado(ts); setShowModal(true); }}
@@ -69,33 +80,35 @@ function RegActPage() {
       />
 
       {/* Paginador */}
-      <div className="d-flex justify-content-center mt-3">
-        <nav>
-          <ul className="pagination">
-            <li className={`page-item ${pagina === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina - 1)}>
-                Anterior
-              </button>
-            </li>
+      {totalPaginas > 1 && (
+        <div className="rs-pagination">
+          <button
+            className="rs-page-btn"
+            onClick={() => setPagina(pagina - 1)}
+            disabled={pagina === 1}
+          >
+            <i className="fa-solid fa-chevron-left"></i>
+          </button>
+          {Array.from({ length: totalPaginas }, (_, i) => (
+            <button
+              key={`pagina-${i + 1}`}
+              className={`rs-page-btn ${pagina === i + 1 ? 'active' : ''}`}
+              onClick={() => setPagina(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            className="rs-page-btn"
+            onClick={() => setPagina(pagina + 1)}
+            disabled={pagina === totalPaginas}
+          >
+            <i className="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      )}
 
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <li key={i} className={`page-item ${pagina === i + 1 ? "active" : ""}`}>
-                <button className="page-link" onClick={() => setPagina(i + 1)}>
-                  {i + 1}
-                </button>
-              </li>
-            ))}
-
-            <li className={`page-item ${pagina === totalPaginas ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina + 1)}>
-                Siguiente
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
-
-       {/* Modal solo Admin */}
+      {/* Modal solo Admin */}
       {showModal && esAdmin && (
         <RegActAgrEdt
           idSeleccionado={idSeleccionado}
