@@ -39,7 +39,7 @@ export const NotifProvider = ({ children }) => {
     const actualizarPreRevisionesNuevas = useCallback(async () => {
         if (!esTecnico) return;
         try {
-            const res = await axios.get("http://localhost:4000/api/pre_revision/listar", {
+            const res = await axios.get("/api/pre_revision/listar", {
                 params: { _t: Date.now() }
             });
             const vistas = getVistas(claveVistasTecnico);
@@ -55,7 +55,7 @@ export const NotifProvider = ({ children }) => {
     const actualizarPendientesOrden = useCallback(async () => {
         if (!esAdmin) return;
         try {
-            const res = await axios.get("http://localhost:4000/api/pre_revision/pendientes-orden", {
+            const res = await axios.get("/api/pre_revision/pendientes-orden", {
                 params: { _t: Date.now() }
             });
             const vistas = getVistas(CLAVE_VISTAS_ADMIN);
@@ -72,7 +72,7 @@ export const NotifProvider = ({ children }) => {
     const actualizarOrdenesNuevas = useCallback(async () => {
         if (!esTecnico) return;
         try {
-            const res = await axios.get("http://localhost:4000/api/ordenes_de_servicio/mis-ordenes", {
+            const res = await axios.get("/api/ordenes_de_servicio/mis-ordenes", {
                 params: { _t: Date.now() }
             });
             const data = Array.isArray(res.data) ? res.data : (res.data.data || []);

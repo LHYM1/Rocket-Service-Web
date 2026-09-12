@@ -58,7 +58,6 @@ const Dashboard = () => {
     }));
 
     return (
-
         <div className="dashboard-page">
             <style>{`
                 @keyframes entradaDash {
@@ -293,8 +292,6 @@ const Dashboard = () => {
                             </table>
                         )}
                     </div>
-
-
                 </div>
 
                 <div className="tecnicos-container">
@@ -319,7 +316,6 @@ const Dashboard = () => {
                 </div>
             </div>
         </div>
-
     );
 };
 

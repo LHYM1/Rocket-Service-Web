@@ -30,8 +30,8 @@ function PreRevisionPage() {
 
     const cargar = useCallback(() => {
         const url = filtroEstado
-            ? `http://localhost:4000/api/pre_revision/listar?estado=${filtroEstado}`
-            : `http://localhost:4000/api/pre_revision/listar`;
+            ? `/api/pre_revision/listar?estado=${filtroEstado}`
+            : `/api/pre_revision/listar`;
         axios.get(url)
             .then(res => {
                 setLista(res.data);
@@ -58,7 +58,7 @@ function PreRevisionPage() {
     const confirmarEliminar = () => {
         const id = idParaEliminar;
         setIdParaEliminar(null);
-        axios.delete(`http://localhost:4000/api/pre_revision/eliminar/${id}`)
+        axios.delete(`/api/pre_revision/eliminar/${id}`)
             .then(res => {
                 mostrarToast(res.data.message, "success");
                 cargar();
@@ -147,7 +147,7 @@ function PreRevisionPage() {
                                         </span>
                                     </td>
                                     <td>{pr.resultado || "—"}</td>
-                                    <td>
+                                    <td style={{ textAlign: "center" }}>
                                         <div className="rs-actions" style={{ justifyContent: "center" }}>
                                             {!esAdmin && pr.estado === "PENDIENTE" && (
                                                 <button
