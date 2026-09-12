@@ -1,64 +1,42 @@
-import axios from '../../axiosConfig'
-
-function TablePrUSer ({ insUsaServ, setIdSeleccionado, getInsUsServ, esAdmin }) {
-
-    if (!insUsaServ || !Array.isArray(insUsaServ)) {
-        return <p>No hay insumos usados en servicio disponibles</p>;
+function TableInsumosUsados({ insumosUsados }) {
+    if (!insumosUsados || !Array.isArray(insumosUsados) || insumosUsados.length === 0) {
+        return (
+            <div className="rs-empty">
+                <i className="fas fa-boxes-stacked rs-empty-icon"></i>
+                <p className="rs-empty-text">No hay insumos usados registrados o coincidentes con la búsqueda.</p>
+            </div>
+        );
     }
 
-    const elimInsUseServ = (id) => {
-        if (window.confirm("¿Estás seguro de eliminar este insumo de servicio?")) {
-            axios.delete(`http://localhost:4000/api/insumos_usados_en_servicio/eliminar/${id}`)
-            .then(() => {
-                alert("Insumo de servicio eliminado con éxito");
-                getInsUsServ();
-            })
-            .catch(err => {
-                console.error(err);
-                alert("No se pudo eliminar el insumo de servicio");
-            });
-        }
-    }
+    const formatearPrecio = (valor) =>
+        Number(valor || 0).toLocaleString("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 });
 
     return (
-        <div>
-            <table className="table table-hover" border="1">
-                <thead className="table-light">
+        <div className="rs-table-wrapper">
+            <table className="rs-table">
+                <thead>
                     <tr>
-                        {esAdmin && <th>Id</th>}
                         <th>Orden</th>
                         <th>Insumo</th>
                         <th>Cantidad</th>
-                        {esAdmin && <th>Acciones</th>}
+                        <th>Precio total</th>
                     </tr>
                 </thead>
-
                 <tbody>
-                    {insUsaServ.map((ts) => (
-                        <tr key={ts.id_insumos_orden}>
-                            {esAdmin && <td>{ts.id_insumos_orden}</td>}
-                            <td>ORD-{String(ts.id_orden).padStart(3, "0")}</td>
-                            <td>{ts.nombre_insumo || "No definido"}</td>
-                            <td>{ts.cantidad} {ts.nombre_unidad || ""}</td>
-
-                            {esAdmin && (
-                                <td>
-                                    <button onClick={() => setIdSeleccionado(ts)}
-                                        type="button" className="btn btn-warning btn-sm me-1">
-                                        Editar
-                                    </button>
-                                    <button onClick={() => elimInsUseServ(ts.id_insumos_orden)}
-                                        type="button" className="btn btn-danger btn-sm">
-                                        Eliminar
-                                    </button>
-                                </td>
-                            )}
+                    {insumosUsados.map((iu) => (
+                        <tr key={iu.id_insumos_orden}>
+                            <td>
+                                <span className="rs-id-badge">{iu.codigo_orden}</span>
+                            </td>
+                            <td>{iu.nombre_insumo}</td>
+                            <td>{iu.cantidad} {iu.unidad_medida || ""}</td>
+                            <td style={{ fontWeight: 600 }}>{formatearPrecio(iu.precio_total)}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
         </div>
-    )
+    );
 }
 
-export default TablePrUSer;
+export default TableInsumosUsados;
