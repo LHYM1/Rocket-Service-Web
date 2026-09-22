@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
 import axios from "../../axiosConfig";
-import ModalEdtAgrPrUser from "../../components/prodtsUseServ/ModalEdtAgrPrUSer";
 import TablePrUSer from "../../components/prodtsUseServ/TablePrUSer";
 import { useAuth } from "../../context/AuthContext";
 import CategoriaBadge from "../../components/ui/CategoriaBadge";
@@ -183,9 +182,7 @@ function CardInsumosTecnico({ insUsaServ }) {
 function PrUsServPage() {
     const { esAdmin } = useAuth();
     const [insUsaServ, setInsUsaServ] = useState([]);
-    const [idSeleccionado, setIdSeleccionado] = useState(null);
     const [busqueda, setBusqueda] = useState("");
-    const [showModal, setShowModal] = useState(false);
 
     const [pagina, setPagina] = useState(1);
     const porPagina = 8;
@@ -205,7 +202,6 @@ function PrUsServPage() {
     const insSerFiltrados = insUsaServ.filter(ts => {
         const texto = busqueda.toLowerCase();
         return (
-            String(ts.id_insumos_orden || "").includes(texto) ||
             String(ts.nombre_insumo || "").toLowerCase().includes(texto) ||
             String(ts.codigo_orden || "").toLowerCase().includes(texto) ||
             String(ts.tecnico_nombre || "").toLowerCase().includes(texto)
@@ -226,7 +222,7 @@ function PrUsServPage() {
                             Insumos Usados en Servicio
                             <CategoriaBadge tipo="inventario" />
                         </h2>
-                        <p className="rs-page-subtitle">Gestión completa de insumos por orden</p>
+                        <p className="rs-page-subtitle">Se registran automáticamente cuando un Técnico cotiza insumos en una orden</p>
                     </div>
                 </div>
             ) : (
@@ -265,9 +261,7 @@ function PrUsServPage() {
                 <>
                     <TablePrUSer
                         insUsaServ={paginados}
-                        setIdSeleccionado={ts => { setIdSeleccionado(ts); setShowModal(true); }}
                         esAdmin={esAdmin}
-                        getInsUsServ={getInsUsServ}
                     />
 
                     {totalPaginas > 1 && (
@@ -298,15 +292,6 @@ function PrUsServPage() {
                         </div>
                     )}
                 </>
-            )}
-
-            {showModal && esAdmin && (
-                <ModalEdtAgrPrUser
-                    idSeleccionado={idSeleccionado}
-                    getInsUsServ={getInsUsServ}
-                    onClose={() => setShowModal(false)}
-                    onSuccess={() => getInsUsServ()}
-                />
             )}
         </div>
     );

@@ -4,19 +4,27 @@ import axios from '../../axiosConfig';
 import { useToast } from '../../context/ToastContext';
 import '../../components/formPassword/formPassword.css';
 
+const KILOMETRAJE_MAXIMO = 500000; // Límite razonable y generoso (una moto bien
+// cuidada suele durar entre 100.000 y 150.000 km; 500.000 cubre hasta casos
+// excepcionales, sin permitir números sin sentido como "999999999")
+
 function FormPassword() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { mostrarToast } = useToast();
 
   const [tokenOculto, setTokenOculto] = useState('');
-  const [paso, setPaso] = useState(1); // 1 = contraseña, 2 = datos de la moto
+  const [paso, setPaso] = useState(1);
   const [animando, setAnimando] = useState(false);
 
   const [form, setForm] = useState({
     contrasena: '',
     confirmarContrasena: '',
   });
+
+  // Visibilidad de cada campo de contraseña (ojito)
+  const [verContrasena, setVerContrasena] = useState(false);
+  const [verConfirmar, setVerConfirmar] = useState(false);
 
   const [moto, setMoto] = useState({
     placa: '',
@@ -39,7 +47,6 @@ function FormPassword() {
   const [tokenInvalido, setTokenInvalido] = useState(false);
   const [mensajeEstado, setMensajeEstado] = useState('');
 
-  // Validar token contra el servidor al cargar el componente
   useEffect(() => {
     const tokenUrl = searchParams.get('token');
     const tokenActual = tokenUrl || tokenOculto;
@@ -77,7 +84,6 @@ function FormPassword() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  // Cargar los modelos de motocicleta disponibles, para el paso 2
   useEffect(() => {
     axios.get("/api/modelo/listar")
       .then(res => {
@@ -96,7 +102,6 @@ function FormPassword() {
 
   const esContrasenaValida = regLongitud && regMayus && regMinus && regNum && regEspecial;
 
-  // Coincidencia de confirmar contraseña, en tiempo real
   const contrasenasCoinciden = form.confirmarContrasena.length > 0 && form.confirmarContrasena === form.contrasena;
   const contrasenasNoCoinciden = form.confirmarContrasena.length > 0 && form.confirmarContrasena !== form.contrasena;
 
@@ -106,29 +111,44 @@ function FormPassword() {
     setErrores((prev) => ({ ...prev, [name]: false }));
   };
 
+  // Formatea la placa MIENTRAS se escribe: solo letras/números, mayúscula,
+  // y un espacio automático después de las primeras 3 posiciones (ej: "LKJ 213")
+  const formatearPlaca = (valorCrudo) => {
+    const limpio = valorCrudo.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 6);
+    if (limpio.length <= 3) return limpio;
+    return `${limpio.slice(0, 3)} ${limpio.slice(3)}`;
+  };
+
   const handleMotoChange = (e) => {
     const { name, value } = e.target;
-    let valorFormateado = value;
 
     if (name === "placa") {
-      // Solo letras y números (sin espacios ni símbolos), en mayúscula,
-      // máximo 6 caracteres (formato típico de placa: 3 letras + 3 números)
-      valorFormateado = value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 6);
-    } else if (name === "kilometraje_actual") {
-      // Solo números enteros positivos -- sin punto decimal, sin signo negativo
-      valorFormateado = value.replace(/[^\d]/g, "");
-    } else if (name === "id_modelo" && value === "__nuevo__") {
-      // Eligió "¿No está tu modelo?" -- cambia a modo texto libre
+      setMoto((prev) => ({ ...prev, placa: formatearPlaca(value) }));
+      setErroresMoto((prev) => ({ ...prev, placa: false }));
+      return;
+    }
+
+    if (name === "kilometraje_actual") {
+      let soloNumeros = value.replace(/[^\d]/g, "").slice(0, 6);
+      // No deja escribir un número que ya se pase del máximo permitido
+      if (soloNumeros !== "" && Number(soloNumeros) > KILOMETRAJE_MAXIMO) {
+        soloNumeros = String(KILOMETRAJE_MAXIMO);
+      }
+      setMoto((prev) => ({ ...prev, kilometraje_actual: soloNumeros }));
+      setErroresMoto((prev) => ({ ...prev, kilometraje_actual: false }));
+      return;
+    }
+
+    if (name === "id_modelo" && value === "__nuevo__") {
       setAgregandoModeloNuevo(true);
       setErroresMoto((prev) => ({ ...prev, id_modelo: false }));
       return;
     }
 
-    setMoto((prev) => ({ ...prev, [name]: valorFormateado }));
+    setMoto((prev) => ({ ...prev, [name]: value }));
     setErroresMoto((prev) => ({ ...prev, [name]: false }));
   };
 
-  // Paso 1 -> Paso 2, con una animación de transición
   const irAPaso2 = () => {
     if (!esContrasenaValida) {
       setErrores((prev) => ({ ...prev, contrasena: true }));
@@ -158,13 +178,17 @@ function FormPassword() {
     }, 300);
   };
 
+  const [registroExitoso, setRegistroExitoso] = useState(false);
+
   const handleSubmitFinal = async (e) => {
     e.preventDefault();
 
+    const kmNum = Number(moto.kilometraje_actual);
+
     const nuevosErroresMoto = {
-      placa: !moto.placa.trim(),
+      placa: moto.placa.replace(/\s/g, "").length !== 6,
       id_modelo: agregandoModeloNuevo ? !nombreModeloNuevo.trim() : !moto.id_modelo,
-      kilometraje_actual: moto.kilometraje_actual === '' || isNaN(Number(moto.kilometraje_actual)) || Number(moto.kilometraje_actual) < 0,
+      kilometraje_actual: moto.kilometraje_actual === '' || isNaN(kmNum) || kmNum < 0 || kmNum > KILOMETRAJE_MAXIMO,
     };
 
     if (Object.values(nuevosErroresMoto).some(Boolean)) {
@@ -191,9 +215,10 @@ function FormPassword() {
         localStorage.setItem('token', response.data.token);
       }
 
-      setTimeout(() => {
-        navigate('/');
-      }, 1500);
+      localStorage.removeItem("token");
+      localStorage.removeItem("rol");
+      localStorage.removeItem("userId");
+      setRegistroExitoso(true);
 
     } catch (error) {
       const status = error.response?.status;
@@ -221,6 +246,34 @@ function FormPassword() {
     );
   }
 
+  if (registroExitoso) {
+    return (
+      <div className="register-container">
+        <div className="register-form-container" style={{ textAlign: 'center', padding: '40px 20px' }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: "50%",
+            backgroundColor: "rgba(34,197,94,0.12)", color: "#22c55e",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: "32px", margin: "0 auto 20px"
+          }}>
+            <i className="fa-solid fa-check"></i>
+          </div>
+          <h2 className="register-title" style={{ color: '#1a1a2e' }}>¡Todo listo!</h2>
+          <p className="register-subtitle" style={{ color: '#4b5563', margin: '12px 0 28px' }}>
+            Tu cuenta y tu motocicleta ya están registradas. Inicia sesión para entrar a tu panel.
+          </p>
+          <button
+            className="register-btn"
+            onClick={() => navigate("/")}
+            style={{ maxWidth: 260, margin: "0 auto" }}
+          >
+            <i className="fa-solid fa-right-to-bracket me-2"></i>Ir a Iniciar Sesión
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="register-container">
       <div className="register-form-container">
@@ -235,7 +288,6 @@ function FormPassword() {
                 : "Un último paso: registra tu moto para poder agendar servicios"}
             </p>
 
-            {/* Indicador de pasos */}
             <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginBottom: "24px" }}>
               <div style={{ width: 32, height: 4, borderRadius: 2, backgroundColor: "#ff7300" }}></div>
               <div style={{ width: 32, height: 4, borderRadius: 2, backgroundColor: paso === 2 ? "#ff7300" : "#e5e7eb", transition: "background-color 0.3s" }}></div>
@@ -265,15 +317,29 @@ function FormPassword() {
                       <i className="fa-solid fa-lock me-2"></i>Nueva Contraseña
                     </label>
 
-                    <input 
-                      className={`register-input ${errores.contrasena ? "register-input-error" : ""}`}
-                      type="password"
-                      name="contrasena"
-                      autoComplete="new-password"
-                      placeholder="••••••••"
-                      value={form.contrasena}
-                      onChange={handleChange}
-                    />  
+                    <div style={{ position: "relative", width: "100%" }}>
+                      <input 
+                        className={`register-input ${errores.contrasena ? "register-input-error" : ""}`}
+                        type={verContrasena ? "text" : "password"}
+                        name="contrasena"
+                        autoComplete="new-password"
+                        placeholder="••••••••"
+                        value={form.contrasena}
+                        onChange={handleChange}
+                        style={{ paddingRight: "40px" }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setVerContrasena(v => !v)}
+                        tabIndex={-1}
+                        style={{
+                          position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)",
+                          background: "none", border: "none", cursor: "pointer", color: "#6b7280"
+                        }}
+                      >
+                        <i className={`fa-solid ${verContrasena ? "fa-eye-slash" : "fa-eye"}`}></i>
+                      </button>
+                    </div>
 
                     {form.contrasena && (
                       <div style={{ marginTop: '8px', fontSize: '11px', color: '#555' }}>
@@ -306,23 +372,34 @@ function FormPassword() {
                     <div style={{ position: "relative", width: "100%" }}>
                       <input 
                         className={`register-input ${errores.confirmarContrasena || contrasenasNoCoinciden ? "register-input-error" : ""}`}
-                        type="password"
+                        type={verConfirmar ? "text" : "password"}
                         name="confirmarContrasena"
                         autoComplete="new-password"
                         placeholder="••••••••"
                         value={form.confirmarContrasena}
                         onChange={handleChange}
-                        style={{ paddingRight: "36px" }}
+                        style={{ paddingRight: "64px" }}
                       />
                       {form.confirmarContrasena.length > 0 && (
                         <i
                           className={`fa-solid ${contrasenasCoinciden ? "fa-circle-check" : "fa-circle-xmark"}`}
                           style={{
-                            position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)",
+                            position: "absolute", right: "40px", top: "50%", transform: "translateY(-50%)",
                             color: contrasenasCoinciden ? "#28a745" : "#dc3545", fontSize: "16px"
                           }}
                         ></i>
                       )}
+                      <button
+                        type="button"
+                        onClick={() => setVerConfirmar(v => !v)}
+                        tabIndex={-1}
+                        style={{
+                          position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)",
+                          background: "none", border: "none", cursor: "pointer", color: "#6b7280"
+                        }}
+                      >
+                        <i className={`fa-solid ${verConfirmar ? "fa-eye-slash" : "fa-eye"}`}></i>
+                      </button>
                     </div>
 
                     {(errores.confirmarContrasena || contrasenasNoCoinciden) && (
@@ -343,20 +420,21 @@ function FormPassword() {
                 <div className="register-row">
                   <div className="register-field">
                     <label className="register-label">
-                      <i className="fa-solid fa-motorcycle me-2"></i>Placa
+                      <i className="fa-solid fa-id-card me-2"></i>Placa
                     </label>
                     <input
                       className={`register-input ${erroresMoto.placa ? "register-input-error" : ""}`}
                       type="text"
                       name="placa"
-                      placeholder="ABC123"
+                      placeholder="ABC 123"
                       value={moto.placa}
                       onChange={handleMotoChange}
+                      style={{ textAlign: "center", letterSpacing: "2px", fontWeight: 700, fontSize: "16px" }}
                     />
                     {erroresMoto.placa && (
                       <small className="register-error-msg">
                         <i className="fa-solid fa-circle-exclamation me-1"></i>
-                        La placa es obligatoria
+                        La placa debe tener 6 caracteres (letras y números)
                       </small>
                     )}
                   </div>
@@ -365,19 +443,26 @@ function FormPassword() {
                     <label className="register-label">
                       <i className="fa-solid fa-gauge-high me-2"></i>Kilometraje actual
                     </label>
-                    <input
-                      className={`register-input ${erroresMoto.kilometraje_actual ? "register-input-error" : ""}`}
-                      type="text"
-                      name="kilometraje_actual"
-                      placeholder="Ej: 15000"
-                      value={moto.kilometraje_actual}
-                      onChange={handleMotoChange}
-                    />
-                    {erroresMoto.kilometraje_actual && (
+                    <div style={{ position: "relative" }}>
+                      <input
+                        className={`register-input ${erroresMoto.kilometraje_actual ? "register-input-error" : ""}`}
+                        type="text"
+                        inputMode="numeric"
+                        name="kilometraje_actual"
+                        placeholder="Ej: 15000"
+                        value={moto.kilometraje_actual}
+                        onChange={handleMotoChange}
+                        style={{ paddingRight: "36px" }}
+                      />
+                      <span style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", fontSize: "12px", color: "#9ca3af", fontWeight: 600 }}>km</span>
+                    </div>
+                    {erroresMoto.kilometraje_actual ? (
                       <small className="register-error-msg">
                         <i className="fa-solid fa-circle-exclamation me-1"></i>
-                        Ingresa un kilometraje válido
+                        Debe ser un número entre 0 y {KILOMETRAJE_MAXIMO.toLocaleString('es-CO')}
                       </small>
+                    ) : (
+                      <span className="rs-hint" style={{ fontSize: "11px" }}>Máximo {KILOMETRAJE_MAXIMO.toLocaleString('es-CO')} km</span>
                     )}
                   </div>
                 </div>
@@ -388,20 +473,49 @@ function FormPassword() {
                   </label>
 
                   {!agregandoModeloNuevo ? (
-                    <select
-                      className={`register-input ${erroresMoto.id_modelo ? "register-input-error" : ""}`}
-                      name="id_modelo"
-                      value={moto.id_modelo}
-                      onChange={handleMotoChange}
-                    >
-                      <option value="">Selecciona el modelo</option>
-                      {modelos.map(m => (
-                        <option key={m.id_modelo} value={m.id_modelo}>{m.nombre}</option>
-                      ))}
-                      <option value="__nuevo__">¿No está tu modelo? Agregar modelo de mi moto</option>
-                    </select>
+                    <>
+                      <select
+                        className={`register-input ${erroresMoto.id_modelo ? "register-input-error" : ""}`}
+                        name="id_modelo"
+                        value={moto.id_modelo}
+                        onChange={handleMotoChange}
+                      >
+                        <option value="">Selecciona el modelo</option>
+                        {modelos.map(m => (
+                            <option key={m.id_modelo} value={m.id_modelo}>{m.nombre}</option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => setAgregandoModeloNuevo(true)}
+                        style={{
+                          display: "flex", alignItems: "center", gap: "8px",
+                          width: "100%", marginTop: "10px", padding: "10px 14px",
+                          background: "#fff8ee", border: "1.5px dashed #ff8c0060",
+                          borderRadius: "10px", cursor: "pointer", textAlign: "left"
+                        }}
+                      >
+                        <div style={{
+                          width: "26px", height: "26px", borderRadius: "50%",
+                          backgroundColor: "#ff8c0020", display: "flex",
+                          alignItems: "center", justifyContent: "center", flexShrink: 0
+                        }}>
+                          <i className="fa-solid fa-plus" style={{ color: "#ff7300", fontSize: "11px" }}></i>
+                        </div>
+                        <span style={{ fontSize: "13px", color: "#9a5b00", fontWeight: 600 }}>
+                          ¿No está tu modelo? Agrégalo aquí
+                        </span>
+                      </button>
+                    </>
                   ) : (
-                    <div>
+                    <div style={{
+                      background: "#fff8ee", border: "1.5px solid #ff8c0040",
+                      borderRadius: "10px", padding: "14px"
+                    }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                        <i className="fa-solid fa-motorcycle" style={{ color: "#ff7300" }}></i>
+                        <span style={{ fontSize: "13px", fontWeight: 700, color: "#1a1a2e" }}>Nuevo modelo</span>
+                      </div>
                       <input
                         className={`register-input ${erroresMoto.id_modelo ? "register-input-error" : ""}`}
                         type="text"
@@ -411,11 +525,12 @@ function FormPassword() {
                             setNombreModeloNuevo(e.target.value.toUpperCase());
                             setErroresMoto((prev) => ({ ...prev, id_modelo: false }));
                         }}
+                        style={{ backgroundColor: "white" }}
                       />
                       <button
                         type="button"
                         onClick={() => { setAgregandoModeloNuevo(false); setNombreModeloNuevo(''); }}
-                        style={{ background: "none", border: "none", color: "#ff7300", fontSize: "12px", marginTop: "6px", cursor: "pointer", padding: 0 }}
+                        style={{ background: "none", border: "none", color: "#ff7300", fontSize: "12px", marginTop: "8px", cursor: "pointer", padding: 0, fontWeight: 600 }}
                       >
                         <i className="fa-solid fa-arrow-left me-1"></i>Volver a elegir de la lista
                       </button>

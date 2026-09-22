@@ -50,6 +50,7 @@ function TableCategory({ categoria, setIdSeleccionado, getCategoria }) {
                         <tr>
                             <th>Nombre</th>
                             <th>Descripción</th>
+                            <th>N° de insumos</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -58,6 +59,11 @@ function TableCategory({ categoria, setIdSeleccionado, getCategoria }) {
                             <tr key={cat.id_categoria}>
                                 <td style={{ color: '#1a1a2e', fontWeight: '500' }}>{cat.nombre}</td>
                                 <td>{cat.descripcion || <span className="rs-hint">Sin descripción</span>}</td>
+                                <td>
+                                    <span className="rs-badge rs-badge-muted">
+                                        {cat.total_insumos ?? 0} insumo{cat.total_insumos === 1 ? "" : "s"}
+                                    </span>
+                                </td>
                                 <td>
                                     <div className="rs-actions">
                                         <button

@@ -64,11 +64,6 @@ const register = async (req, res) => {
     }
 
     // D. REGISTRO EXITOSO
-    // Nota: la versión original usaba una transacción real (pool.getConnection() +
-    // beginTransaction/commit/rollback), propia de mysql2. Nuestro db.js de PostgreSQL
-    // no expone ese método -- solo .query(). Se ejecutan las 2 operaciones seguidas;
-    // el riesgo de que una falle justo después de la otra es mínimo y de bajo impacto
-    // (en el peor caso, un token quedaría sin borrar, no algo crítico como un pago).
     const hashedPassword = await bcrypt.hash(contrasena, 12);
 
     await updateUsuarioActivo({ 
@@ -252,15 +247,19 @@ const establecerContrasenaCliente = async (req, res) => {
     return res.status(400).json({ message: "Los datos de tu motocicleta son obligatorios." });
   }
 
-  // Placa: solo letras y números, exactamente 6 caracteres (formato típico: 3 letras + 3 números)
-  const placaLimpia = placa.trim().toUpperCase();
-  if (!/^[A-Z0-9]{6}$/.test(placaLimpia)) {
+  // Placa: el frontend ahora manda el espacio ya incluido (ej. "LKJ 213"), así
+  // que primero se le quita el espacio para validar los 6 caracteres reales
+  const placaSinEspacio = placa.trim().toUpperCase().replace(/\s/g, "");
+  if (!/^[A-Z0-9]{6}$/.test(placaSinEspacio)) {
     return res.status(400).json({ message: "La placa debe tener exactamente 6 caracteres (solo letras y números)." });
   }
 
-  // Kilometraje: número entero positivo, sin decimales
-  if (!/^\d+$/.test(String(kilometraje_actual)) || Number(kilometraje_actual) < 0) {
-    return res.status(400).json({ message: "El kilometraje debe ser un número entero positivo." });
+  // Kilometraje: número entero positivo, dentro de un rango razonable (máximo
+  // 500.000 km -- una moto bien cuidada rara vez supera los 150.000 km en su
+  // vida útil, pero se deja un margen generoso para casos excepcionales)
+  const KILOMETRAJE_MAXIMO = 500000;
+  if (!/^\d+$/.test(String(kilometraje_actual)) || Number(kilometraje_actual) < 0 || Number(kilometraje_actual) > KILOMETRAJE_MAXIMO) {
+    return res.status(400).json({ message: `El kilometraje debe ser un número entero entre 0 y ${KILOMETRAJE_MAXIMO}.` });
   }
 
   try {
@@ -297,9 +296,9 @@ const establecerContrasenaCliente = async (req, res) => {
         idModeloFinal = await crearModelo(nombreModeloNuevo);
       }
 
-      // Se guarda con espacio en medio (ej. "PQZ 453"), igual que el resto de
-      // placas ya existentes en la base de datos (formato típico colombiano)
-      const placaConEspacio = `${placaLimpia.slice(0, 3)} ${placaLimpia.slice(3)}`;
+      // Se normaliza siempre a "ABC 123" (3 + espacio + 3), sin importar si el
+      // frontend mandó el espacio o no
+      const placaConEspacio = `${placaSinEspacio.slice(0, 3)} ${placaSinEspacio.slice(3)}`;
 
       await crearMotocicletaCliente({
         id_usuario: registroToken.id_usuario,

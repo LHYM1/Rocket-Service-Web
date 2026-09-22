@@ -1,11 +1,7 @@
-import { useState } from "react";
-import axios from '../../axiosConfig';
-import { useToast } from "../../context/ToastContext";
-import ConfirmModal from '../ConfirmModal';
-
-function TablePrUSer({ insUsaServ, setIdSeleccionado, getInsUsServ, esAdmin }) {
-    const { mostrarToast } = useToast();
-    const [insumoParaEliminar, setInsumoParaEliminar] = useState(null);
+// Nota: ya no recibe setIdSeleccionado ni getInsUsServ -- esta tabla ahora es
+// SOLO de lectura (sin editar/eliminar), ya que los registros se generan
+// automáticamente cuando el Técnico cotiza insumos en una orden, no manualmente.
+function TablePrUSer({ insUsaServ, esAdmin }) {
 
     if (!insUsaServ || !Array.isArray(insUsaServ)) {
         return (
@@ -25,80 +21,40 @@ function TablePrUSer({ insUsaServ, setIdSeleccionado, getInsUsServ, esAdmin }) {
         );
     }
 
-    const elimInsUseServ = (id) => {
-        setInsumoParaEliminar(id);
-    };
-
-    const confirmarEliminar = () => {
-        const id = insumoParaEliminar;
-        setInsumoParaEliminar(null);
-        axios.delete(`/api/insumos_usados_en_servicio/eliminar/${id}`)
-            .then(() => {
-                mostrarToast("Insumo de servicio eliminado con éxito.", "success");
-                getInsUsServ();
-            })
-            .catch(err => {
-                mostrarToast(err.response?.data?.message || "No se pudo eliminar el insumo de servicio.", "error");
-            });
-    };
+    const formatearPrecio = (valor) =>
+        new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(valor || 0);
 
     return (
-        <>
-            <div className="rs-table-wrapper">
-                <table className="rs-table rs-table-sm">
-                    <thead>
-                        <tr>
-                            {esAdmin && <th>ID</th>}
-                            <th>Orden</th>
-                            <th>Insumo</th>
-                            <th>Cantidad</th>
-                            {esAdmin && <th>Acciones</th>}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {insUsaServ.map((ts) => (
+        <div className="rs-table-wrapper">
+            <table className="rs-table rs-table-sm">
+                <thead>
+                    <tr>
+                        <th>Orden</th>
+                        <th>Insumo</th>
+                        <th>Cantidad</th>
+                        <th>Precio Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {insUsaServ.map((ts) => {
+                        const precioTotal = (Number(ts.cantidad) || 0) * (Number(ts.precio_unitario_snapshot) || 0);
+                        return (
                             <tr key={ts.id_insumos_orden}>
-                                {esAdmin && <td>{ts.id_insumos_orden}</td>}
-                                <td>{ts.codigo_orden || `ORD-${String(ts.id_orden).padStart(3, "0")}`}</td>
+                                <td>
+                                    {/* Mismo estilo de "chip" que usa la columna Placa en Motocicletas */}
+                                    <span className="rs-id-badge">
+                                        {ts.codigo_orden || `ORD-${String(ts.id_orden).padStart(3, "0")}`}
+                                    </span>
+                                </td>
                                 <td style={{ color: '#1a1a2e', fontWeight: '500' }}>{ts.nombre_insumo || "No definido"}</td>
                                 <td>{ts.cantidad} {ts.nombre_unidad || ""}</td>
-                                {esAdmin && (
-                                    <td>
-                                        <div className="rs-actions">
-                                            <button
-                                                onClick={() => setIdSeleccionado(ts)}
-                                                className="rs-btn rs-btn-icon rs-btn-edit"
-                                                title="Editar"
-                                            >
-                                                <i className="fa-solid fa-pen-to-square"></i>
-                                            </button>
-                                            <button
-                                                onClick={() => elimInsUseServ(ts.id_insumos_orden)}
-                                                className="rs-btn rs-btn-icon rs-btn-delete"
-                                                title="Eliminar"
-                                            >
-                                                <i className="fa-solid fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                )}
+                                <td style={{ color: '#1a1a2e', fontWeight: '600' }}>{formatearPrecio(precioTotal)}</td>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
-            {insumoParaEliminar && (
-                <ConfirmModal
-                    title="¿Eliminar este insumo de servicio?"
-                    message="Esta acción no se puede deshacer."
-                    confirmLabel="Sí, eliminar"
-                    icon="fa-solid fa-trash"
-                    onConfirm={confirmarEliminar}
-                    onCancel={() => setInsumoParaEliminar(null)}
-                />
-            )}
-        </>
+                        );
+                    })}
+                </tbody>
+            </table>
+        </div>
     );
 }
 
