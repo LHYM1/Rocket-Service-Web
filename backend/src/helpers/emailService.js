@@ -25,10 +25,14 @@ const LOGO_URL = 'https://res.cloudinary.com/duay1vobd/image/upload/v1789058464/
 export const enviarTokenTecnico = async (destinatario, token) => {
     const urlRegistro = `${process.env.FRONTEND_URL}/register?token=${token}`;
 
+    // Se agrega la hora exacta al final del asunto -- así Gmail no agrupa
+    // varios correos de prueba en un mismo hilo (cada uno queda separado)
+    const horaEnvio = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
     const { error } = await resend.emails.send({
       from: REMITENTE,
       to: destinatario,
-      subject: 'Código de activación de cuenta - Rocket Service',
+      subject: `Código de activación de cuenta - Rocket Service [${horaEnvio}]`,
       html: `
         <div style="${wrapperEstilo}">
           <div style="${cardEstilo}">
@@ -86,10 +90,12 @@ export const enviarTokenTecnico = async (destinatario, token) => {
  * Envío de token de activación al cliente (Token incrustado en botón, invisible en el texto)
  */
 export const enviarTokenCliente = async (destinatario, urlCliente) => {
+    const horaEnvio = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
     const { error } = await resend.emails.send({
       from: REMITENTE,
       to: destinatario,
-      subject: 'Establece tu contraseña - Rocket Service',
+      subject: `Establece tu contraseña - Rocket Service [${horaEnvio}]`,
       html: `
         <div style="${wrapperEstilo}">
           <div style="${cardEstilo}">
