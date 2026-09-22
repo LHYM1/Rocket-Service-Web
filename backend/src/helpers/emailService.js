@@ -1,4 +1,14 @@
-import transporter from '../config/mailer.js';
+import { Resend } from 'resend';
+
+// Resend envía por HTTPS (puerto 443), no por SMTP -- por eso funciona en
+// Render aunque el plan gratis bloquee los puertos SMTP (25, 465, 587).
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// "onboarding@resend.dev" es la dirección de prueba que Resend deja usar sin
+// verificar un dominio propio -- suficiente para un proyecto formativo como
+// este. Si más adelante compras un dominio, se puede verificar en Resend y
+// cambiar esta constante por algo como "notificaciones@rocketservice.com".
+const REMITENTE = 'Rocket Service <onboarding@resend.dev>';
 
 // Estilos compartidos entre los dos correos, para que se vean consistentes
 const wrapperEstilo = `font-family: -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f4f5f7; padding: 40px 20px; margin: 0;`;
@@ -7,14 +17,16 @@ const headerEstilo = `background-color: #1a1a2e; padding: 28px 32px; text-align:
 const bodyEstilo = `padding: 32px;`;
 const footerEstilo = `padding: 20px 32px; background-color: #fafafa; border-top: 1px solid #f0f0f0;`;
 
+const LOGO_URL = 'https://res.cloudinary.com/duay1vobd/image/upload/v1789058464/PHOTO-2026-05-19-21-30-34_zssi0z.jpg';
+
 /**
  * Envia el token de activacion y enlace de registro al Tecnico
  */
 export const enviarTokenTecnico = async (destinatario, token) => {
     const urlRegistro = `${process.env.FRONTEND_URL}/register?token=${token}`;
 
-    await transporter.sendMail({
-      from: `"Rocket Service" <${process.env.EMAIL_USER}>`,
+    const { error } = await resend.emails.send({
+      from: REMITENTE,
       to: destinatario,
       subject: 'Código de activación de cuenta - Rocket Service',
       html: `
@@ -22,7 +34,7 @@ export const enviarTokenTecnico = async (destinatario, token) => {
           <div style="${cardEstilo}">
 
             <div style="${headerEstilo}">
-              <img src="https://res.cloudinary.com/duay1vobd/image/upload/v1789058464/PHOTO-2026-05-19-21-30-34_zssi0z.jpg"
+              <img src="${LOGO_URL}"
                    alt="Rocket Service"
                    style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid #ff8c00; margin-bottom: 8px;" />
               <h1 style="color: #ffffff; font-size: 18px; margin: 0; font-weight: 600;">Rocket Service</h1>
@@ -54,7 +66,7 @@ export const enviarTokenTecnico = async (destinatario, token) => {
 
             <div style="${footerEstilo}">
               <p style="color: #9ca3af; font-size: 12px; line-height: 1.5; margin: 0; text-align: center;">
-                ⏱️ Este código es válido por <strong>10 minutos</strong>.<br>
+                ⏱️ Este código es válido por <strong>30 minutos</strong>.<br>
                 Si no esperabas este correo, puedes ignorarlo con confianza.
               </p>
             </div>
@@ -63,14 +75,19 @@ export const enviarTokenTecnico = async (destinatario, token) => {
         </div>
       `
     });
+
+    if (error) {
+      console.error('Error al enviar correo (Técnico) con Resend:', error);
+      throw new Error(error.message || 'No se pudo enviar el correo de activación.');
+    }
 };
 
 /**
  * Envío de token de activación al cliente (Token incrustado en botón, invisible en el texto)
  */
 export const enviarTokenCliente = async (destinatario, urlCliente) => {
-    await transporter.sendMail({
-      from: `"Rocket Service" <${process.env.EMAIL_USER}>`,
+    const { error } = await resend.emails.send({
+      from: REMITENTE,
       to: destinatario,
       subject: 'Establece tu contraseña - Rocket Service',
       html: `
@@ -78,7 +95,7 @@ export const enviarTokenCliente = async (destinatario, urlCliente) => {
           <div style="${cardEstilo}">
 
             <div style="${headerEstilo}">
-              <img src="https://res.cloudinary.com/duay1vobd/image/upload/v1789058464/PHOTO-2026-05-19-21-30-34_zssi0z.jpg"
+              <img src="${LOGO_URL}"
                    alt="Rocket Service"
                    style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid #ff8c00; margin-bottom: 8px;" />
               <h1 style="color: #ffffff; font-size: 18px; margin: 0; font-weight: 600;">Rocket Service</h1>
@@ -110,4 +127,9 @@ export const enviarTokenCliente = async (destinatario, urlCliente) => {
         </div>
       `
     });
+
+    if (error) {
+      console.error('Error al enviar correo (Cliente) con Resend:', error);
+      throw new Error(error.message || 'No se pudo enviar el correo de activación.');
+    }
 };
