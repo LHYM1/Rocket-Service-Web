@@ -5,7 +5,7 @@ const preRevision = {
         const [rows] = await db.query(
             `SELECT u.id_usuario FROM usuarios u
              JOIN clasificacion_de_usuarios c ON u.id_tipo_usuario = c.id_tipo_usuario
-             WHERE u.id_usuario = ? AND c.categoria_usuario = 'Técnico' AND u.estado = 1`,
+             WHERE u.id_usuario = ? AND c.categoria_usuario = 'Técnico' AND u.estado = 2`,
             [id_usuario]
         );
         if (rows.length === 0) return false;
@@ -95,14 +95,25 @@ const preRevision = {
             `SELECT COUNT(*) AS total FROM pre_revision_fotos WHERE id_pre_revision = ?`,
             [id]
         );
-        return rows[0].total;
+        // PostgreSQL devuelve COUNT(*) como texto -- se convierte para evitar
+        // errores si en algún punto se suma o compara aritméticamente
+        return Number(rows[0].total);
     },
 
     agregarFoto: async (id_pre_revision, url_imagen) => {
-        await db.query(
+        const [result] = await db.query(
             `INSERT INTO pre_revision_fotos (id_pre_revision, url_imagen) VALUES (?, ?)`,
             [id_pre_revision, url_imagen]
         );
+        return result.insertId;
+    },
+
+    eliminarFoto: async (id_foto) => {
+        const [result] = await db.query(
+            `DELETE FROM pre_revision_fotos WHERE id_foto = ?`,
+            [id_foto]
+        );
+        return result.affectedRows > 0;
     },
 
     // RN-004 / RN-005: el Técnico completa el resultado

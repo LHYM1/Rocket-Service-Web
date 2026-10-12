@@ -3,9 +3,13 @@ import db from '../../config/db.js';
 const ImagDanos = {
     findAll: async () => {
         const [rows] = await db.query(`
-            SELECT i.*, o.codigo_orden
+            SELECT i.*, o.codigo_orden,
+                CONCAT(cli.nombre, ' ', cli.apellido) AS nombre_cliente,
+                CONCAT(tec.nombre, ' ', tec.apellido) AS nombre_tecnico
             FROM imagenes_danos i
             LEFT JOIN ordenes_de_servicio o ON i.id_orden = o.id_orden
+            LEFT JOIN usuarios cli ON o.id_usuario = cli.id_usuario
+            LEFT JOIN usuarios tec ON o.id_tecnico_asignado = tec.id_usuario
             ORDER BY i.id_imagen DESC
         `);
         return rows;

@@ -37,11 +37,11 @@ const EdtAgrModelo = ({ idSeleccionado, onClose, onSuccess }) => {
             setCargando(true);
             if (idSeleccionado) {
                 await axios.put(
-                    `http://localhost:4000/api/modelo/modificar/${idSeleccionado.id_modelo}`, modelo
+                    `/api/modelo/modificar/${idSeleccionado.id_modelo}`, modelo
                 );
                 mostrarToast("Modelo de motocicleta actualizado satisfactoriamente.", "success");
             } else {
-                await axios.post(`http://localhost:4000/api/modelo/crear`, modelo);
+                await axios.post(`/api/modelo/crear`, modelo);
                 mostrarToast("Modelo de motocicleta registrado exitosamente.", "success");
             }
             onSuccess();

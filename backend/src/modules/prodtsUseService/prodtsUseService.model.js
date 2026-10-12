@@ -114,7 +114,7 @@ const prodtsUseService = {
     quitarInsumoDeOrden: async (id_insumos_orden, id_insumo, cantidad) => {
         await db.query(`DELETE FROM insumos_usados_en_servicio WHERE id_insumos_orden = ?`, [id_insumos_orden]);
         await db.query(
-            `UPDATE insumos SET cantidad_disponible = cantidad_disponible + ?, estado = 1 WHERE id_insumo = ?`,
+            `UPDATE insumos SET cantidad_disponible = cantidad_disponible + ?, estado = true WHERE id_insumo = ?`,
             [cantidad, id_insumo]
         );
     },
@@ -126,7 +126,8 @@ const prodtsUseService = {
              FROM insumos_usados_en_servicio WHERE id_orden = ?`,
             [id_orden]
         );
-        return rows[0].total;
+        // PostgreSQL devuelve SUM(...) como texto -- misma conversión que en los COUNT
+        return Number(rows[0].total);
     },
 
     // Insumos cotizados de UNA orden puntual (por id exacto, no búsqueda difusa)

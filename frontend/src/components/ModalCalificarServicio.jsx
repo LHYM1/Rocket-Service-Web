@@ -22,7 +22,7 @@ function ModalCalificarServicio({ orden, onClose, onSuccess }) {
         setEnviando(true);
         try {
             const res = await axios.post(
-                `http://localhost:4000/api/calificaciones/calificar/${orden.id_orden}`,
+                `/api/calificaciones/calificar/${orden.id_orden}`,
                 { calificacion, comentario }
             );
             mostrarToast(res.data.message, "success");

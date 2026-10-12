@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "../../axiosConfig";
 
-const API_BASE_URL = "http://localhost:4000/api";
+const API_BASE_URL = "/api";
 
 const REGEX_PLACA_COMPLETA = /^[A-Z]{3}\s?[0-9]{2}[A-Z]$/;
 const REGEX_NOMBRE_MODELO = /^[A-ZÁÉÍÓÚÑ]+[A-Z0-9ÁÉÍÓÚÑ\s-]*$/;

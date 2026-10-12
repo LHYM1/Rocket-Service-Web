@@ -54,12 +54,12 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
         try {
             if (idSeleccionado) {
                 const res = await axios.put(
-                    `http://localhost:4000/api/tipo_servicio/modificar/${idSeleccionado.id_tipo_servicio}`, 
+                    `/api/tipo_servicio/modificar/${idSeleccionado.id_tipo_servicio}`, 
                     payload
                 );
                 alert(res.data.message || "Tipo de servicio actualizado correctamente");
             } else {
-                const res = await axios.post(`http://localhost:4000/api/tipo_servicio/crear`, payload);
+                const res = await axios.post(`/api/tipo_servicio/crear`, payload);
                 alert(res.data.message || "Tipo de servicio creado correctamente");
             }
             onSuccess();

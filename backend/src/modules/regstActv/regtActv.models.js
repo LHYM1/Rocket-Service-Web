@@ -1,15 +1,25 @@
 import db from '../../config/db.js';
 
 const registroActv = {
-    // Traer todas las órdenes con Nombres de Técnicos y Estados (JOIN)
+    // Traer todos los registros con el código de la orden y el nombre del técnico (JOIN real)
     findAll: async () => {
-        const query = ('SELECT * FROM registro_actividad');
+        const query = `
+            SELECT 
+                ra.*,
+                o.codigo_orden,
+                u.nombre AS nombre_tecnico,
+                u.apellido AS apellido_tecnico
+            FROM registro_actividad ra
+            LEFT JOIN ordenes_de_servicio o ON ra.id_orden = o.id_orden
+            LEFT JOIN usuarios u ON ra.id_usuario = u.id_usuario
+            ORDER BY ra.id_registro DESC
+        `;
         const [rows] = await db.query(query);
         return rows;
     },
 
     findById: async (id) => {
-        const [rows] = await db.query('SELECT * FROM registro_actividad WHERE 	id_registro = ?', [id]);
+        const [rows] = await db.query('SELECT * FROM registro_actividad WHERE id_registro = ?', [id]);
         return rows[0];
     },
 

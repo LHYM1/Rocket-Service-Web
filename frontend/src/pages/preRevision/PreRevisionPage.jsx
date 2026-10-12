@@ -3,10 +3,12 @@ import axios from "../../axiosConfig";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import ModalCrearPreRevision from "../../components/ModalCrearPreRevision";
-import ModalCompletarPreRevision from "../../components/ModalCompletarPreRevision";
+import CategoriaBadge from "../../components/ui/CategoriaBadge";
+import ModalCompletarPreRevision, { hayBorrador } from "../../components/ModalCompletarPreRevision";
 import ModalCrearOrdenDesdePreRevision from "../../components/ModalCrearOrdenDesdePreRevision";
 import ConfirmModal from "../../components/ConfirmModal";
 import ModalDetallePreRevision from "../../components/ModalDetallePreRevision";
+import { useNotif } from "../../context/NotifContext";
 
 const ESTADOS_BADGE = {
     PENDIENTE: "rs-badge-warning",
@@ -16,6 +18,7 @@ const ESTADOS_BADGE = {
 
 function PreRevisionPage() {
     const { esAdmin } = useAuth();
+    const { marcarPreRevisionesVistas, marcarPendientesOrdenVistas } = useNotif();
     const { mostrarToast } = useToast();
     const [lista, setLista] = useState([]);
     const [filtroEstado, setFiltroEstado] = useState("");
@@ -27,12 +30,24 @@ function PreRevisionPage() {
 
     const cargar = useCallback(() => {
         const url = filtroEstado
-            ? `http://localhost:4000/api/pre_revision/listar?estado=${filtroEstado}`
-            : `http://localhost:4000/api/pre_revision/listar`;
+            ? `/api/pre_revision/listar?estado=${filtroEstado}`
+            : `/api/pre_revision/listar`;
         axios.get(url)
-            .then(res => setLista(res.data))
+            .then(res => {
+                setLista(res.data);
+                // El Técnico ya NO se marca como "vista" solo por entrar aquí --
+                // se marca al Aceptar la pre-revisión (ver el botón más abajo)
+                if (esAdmin) {
+                    // Marca como vistas solo las que ya están COMPLETADA + Requiere reparación
+                    // (las mismas que cuenta el badge), no todas las de la tabla
+                    const conOrdenPendiente = res.data.filter(pr =>
+                        pr.estado === "COMPLETADA" && pr.resultado === "Requiere reparación" && !pr.id_orden_generada
+                    );
+                    marcarPendientesOrdenVistas(conOrdenPendiente.map(pr => pr.id_pre_revision));
+                }
+            })
             .catch(err => console.error(err));
-    }, [filtroEstado]);
+    }, [filtroEstado, esAdmin, marcarPendientesOrdenVistas]);
 
     useEffect(() => { cargar(); }, [cargar]);
 
@@ -43,7 +58,7 @@ function PreRevisionPage() {
     const confirmarEliminar = () => {
         const id = idParaEliminar;
         setIdParaEliminar(null);
-        axios.delete(`http://localhost:4000/api/pre_revision/eliminar/${id}`)
+        axios.delete(`/api/pre_revision/eliminar/${id}`)
             .then(res => {
                 mostrarToast(res.data.message, "success");
                 cargar();
@@ -77,6 +92,7 @@ function PreRevisionPage() {
                     <h2 className="rs-page-title">
                         <i className="fa-solid fa-magnifying-glass"></i>{" "}
                         {esAdmin ? "Pre-revisiones" : "Mis Pre-revisiones"}
+                        <CategoriaBadge tipo="operacion" />
                     </h2>
                     <p className="rs-page-subtitle">{lista.length} pre-revisiones</p>
                 </div>
@@ -131,14 +147,19 @@ function PreRevisionPage() {
                                         </span>
                                     </td>
                                     <td>{pr.resultado || "—"}</td>
-                                    <td>
-                                        <div className="rs-actions">
+                                    <td style={{ textAlign: "center" }}>
+                                        <div className="rs-actions" style={{ justifyContent: "center" }}>
                                             {!esAdmin && pr.estado === "PENDIENTE" && (
                                                 <button
                                                     className="rs-btn rs-btn-primary"
-                                                    onClick={() => setSeleccionada(pr)}
+                                                    onClick={() => {
+                                                        setSeleccionada(pr);
+                                                        marcarPreRevisionesVistas([pr.id_pre_revision]);
+                                                    }}
                                                 >
-                                                    Aceptar Pre-Revisión
+                                                    {hayBorrador(pr.id_pre_revision) ? (
+                                                        <><i className="fa-solid fa-pen me-1"></i>Seguir editando</>
+                                                    ) : "Aceptar Pre-Revisión"}
                                                 </button>
                                             )}
                                             {esAdmin && pr.estado === "PENDIENTE" && (
@@ -173,6 +194,18 @@ function PreRevisionPage() {
                                                 <span className="rs-badge rs-badge-success">Orden #{pr.id_orden_generada} creada</span>
                                             )}
                                             {!esAdmin && (pr.estado === "FINALIZADA" || pr.estado === "COMPLETADA") && (
+                                                <button
+                                                    className="rs-btn rs-btn-icon rs-btn-edit"
+                                                    onClick={() => setParaVerDetalle(pr)}
+                                                    title="Ver detalle"
+                                                >
+                                                    <i className="fa-solid fa-eye"></i>
+                                                </button>
+                                            )}
+
+                                            {/* Admin: mismo botón de "Ver detalle" para los casos que no tienen
+                                                ninguna acción pendiente (antes quedaban con la columna vacía) */}
+                                            {esAdmin && (pr.estado === "FINALIZADA" || (pr.estado === "COMPLETADA" && pr.id_orden_generada)) && (
                                                 <button
                                                     className="rs-btn rs-btn-icon rs-btn-edit"
                                                     onClick={() => setParaVerDetalle(pr)}

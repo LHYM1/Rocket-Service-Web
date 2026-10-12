@@ -4,7 +4,7 @@ function TypeServTable({ tipServ, setIdSeleccionado, getTipoServicio, esAdmin, s
     const eliminarTipServ = async (id, nombre) => {
         if (window.confirm(`¿Estás seguro de eliminar el tipo de servicio "${nombre}"?`)) {
             try {
-                const res = await axios.delete(`http://localhost:4000/api/tipo_servicio/eliminar/${id}`);
+                const res = await axios.delete(`/api/tipo_servicio/eliminar/${id}`);
                 showToast(res.data.message || "Tipo de servicio eliminado", "success");
                 getTipoServicio();
             } catch (err) {
@@ -18,7 +18,7 @@ function TypeServTable({ tipServ, setIdSeleccionado, getTipoServicio, esAdmin, s
     const cambiarEstado = async (id, estadoActual) => {
         const nuevoEstado = estadoActual === 1 ? 0 : 1;
         try {
-            await axios.patch(`http://localhost:4000/api/tipo_servicio/estado/${id}`, { estado: nuevoEstado });
+            await axios.patch(`/api/tipo_servicio/estado/${id}`, { estado: nuevoEstado });
             showToast("Estado actualizado correctamente", "success");
             getTipoServicio();
         } catch (err) {

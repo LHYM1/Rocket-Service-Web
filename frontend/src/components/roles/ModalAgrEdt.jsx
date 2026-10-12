@@ -25,13 +25,13 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
       if (idSeleccionado) {
         // Editar
         await axios.put(
-          `http://localhost:4000/api/clasificacion_de_usuarios/modificar/${idSeleccionado.id_tipo_usuario}`,
+          `/api/clasificacion_de_usuarios/modificar/${idSeleccionado.id_tipo_usuario}`,
           clasfUser
         );
         alert("Categoria actualizada con éxito");
       } else {
         // Agregar
-        await axios.post("http://localhost:4000/api/clasificacion_de_usuarios/crear", clasfUser);
+        await axios.post("/api/clasificacion_de_usuarios/crear", clasfUser);
         alert("Categoria agregada con éxito");
       }
       onSuccess();

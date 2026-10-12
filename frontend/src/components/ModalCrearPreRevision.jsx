@@ -20,16 +20,27 @@ function ModalCrearPreRevision({ onClose, onSuccess }) {
 
     useEffect(() => {
         // NOTA: ajustar estas rutas si tus endpoints reales de usuarios/motocicleta tienen otro nombre
-        axios.get("http://localhost:4000/api/usuarios/listar")
-            .then(res => setClientes(res.data.filter(u => u.categoria_usuario === "Cliente")))
+        axios.get("/api/usuarios/listar")
+            .then(res => {
+                const data = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                setClientes(data.filter(u => u.categoria_usuario === "Cliente"));
+            })
             .catch(() => mostrarToast("No se pudo cargar la lista de clientes.", "error"));
 
-        axios.get("http://localhost:4000/api/motocicleta/listar")
-            .then(res => setMotos(res.data))
+        axios.get("/api/motocicleta/listar")
+            .then(res => {
+                // Algunos módulos (como este) devuelven { status, data } en vez del
+                // arreglo directo -- esto funciona sea cual sea el formato que venga.
+                const data = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                setMotos(data);
+            })
             .catch(() => mostrarToast("No se pudo cargar la lista de motocicletas.", "error"));
 
-        axios.get("http://localhost:4000/api/ordenes_de_servicio/tecnicos-disponibles")
-            .then(res => setTecnicos(res.data))
+        axios.get("/api/ordenes_de_servicio/tecnicos-disponibles")
+            .then(res => {
+                const data = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                setTecnicos(data);
+            })
             .catch(() => mostrarToast("No se pudo cargar la lista de técnicos disponibles.", "error"));
 
                 // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -63,7 +74,7 @@ function ModalCrearPreRevision({ onClose, onSuccess }) {
         }
 
         try {
-            await axios.post("http://localhost:4000/api/pre_revision/crear", form);
+            await axios.post("/api/pre_revision/crear", form);
             mostrarToast("Pre-revisión creada correctamente.", "success");
             onSuccess();
             onClose();

@@ -65,7 +65,9 @@ const OrdenServicio = {
                 o.id_estado_de_servicio,
                 o.fecha_de_creacion,
                 o.fecha_finalizacion_estimada,
-                o.descripcion_del_problema
+                o.descripcion_del_problema,
+                o.motivo_rechazo,
+                EXISTS (SELECT 1 FROM insumos_usados_en_servicio iu WHERE iu.id_orden = o.id_orden) AS tiene_insumos
             FROM ordenes_de_servicio o
             LEFT JOIN motocicleta m ON o.id_moto = m.id_moto
             LEFT JOIN modelo mo ON m.id_modelo = mo.id_modelo
@@ -107,7 +109,8 @@ const OrdenServicio = {
                 o.id_estado_de_servicio,
                 o.fecha_de_creacion,
                 o.fecha_finalizacion_estimada,
-                o.descripcion_del_problema
+                o.descripcion_del_problema,
+                o.motivo_rechazo
              FROM ordenes_de_servicio o
              LEFT JOIN motocicleta m ON o.id_moto = m.id_moto
              LEFT JOIN modelo mo ON m.id_modelo = mo.id_modelo
@@ -135,7 +138,8 @@ const OrdenServicio = {
     // RN-003 (HU-006.1): código automático formato ORD-XXX
     generarCodigoOrden: async () => {
         const [rows] = await db.query(`SELECT COUNT(*) AS total FROM ordenes_de_servicio`);
-        const siguiente = rows[0].total + 1;
+        // Igual que en el dashboard: PostgreSQL devuelve COUNT(*) como texto
+        const siguiente = Number(rows[0].total) + 1;
         return `ORD-${String(siguiente).padStart(3, '0')}`;
     },
 
@@ -153,7 +157,7 @@ const OrdenServicio = {
             `SELECT u.id_usuario, u.nombre, u.apellido
              FROM usuarios u
              JOIN clasificacion_de_usuarios c ON u.id_tipo_usuario = c.id_tipo_usuario
-             WHERE c.categoria_usuario = 'Técnico' AND u.estado = 1
+             WHERE c.categoria_usuario = 'Técnico' AND u.estado = 2
              AND NOT EXISTS (
                  SELECT 1 FROM registro_actividad ra
                  WHERE ra.id_usuario = u.id_usuario
@@ -173,7 +177,7 @@ const OrdenServicio = {
         const [rows] = await db.query(
             `SELECT u.id_usuario FROM usuarios u
              JOIN clasificacion_de_usuarios c ON u.id_tipo_usuario = c.id_tipo_usuario
-             WHERE u.id_usuario = ? AND c.categoria_usuario = 'Técnico' AND u.estado = 1`,
+             WHERE u.id_usuario = ? AND c.categoria_usuario = 'Técnico' AND u.estado = 2`,
             [id_usuario]
         );
         if (rows.length === 0) return false;
@@ -273,6 +277,12 @@ const OrdenServicio = {
         await db.query(`UPDATE ordenes_de_servicio SET motivo_rechazo = ? WHERE id_orden = ?`, [motivo, id]);
     },
 
+    // Al aprobar la cotización, se limpia cualquier motivo de reajuste anterior --
+    // ya no aplica, y así el panel del Técnico deja de mostrarlo como pendiente
+    limpiarMotivoRechazo: async (id) => {
+        await db.query(`UPDATE ordenes_de_servicio SET motivo_rechazo = NULL WHERE id_orden = ?`, [id]);
+    },
+
     // RN-005 (HU-006.7): al finalizar, el técnico queda disponible automáticamente
     marcarTecnicoDisponible: async (id_tecnico, id_orden) => {
         await db.query(
@@ -299,7 +309,7 @@ const OrdenServicio = {
         );
         for (const item of insumosUsados) {
             await db.query(
-                `UPDATE insumos SET cantidad_disponible = cantidad_disponible + ?, estado = 1 WHERE id_insumo = ?`,
+                `UPDATE insumos SET cantidad_disponible = cantidad_disponible + ?, estado = true WHERE id_insumo = ?`,
                 [item.cantidad, item.id_insumo]
             );
         }
@@ -307,7 +317,7 @@ const OrdenServicio = {
 
     // RN de HU-006.4: la moto asociada se desactiva al cancelar
     desactivarMoto: async (id_moto) => {
-        await db.query(`UPDATE motocicleta SET estado = 0 WHERE id_moto = ?`, [id_moto]);
+        await db.query(`UPDATE motocicleta SET estado = false WHERE id_moto = ?`, [id_moto]);
     }
 };
 

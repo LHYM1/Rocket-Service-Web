@@ -13,8 +13,11 @@ function ModeloMoto() {
     const porPagina = 8;
 
     const getModelo = () => {
-        axios.get("http://localhost:4000/api/modelo/listar")
-            .then(res => setModelo(res.data))
+        axios.get("/api/modelo/listar")
+            // El backend de este módulo envuelve la respuesta en { status, data } --
+            // se saca el arreglo real de adentro. El "|| res.data" queda como
+            // respaldo por si algún día cambia a devolver el arreglo directo.
+            .then(res => setModelo(res.data.data || res.data))
             .catch(err => console.error(err));
     };
 

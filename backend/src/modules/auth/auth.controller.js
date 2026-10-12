@@ -9,11 +9,12 @@ import {
   deleteTokenById,
   incrementarIntentosToken,
   findUsuarioLoginByEmail,
-  findClienteTokenByHash
+  findClienteTokenByHash,
+  crearMotocicletaCliente,
+  crearModelo
 } from './auth.model.js';
 
 // 1. Registro / Activación de Técnico
-// En register (auth.controller.js)
 const register = async (req, res) => {
   const { tokenRegistro, contrasena, nombre, apellido, correo_usuario, telefono_usuario } = req.body;
 
@@ -25,8 +26,6 @@ const register = async (req, res) => {
     return res.status(400).json({ message: "Los datos de perfil ingresados no tienen un formato válido." });
   }
 
-  const connection = await pool.getConnection();
-
   try {
     const usuario = await findTecnicoTokenByEmail(correo_usuario);
 
@@ -34,10 +33,10 @@ const register = async (req, res) => {
       return res.status(400).json({ message: "No existe una invitación pendiente para este correo o el usuario ya fue activado." });
     }
 
-    // A. VALIDACIÓN DE EXPIRACIÓN (10 MINUTOS)
-    if (usuario.minutos_transcurridos >= 10) {
+    // A. VALIDACIÓN DE EXPIRACIÓN (30 MINUTOS)
+    if (usuario.minutos_transcurridos >= 30) {
       await deleteTokenById(usuario.id_token);
-      return res.status(401).json({ message: "El código de activación ha expirado (límite 10 minutos). Solicita una nueva invitación." });
+      return res.status(401).json({ message: "El código de activación ha expirado (límite 30 minutos). Solicita una nueva invitación." });
     }
 
     // B. VALIDACIÓN DE INTENTOS MÁXIMOS (5 INTENTOS)
@@ -64,12 +63,9 @@ const register = async (req, res) => {
       });
     }
 
-    // D. REGISTRO EXITOSO CON TRANSACCIÓN
-    await connection.beginTransaction();
-
+    // D. REGISTRO EXITOSO
     const hashedPassword = await bcrypt.hash(contrasena, 12);
 
-    // Activación de usuario y borrado del token consumido
     await updateUsuarioActivo({ 
       id_usuario: usuario.id_usuario, 
       hashedPassword, 
@@ -78,19 +74,13 @@ const register = async (req, res) => {
       telefono_usuario: telefono_usuario.trim() 
     });
 
-    // Invalidation explicita del registro del token
     await deleteTokenById(usuario.id_token);
-
-    await connection.commit();
 
     return res.status(200).json({ message: "Técnico activado correctamente." });
 
   } catch (error) {
-    await connection.rollback();
     console.error("Error al registrar técnico:", error);
     return res.status(500).json({ message: "Error en el servidor al registrar técnico." });
-  } finally {
-    connection.release();
   }
 };
 
@@ -112,9 +102,9 @@ export const validarCodigoTecnico = async (req, res) => {
       });
     }
 
-    if (usuario.minutos_transcurridos >= 10) {
+    if (usuario.minutos_transcurridos >= 30) {
       await deleteTokenById(usuario.id_token);
-      return res.status(401).json({ valido: false, message: "El tiempo de activación (10 minutos) ha expirado." });
+      return res.status(401).json({ valido: false, message: "El tiempo de activación (30 minutos) ha expirado." });
     }
 
     if (usuario.intentos >= 5) {
@@ -125,7 +115,7 @@ export const validarCodigoTecnico = async (req, res) => {
     return res.json({ 
       valido: true, 
       correo_usuario, 
-      minutosRestantes: 10 - usuario.minutos_transcurridos 
+      minutosRestantes: 30 - usuario.minutos_transcurridos 
     });
 
   } catch (error) {
@@ -134,8 +124,6 @@ export const validarCodigoTecnico = async (req, res) => {
   }
 };
 
-
-// Agregar a auth.controller.js
 export const validarTokenCliente = async (req, res) => {
   const { token } = req.params;
 
@@ -166,7 +154,6 @@ export const validarTokenCliente = async (req, res) => {
     return res.status(500).json({ valido: false, message: "Error interno del servidor." });
   }
 };
-
 
 // 2. Verificación de correo
 export const verificarCorreo = async (req, res) => {
@@ -243,12 +230,36 @@ const login = async (req, res) => {
   }
 };
 
-// 4. Establecer contraseña cliente
+// 4. Establecer contraseña cliente + registrar su motocicleta en el mismo paso
 const establecerContrasenaCliente = async (req, res) => {
-  const { token, contrasena } = req.body;
+  const { token, contrasena, placa, id_modelo, nombreModeloNuevo, kilometraje_actual } = req.body;
 
   if (!token || !contrasena) {
     return res.status(400).json({ message: "El token y la contraseña son obligatorios." });
+  }
+
+  // El modelo puede venir como id_modelo (ya existente) O como nombreModeloNuevo
+  // (cuando el Cliente no encontró el suyo en la lista y escribió uno nuevo)
+  const hayModeloExistente = !!id_modelo;
+  const hayModeloNuevo = !!nombreModeloNuevo && nombreModeloNuevo.trim().length > 0;
+
+  if (!placa || !placa.trim() || (!hayModeloExistente && !hayModeloNuevo) || kilometraje_actual === undefined || kilometraje_actual === '') {
+    return res.status(400).json({ message: "Los datos de tu motocicleta son obligatorios." });
+  }
+
+  // Placa: el frontend ahora manda el espacio ya incluido (ej. "LKJ 213"), así
+  // que primero se le quita el espacio para validar los 6 caracteres reales
+  const placaSinEspacio = placa.trim().toUpperCase().replace(/\s/g, "");
+  if (!/^[A-Z0-9]{6}$/.test(placaSinEspacio)) {
+    return res.status(400).json({ message: "La placa debe tener exactamente 6 caracteres (solo letras y números)." });
+  }
+
+  // Kilometraje: número entero positivo, dentro de un rango razonable (máximo
+  // 500.000 km -- una moto bien cuidada rara vez supera los 150.000 km en su
+  // vida útil, pero se deja un margen generoso para casos excepcionales)
+  const KILOMETRAJE_MAXIMO = 500000;
+  if (!/^\d+$/.test(String(kilometraje_actual)) || Number(kilometraje_actual) < 0 || Number(kilometraje_actual) > KILOMETRAJE_MAXIMO) {
+    return res.status(400).json({ message: `El kilometraje debe ser un número entero entre 0 y ${KILOMETRAJE_MAXIMO}.` });
   }
 
   try {
@@ -274,6 +285,32 @@ const establecerContrasenaCliente = async (req, res) => {
     await updateUsuarioActivo({ id_usuario: registroToken.id_usuario, hashedPassword });
     await deleteTokenById(registroToken.id_token);
 
+    // Registra su motocicleta -- no bloquea la activación de la cuenta si esto
+    // llegara a fallar por alguna razón (la cuenta ya quedó activa de todas formas)
+    let motoRegistrada = true;
+    try {
+      let idModeloFinal = id_modelo;
+
+      // Si el Cliente escribió un modelo nuevo (no estaba en la lista), se crea primero
+      if (hayModeloNuevo) {
+        idModeloFinal = await crearModelo(nombreModeloNuevo);
+      }
+
+      // Se normaliza siempre a "ABC 123" (3 + espacio + 3), sin importar si el
+      // frontend mandó el espacio o no
+      const placaConEspacio = `${placaSinEspacio.slice(0, 3)} ${placaSinEspacio.slice(3)}`;
+
+      await crearMotocicletaCliente({
+        id_usuario: registroToken.id_usuario,
+        placa: placaConEspacio,
+        id_modelo: idModeloFinal,
+        kilometraje_actual: Number(kilometraje_actual)
+      });
+    } catch (errorMoto) {
+      console.error("Error al registrar la motocicleta del cliente:", errorMoto);
+      motoRegistrada = false;
+    }
+
     const tokenSesion = jwt.sign(
       { id: registroToken.id_usuario, role: "Cliente" },
       process.env.JWT_SECRET || 'secret_key',
@@ -281,7 +318,9 @@ const establecerContrasenaCliente = async (req, res) => {
     );
 
     return res.json({ 
-      message: "Contraseña establecida con éxito", 
+      message: motoRegistrada
+        ? "Contraseña establecida y motocicleta registrada con éxito"
+        : "Contraseña establecida con éxito, pero hubo un problema al registrar tu motocicleta (puedes agregarla después).",
       token: tokenSesion 
     });
 

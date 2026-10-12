@@ -35,23 +35,11 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
     // useEffect para cargar categorias y unidades
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const categoriaRes = await axios.get("http://localhost:4000/api/categoria/listar");
-                const listaCategorias = Array.isArray(categoriaRes.data)
-                    ? categoriaRes.data
-                    : (categoriaRes.data.categorias || categoriaRes.data.data || []);
-                setCategorias(listaCategorias);
+            const categoria = await axios.get("/api/categoria/listar");
+            setCategorias(categoria.data);
 
-                const unidadRes = await axios.get("http://localhost:4000/api/unidad_de_medida/listar");
-                const listaUnidades = Array.isArray(unidadRes.data)
-                    ? unidadRes.data
-                    : (unidadRes.data.unidades || unidadRes.data.data || []);
-                setUnidades(listaUnidades);
-            } catch (error) {
-                console.error("Error al cargar listados:", error);
-                setCategorias([]);
-                setUnidades([]);
-            }
+            const unidad = await axios.get("/api/unidad_de_medida/listar");
+            setUnidades(unidad.data);
         };
         fetchData();
     }, []);
@@ -91,7 +79,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                 }
 
                 await axios.put(
-                    `http://localhost:4000/api/insumos/modificar/${idSeleccionado.id_insumo}`,
+                    `/api/insumos/modificar/${idSeleccionado.id_insumo}`,
                     {
                         id_categoria: insumo.id_categoria,
                         nombre_insumo: insumo.nombre_insumo,
@@ -112,7 +100,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                 }
 
                 await axios.post(
-                    `http://localhost:4000/api/insumos/crear`, insumo
+                    `/api/insumos/crear`, insumo
                 );
 
                 mostrarToast("Insumo agregado con éxito", "success");

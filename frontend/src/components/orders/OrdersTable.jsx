@@ -1,7 +1,9 @@
 import axios from '../../axiosConfig';
 import { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
+import { useNotif } from '../../context/NotifContext';
 import ModalAgregarFotoOrden from '../ModalAgregarFotoOrden';
+import ModalDetalleOrdenAdmin from '../ModalDetalleOrdenAdmin';
 import ConfirmModal from '../ConfirmModal';
 
 const coloresBadge = {
@@ -27,7 +29,9 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     const [tieneCotizacionPrevia, setTieneCotizacionPrevia] = useState({});
     const [ordenParaFoto, setOrdenParaFoto] = useState(null);
     const [ordenParaFinalizar, setOrdenParaFinalizar] = useState(null);
+    const [ordenParaFinalizarDirecto, setOrdenParaFinalizarDirecto] = useState(null);
     const [ordenParaCancelar, setOrdenParaCancelar] = useState(null); // id_orden -> true/false
+    const [ordenParaVerDetalle, setOrdenParaVerDetalle] = useState(null);
 
     // Edición rápida de tipo de servicio / problema / fecha de entrega (Técnico)
     const [editandoDetalles, setEditandoDetalles] = useState(null); // id_orden que se está editando
@@ -37,9 +41,10 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
 
     const { mostrarToast } = useToast();
     const mostrarNotificacion = (mensaje, tipo = "success") => mostrarToast(mensaje, tipo);
+    const { marcarOrdenesVistas } = useNotif();
 
     const cargarInsumosDisponibles = () => {
-        axios.get("http://localhost:4000/api/insumos/listar")
+        axios.get("/api/insumos/listar")
             .then(res => setInsumosDisponibles(res.data))
             .catch(err => console.error(err));
     };
@@ -49,7 +54,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     useEffect(() => {
         ordenes.forEach(o => {
             if (o.nombre_estado === "EN PROCESO" && tieneCotizacionPrevia[o.id_orden] === undefined) {
-                axios.get(`http://localhost:4000/api/ordenes_de_servicio/consultar/${o.id_orden}`)
+                axios.get(`/api/ordenes_de_servicio/consultar/${o.id_orden}`)
                     .then(res => {
                         setTieneCotizacionPrevia(prev => ({ ...prev, [o.id_orden]: (res.data.insumos || []).length > 0 }));
                     })
@@ -61,7 +66,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
 
     useEffect(() => {
         cargarInsumosDisponibles();
-        axios.get("http://localhost:4000/api/tipo_servicio/listar")
+        axios.get("/api/tipo_servicio/listar")
             .then(res => setTiposServicio(res.data))
             .catch(err => console.error(err));
     }, []);
@@ -78,7 +83,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     };
 
     const guardarDetalles = (idOrden) => {
-        axios.put(`http://localhost:4000/api/ordenes_de_servicio/modificar/${idOrden}`, detallesEditados)
+        axios.put(`/api/ordenes_de_servicio/modificar/${idOrden}`, detallesEditados)
             .then(res => {
                 mostrarNotificacion(res.data.message, "success");
                 setEditandoDetalles(null);
@@ -90,7 +95,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     const cargarDetalleOrden = (idOrden) => {
         setCargandoPanel(true);
         cargarInsumosDisponibles(); // refresca el stock real, por si cambió con la última acción
-        axios.get(`http://localhost:4000/api/ordenes_de_servicio/consultar/${idOrden}`)
+        axios.get(`/api/ordenes_de_servicio/consultar/${idOrden}`)
             .then(res => {
                 setInsumosDeLaOrden(res.data.insumos || []);
                 setTotalCotizado(res.data.total || 0);
@@ -127,7 +132,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     const confirmarCancelar = () => {
         const id = ordenParaCancelar;
         setOrdenParaCancelar(null);
-        axios.patch(`http://localhost:4000/api/ordenes_de_servicio/cancelar/${id}`)
+        axios.patch(`/api/ordenes_de_servicio/cancelar/${id}`)
             .then(res => { mostrarNotificacion(res.data.message, "success"); getOrdenes(); })
             .catch(err => {
                 mostrarNotificacion(err.response?.data?.message || "No se pudo cancelar la orden.", "error");
@@ -135,10 +140,11 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     };
 
     const aceptarOrden = (idOrden) => {
-        axios.patch(`http://localhost:4000/api/ordenes_de_servicio/aceptar/${idOrden}`)
+        axios.patch(`/api/ordenes_de_servicio/aceptar/${idOrden}`)
             .then(res => {
                 mostrarNotificacion(res.data.message, "success");
                 window.dispatchEvent(new CustomEvent('disponibilidadCambiada', { detail: { estado: "Realizando servicio" } }));
+                marcarOrdenesVistas([idOrden]); // recién aceptada -- ya no cuenta como "nueva" en el badge
                 getOrdenes();
             })
             .catch(err => mostrarNotificacion(err.response?.data?.message || "No se pudo aceptar la orden.", "error"));
@@ -146,7 +152,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
 
     const agregarInsumo = (idOrden) => {
         if (!insumoSeleccionado || cantidadInsumo < 1) return;
-        axios.post("http://localhost:4000/api/insumos_usados_en_servicio/agregar", {
+        axios.post("/api/insumos_usados_en_servicio/agregar", {
             id_orden: idOrden,
             id_insumo: parseInt(insumoSeleccionado),
             cantidad: cantidadInsumo
@@ -161,7 +167,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     };
 
     const quitarInsumo = (idInsumosOrden, idOrden) => {
-        axios.delete(`http://localhost:4000/api/insumos_usados_en_servicio/quitar/${idInsumosOrden}`)
+        axios.delete(`/api/insumos_usados_en_servicio/quitar/${idInsumosOrden}`)
             .then(res => {
                 mostrarNotificacion(res.data.message, "success");
                 cargarDetalleOrden(idOrden);
@@ -175,7 +181,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
             quitarInsumo(idInsumosOrden, idOrden);
             return;
         }
-        axios.patch(`http://localhost:4000/api/insumos_usados_en_servicio/actualizar-cantidad/${idInsumosOrden}`, {
+        axios.patch(`/api/insumos_usados_en_servicio/actualizar-cantidad/${idInsumosOrden}`, {
             nueva_cantidad: nuevaCantidad
         })
             .then(() => cargarDetalleOrden(idOrden))
@@ -187,7 +193,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
             mostrarNotificacion("Agrega al menos un insumo antes de enviar la cotización.", "warning");
             return;
         }
-        axios.patch(`http://localhost:4000/api/ordenes_de_servicio/enviar-cotizacion/${idOrden}`)
+        axios.patch(`/api/ordenes_de_servicio/enviar-cotizacion/${idOrden}`)
             .then(res => { mostrarNotificacion(res.data.message, "success"); cerrarPanel(); getOrdenes(); })
             .catch(err => mostrarNotificacion(err.response?.data?.message || "No se pudo enviar la cotización.", "error"));
     };
@@ -199,7 +205,24 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     const confirmarFinalizar = () => {
         const idOrden = ordenParaFinalizar;
         setOrdenParaFinalizar(null);
-        axios.patch(`http://localhost:4000/api/ordenes_de_servicio/finalizar/${idOrden}`)
+        axios.patch(`/api/ordenes_de_servicio/finalizar/${idOrden}`)
+            .then(res => {
+                mostrarNotificacion(res.data.message, "success");
+                window.dispatchEvent(new CustomEvent('disponibilidadCambiada', { detail: { estado: "Disponible" } }));
+                cerrarPanel();
+                getOrdenes();
+            })
+            .catch(err => mostrarNotificacion(err.response?.data?.message || "No se pudo finalizar la orden.", "error"));
+    };
+
+    const finalizarDirecto = (idOrden) => {
+        setOrdenParaFinalizarDirecto(idOrden);
+    };
+
+    const confirmarFinalizarDirecto = () => {
+        const idOrden = ordenParaFinalizarDirecto;
+        setOrdenParaFinalizarDirecto(null);
+        axios.patch(`/api/ordenes_de_servicio/finalizar/${idOrden}`)
             .then(res => {
                 mostrarNotificacion(res.data.message, "success");
                 window.dispatchEvent(new CustomEvent('disponibilidadCambiada', { detail: { estado: "Disponible" } }));
@@ -224,7 +247,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
     }
 
     const insumosParaSelector = insumosDisponibles.filter(
-        i => i.estado === 1 && !insumosDeLaOrden.some(iu => iu.nombre_insumo === i.nombre_insumo)
+        i => i.estado && !insumosDeLaOrden.some(iu => iu.nombre_insumo === i.nombre_insumo)
     );
 
     return (
@@ -412,6 +435,12 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
 
                                 {esAdmin ? (
                                     <div className="d-flex gap-2">
+                                        <button onClick={() => setOrdenParaVerDetalle(o)}
+                                            className="btn btn-sm flex-fill fw-semibold"
+                                            style={{ backgroundColor: "#1a1a2e", color: "white" }}
+                                            title="Ver detalle y seguimiento completo">
+                                            <i className="fa-solid fa-timeline me-1"></i>Seguimiento
+                                        </button>
                                         <button onClick={() => setIdSeleccionado(o)}
                                             className="btn btn-sm flex-fill text-white fw-semibold"
                                             style={{ backgroundColor: "#ff8c00", borderColor: "#ff8c00" }}>
@@ -426,11 +455,21 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                                 ) : (
                                     <div className="d-flex flex-column gap-2">
 
-                                        {(o.nombre_estado === "EN PROCESO" || o.nombre_estado === "ASIGNADA") && (
+                                        {o.nombre_estado === "EN PROCESO" && (
                                             <button
                                                 onClick={() => setOrdenParaFoto(o)}
                                                 className="btn btn-sm w-100"
                                                 style={{ backgroundColor: "#f8f9fa", color: "#1a1a2e", border: "1px solid #e5e7eb" }}>
+                                                <i className="fa-solid fa-camera me-1"></i>Agregar foto (daño/reparación)
+                                            </button>
+                                        )}
+
+                                        {o.nombre_estado === "ASIGNADA" && (
+                                            <button
+                                                disabled
+                                                title="Primero debes aceptar la orden para poder subir fotos"
+                                                className="btn btn-sm w-100"
+                                                style={{ backgroundColor: "#f1f3f5", color: "#adb5bd", border: "1px solid #e5e7eb", cursor: "not-allowed" }}>
                                                 <i className="fa-solid fa-camera me-1"></i>Agregar foto (daño/reparación)
                                             </button>
                                         )}
@@ -444,14 +483,21 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                                             </button>
                                         )}
 
-                                        {o.nombre_estado === "EN PROCESO" && tieneCotizacionPrevia[o.id_orden] && (
+                                        {o.nombre_estado === "EN PROCESO" && tieneCotizacionPrevia[o.id_orden] && !o.motivo_rechazo && (
                                             <div className="text-center mb-1" style={{ fontSize: "0.78rem", color: "#28a745" }}>
                                                 <i className="fa-solid fa-circle-check me-1"></i>
                                                 Cotización aprobada por el cliente — continúa el trabajo
                                             </div>
                                         )}
 
-                                        {o.nombre_estado === "EN PROCESO" && tieneCotizacionPrevia[o.id_orden] ? (
+                                        {o.nombre_estado === "EN PROCESO" && o.motivo_rechazo && (
+                                            <div className="mb-2 p-2 rounded" style={{ backgroundColor: "#fff3cd", border: "1px solid #ffc10740", fontSize: "0.8rem", color: "#856404" }}>
+                                                <i className="fa-solid fa-triangle-exclamation me-1"></i>
+                                                <strong>El cliente pidió un reajuste:</strong> {o.motivo_rechazo}
+                                            </div>
+                                        )}
+
+                                        {o.nombre_estado === "EN PROCESO" && tieneCotizacionPrevia[o.id_orden] && !o.motivo_rechazo ? (
                                             <button
                                                 onClick={() => finalizarOrden(o.id_orden)}
                                                 className="btn btn-sm w-100 text-white fw-semibold"
@@ -529,7 +575,7 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                                                                 <button
                                                                     className="btn btn-danger btn-sm w-100"
                                                                     onClick={() => {
-                                                                        axios.post("http://localhost:4000/api/notificaciones/crear", {
+                                                                        axios.post("/api/notificaciones/crear", {
                                                                             mensaje: `El técnico reporta que no hay insumos con stock disponible para la orden #${o.id_orden}.`
                                                                         })
                                                                             .then(() => mostrarNotificacion("Se notificó al Administrador.", "success"))
@@ -596,13 +642,17 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                                                             </button>
                                                             <button
                                                                 className="btn text-white fw-semibold flex-fill btn-sm"
-                                                                style={{ backgroundColor: "#6c757d" }}
-                                                                onClick={() => finalizarOrden(o.id_orden)}>
+                                                                disabled={totalCotizado > 0}
+                                                                title={totalCotizado > 0 ? "Solo disponible cuando el total cotizado es $0 -- si hay costo, el cliente debe aprobarlo primero" : "El cliente estuvo presente y ya sabe qué se le va a hacer"}
+                                                                style={{ backgroundColor: totalCotizado > 0 ? "#adb5bd" : "#6c757d", cursor: totalCotizado > 0 ? "not-allowed" : "pointer" }}
+                                                                onClick={() => finalizarDirecto(o.id_orden)}>
                                                                 <i className="fa-solid fa-check me-1"></i>Finalizar directo
                                                             </button>
                                                         </div>
                                                         <small className="text-muted d-block mt-1 text-center" style={{ fontSize: "0.72rem" }}>
-                                                            "Enviar cotización" pide aprobación al cliente. "Finalizar directo" cierra la orden sin pasar por el cliente.
+                                                            {totalCotizado > 0
+                                                                ? "\"Finalizar directo\" solo está disponible cuando el total es $0 -- si hay costo, el cliente debe aprobarlo."
+                                                                : "\"Enviar cotización\" pide aprobación al cliente. \"Finalizar directo\" cierra la orden sin pasar por el cliente (solo si el cliente ya estuvo presente y no hay costo por aprobar)."}
                                                         </small>
                                                     </>
                                                 )}
@@ -635,6 +685,17 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                 />
             )}
 
+            {ordenParaFinalizarDirecto && (
+                <ConfirmModal
+                    title="¿Finalizar directo, sin pasar por el cliente?"
+                    message="Esta orden se cerrará de inmediato SIN enviarle ninguna cotización al cliente para su aprobación. Úsalo solo si el cliente estuvo presente durante la reparación y ya acordaron el costo directamente contigo (en efectivo, transferencia, etc.), fuera del sistema. Si tienes dudas, cancela y usa 'Enviar cotización' en su lugar."
+                    confirmLabel="Sí, finalizar directo"
+                    icon="fa-solid fa-triangle-exclamation"
+                    onConfirm={confirmarFinalizarDirecto}
+                    onCancel={() => setOrdenParaFinalizarDirecto(null)}
+                />
+            )}
+
             {ordenParaCancelar && (
                 <ConfirmModal
                     title="¿Cancelar esta orden?"
@@ -643,6 +704,13 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
                     icon="fa-solid fa-ban"
                     onConfirm={confirmarCancelar}
                     onCancel={() => setOrdenParaCancelar(null)}
+                />
+            )}
+
+            {ordenParaVerDetalle && (
+                <ModalDetalleOrdenAdmin
+                    orden={ordenParaVerDetalle}
+                    onClose={() => setOrdenParaVerDetalle(null)}
                 />
             )}
         </>

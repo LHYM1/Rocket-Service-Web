@@ -29,13 +29,13 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
             if (idSeleccionado) {
                 // Editar
                 await axios.put(
-                    `http://localhost:4000/api/insumos_usados_en_servicio/modificar/${idSeleccionado.id_insumos_orden  }`, insUsServicio
+                    `/api/insumos_usados_en_servicio/modificar/${idSeleccionado.id_insumos_orden  }`, insUsServicio
                 );
                 alert("Insumo usado en servicio actualizado con éxito");
             } else {
                 // Agregar
                 await axios.post(
-                    `http://localhost:4000/api/insumos_usados_en_servicio/crear`, insUsServicio
+                    `/api/insumos_usados_en_servicio/crear`, insUsServicio
                 );
 
                 alert("Insumo usado en servicio agregado con éxito");

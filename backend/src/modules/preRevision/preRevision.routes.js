@@ -14,6 +14,7 @@ router.get('/consultar/:id', validarToken(["Administrador", "Técnico"]), contro
 
 // Solo el Técnico agrega fotos y completa el resultado (validado también en el controller)
 router.post('/:id/fotos', validarToken(["Técnico"]), upload.single('foto'), controller.agregarFotoPreRevision);
+router.delete('/fotos/:id_foto', validarToken(["Técnico"]), controller.eliminarFotoPreRevision);
 router.patch('/completar/:id', validarToken(["Técnico"]), controller.completarPreRevision);
 
 // Utilidad para pruebas: solo Admin, solo pre-revisiones PENDIENTE

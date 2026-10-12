@@ -31,7 +31,7 @@ function ModalAgregarFotoOrden({ orden, onClose, onSuccess }) {
             formData.append("tipo", tipo);
             formData.append("descripcion", descripcion);
 
-            await axios.post("http://localhost:4000/api/imagenes_danos/crear", formData, {
+            await axios.post("/api/imagenes_danos/crear", formData, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
 
@@ -79,7 +79,17 @@ function ModalAgregarFotoOrden({ orden, onClose, onSuccess }) {
                         <label className="rs-label">Foto</label>
                         <input type="file" accept="image/*" className="rs-input-white" onChange={onSeleccionar} />
                         {preview && (
-                            <img src={preview} alt="preview" style={{ width: 100, height: 100, objectFit: "cover", borderRadius: 8, marginTop: 8 }} />
+                            <div style={{ position: "relative", width: 100, marginTop: 8 }}>
+                                <img src={preview} alt="preview" style={{ width: 100, height: 100, objectFit: "cover", borderRadius: 8 }} />
+                                <button
+                                    type="button"
+                                    onClick={() => { setArchivo(null); setPreview(null); }}
+                                    title="Quitar foto seleccionada"
+                                    style={{ position: "absolute", top: -6, right: -6, background: "#dc3545", color: "white", borderRadius: "50%", width: 20, height: 20, border: "none", fontSize: "11px", cursor: "pointer" }}
+                                >
+                                    <i className="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
                         )}
                     </div>
 

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from "./pages/login/login.jsx";
 import Register from './pages/register/Register.jsx';
 import DashboardLayout from './layouts/DashboardLayout.jsx';
@@ -16,7 +16,6 @@ import ProdtsUseServ from './pages/prdtsUseServ/prodtsUsServPage.jsx';
 import RegistActv from './pages/regstActv/regstActvPage.jsx';
 import ImagDanos from './pages/imgDanos/PageImg.jsx';
 import Motocicleta from './pages/motocicleta/PageMoto.jsx';
-import Modelo from './pages/modelo/PageModMoto.jsx';
 import EstadoOrdenPage from './pages/estOrdn/PageEstadoOrd.jsx';
 import Categoria from './pages/categoria/PageCategoria.jsx';
 import UnidadMedPage from './pages/undMed/PageUnidadMed.jsx';
@@ -36,7 +35,6 @@ const RedirigirPorRol = () => {
 
 function App() {
   return (
-    <Router>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -66,14 +64,11 @@ function App() {
             </ProtectedRoute>
           }/>
 
-          {/* 
-            <Route path="roles" element={
+          <Route path="roles" element={
             <ProtectedRoute allowedRoles={["Administrador"]}>
               <RolesPage />
             </ProtectedRoute>
           }/>
-          */}
-          
 
           <Route path="est-ord" element={
             <ProtectedRoute allowedRoles={["Administrador"]}>
@@ -93,24 +88,15 @@ function App() {
             </ProtectedRoute>
           }/>
 
-          {/*
-            <Route path="unidad" element={
-              <ProtectedRoute allowedRoles={["Administrador"]}>
-                <UnidadMedPage />
-              </ProtectedRoute>
-            }/>
-          */}
-          
+          <Route path="unidad" element={
+            <ProtectedRoute allowedRoles={["Administrador"]}>
+              <UnidadMedPage />
+            </ProtectedRoute>
+          }/>
 
           <Route path="moto" element={
             <ProtectedRoute allowedRoles={["Administrador"]}>
               <Motocicleta />
-            </ProtectedRoute>
-          }/>
-
-          <Route path="modelo" element={
-            <ProtectedRoute allowedRoles={["Administrador"]}>
-              <Modelo />
             </ProtectedRoute>
           }/>
 
@@ -121,14 +107,11 @@ function App() {
             </ProtectedRoute>
           }/>
 
-          {/** 
-           * <Route path="regist-act" element={
+          <Route path="regist-act" element={
             <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
               <RegistActv />
             </ProtectedRoute>
           }/>
-          */}
-          
 
           <Route path="insumos-usados" element={
             <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
@@ -160,7 +143,6 @@ function App() {
 
         </Route>
       </Routes>
-    </Router>
   );
 }
 

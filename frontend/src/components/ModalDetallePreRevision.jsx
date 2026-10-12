@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { urlFoto } from "../utils/urlFoto";
 import axios from "../axiosConfig";
 
 function ModalDetallePreRevision({ preRevision, onClose }) {
@@ -6,7 +7,7 @@ function ModalDetallePreRevision({ preRevision, onClose }) {
     const [cargando, setCargando] = useState(true);
 
     useEffect(() => {
-        axios.get(`http://localhost:4000/api/pre_revision/consultar/${preRevision.id_pre_revision}`)
+        axios.get(`/api/pre_revision/consultar/${preRevision.id_pre_revision}`)
             .then(res => setDetalle(res.data))
             .catch(() => {})
             .finally(() => setCargando(false));
@@ -54,7 +55,7 @@ function ModalDetallePreRevision({ preRevision, onClose }) {
                                         {detalle.fotos.map(foto => (
                                             <img
                                                 key={foto.id_foto}
-                                                src={`http://localhost:4000${foto.url_imagen}`}
+                                                src={urlFoto(foto.url_imagen)}
                                                 alt="pre-revisión"
                                                 style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 8, border: "1px solid #e5e7eb" }}
                                             />

@@ -63,7 +63,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
 
     // Cargar tipos de usuarios excluyendo administradores
     useEffect(() => {
-        axios.get("http://localhost:4000/api/clasificacion_de_usuarios/listar")
+        axios.get("/api/clasificacion_de_usuarios/listar")
             .then(res => {
                 const categoriasSinAdmin = res.data.filter(cat => 
                     !cat.categoria_usuario.toLowerCase().includes("admin")
@@ -105,7 +105,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
         const timer = setTimeout(async () => {
             setVerificandoCorreo(true);
             try {
-                const res = await axios.get("http://localhost:4000/api/usuarios/verificar-correo", {
+                const res = await axios.get("/api/usuarios/verificar-correo", {
                     params: { correo_usuario: usuario.correo_usuario }
                 });
                 if (!res.data.valido) {
@@ -191,11 +191,11 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
             setCargando(true);
 
             if (idSeleccionado) {
-                await axios.put(`http://localhost:4000/api/usuarios/modificar/${idSeleccionado.id_usuario}`, usuario);
+                await axios.put(`/api/usuarios/modificar/${idSeleccionado.id_usuario}`, usuario);
                 mostrarToast("Usuario actualizado correctamente.", "success");
 
             } else if (esTecnico) {
-                await axios.post("http://localhost:4000/api/usuarios/invitar-tecnico", {
+                await axios.post("/api/usuarios/invitar-tecnico", {
                     correo_usuario: usuario.correo_usuario,
                     id_tipo_usuario: usuario.id_tipo_usuario
                 });
@@ -210,7 +210,7 @@ const ModalEdtMod = ({ idSeleccionado, onClose, onSuccess }) => {
                     id_tipo_usuario: usuario.id_tipo_usuario
                 };
                 
-                await axios.post("http://localhost:4000/api/usuarios/invitar-cliente", datosCliente);
+                await axios.post("/api/usuarios/invitar-cliente", datosCliente);
                 mostrarToast("Cliente registrado en estado Pendiente. Enlace de contraseña enviado.", "success");
             }
 

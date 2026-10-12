@@ -24,7 +24,7 @@ const users = {
         const query = `
             SELECT id_usuario, nombre, apellido 
             FROM usuarios 
-            WHERE id_tipo_usuario = 1 AND estado = 1
+            WHERE id_tipo_usuario = 1 AND estado = 2
             ORDER BY nombre ASC
         `;
         const [rows] = await db.query(query);
@@ -36,7 +36,7 @@ const users = {
             SELECT u.id_usuario, u.nombre, u.apellido 
             FROM usuarios u
             LEFT JOIN motocicleta m ON u.id_usuario = m.id_usuario
-            WHERE u.id_tipo_usuario = 1 AND u.estado = 1 AND m.id_moto IS NULL
+            WHERE u.id_tipo_usuario = 1 AND u.estado = 2 AND m.id_moto IS NULL
             ORDER BY u.nombre ASC
         `;
         const [rows] = await db.query(query);
@@ -131,14 +131,16 @@ const users = {
         return result.affectedRows > 0;
     },
 
+    // Activar / reactivar (pasa a estado 2 = Activo)
     restaurar: async (id) => {
         const [result] = await db.query(
-            'UPDATE usuarios SET estado = 1 WHERE id_usuario = ?',
+            'UPDATE usuarios SET estado = 2 WHERE id_usuario = ?',
             [id]
         );
         return result.affectedRows > 0;
     },
 
+    // Desactivar (pasa a estado 0 = Inactivo)
     remove: async (id) => {
         const [result] = await db.query(
             'UPDATE usuarios SET estado = 0 WHERE id_usuario = ?',

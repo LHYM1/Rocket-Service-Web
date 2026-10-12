@@ -49,7 +49,7 @@ function TableProdts({ product, setIdSeleccionado, getProduct }) {
                                 ${Number(p.precio_unitario).toLocaleString('es-CO')}
                             </td>
                             <td>
-                                {p.estado === 1
+                                {p.estado
                                     ? <span className="rs-badge rs-badge-success">Activo</span>
                                     : <span className="rs-badge rs-badge-muted" title="Se reactiva automáticamente al agregar stock desde Editar">Inactivo</span>
                                 }

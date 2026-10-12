@@ -25,7 +25,7 @@ function TableModelo({ modelo, setIdSeleccionado, getModelo }) {
     const desactivarModelo = async (id) => {
         if (window.confirm("¿Deseas desactivar este modelo de motocicleta?")) {
             try {
-                await axios.patch(`http://localhost:4000/api/modelo/desactivar/${id}`);
+                await axios.patch(`/api/modelo/desactivar/${id}`);
                 mostrarToast("Modelo de motocicleta desactivado satisfactoriamente.", "success");
                 getModelo();
             } catch (error) {
@@ -37,7 +37,7 @@ function TableModelo({ modelo, setIdSeleccionado, getModelo }) {
 
     const reactivarModelo = async (id) => {
         try {
-            await axios.patch(`http://localhost:4000/api/modelo/reactivar/${id}`);
+            await axios.patch(`/api/modelo/reactivar/${id}`);
             mostrarToast("Modelo reactivado correctamente.", "success");
             getModelo();
         } catch (error) {
