@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import { FormValidators } from '@rocket/shared';
+import { FormValidators } from '../../../../shared/formValidators.js';
 import pool from '../../config/db.js';
 import {
   findTecnicoTokenByEmail,

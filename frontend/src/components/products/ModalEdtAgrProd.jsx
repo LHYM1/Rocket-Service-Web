@@ -28,18 +28,30 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                 cantidad_disponible: idSeleccionado.cantidad_disponible,
                 cantidad_a_agregar: "",
                 precio_unitario: idSeleccionado.precio_unitario,
-            })
+            });
         }
     }, [idSeleccionado]);
 
     // useEffect para cargar categorias y unidades
     useEffect(() => {
         const fetchData = async () => {
-            const categoria = await axios.get("http://localhost:4000/api/categoria/listar");
-            setCategorias(categoria.data);
+            try {
+                const categoriaRes = await axios.get("http://localhost:4000/api/categoria/listar");
+                const listaCategorias = Array.isArray(categoriaRes.data)
+                    ? categoriaRes.data
+                    : (categoriaRes.data.categorias || categoriaRes.data.data || []);
+                setCategorias(listaCategorias);
 
-            const unidad = await axios.get("http://localhost:4000/api/unidad_de_medida/listar");
-            setUnidades(unidad.data);
+                const unidadRes = await axios.get("http://localhost:4000/api/unidad_de_medida/listar");
+                const listaUnidades = Array.isArray(unidadRes.data)
+                    ? unidadRes.data
+                    : (unidadRes.data.unidades || unidadRes.data.data || []);
+                setUnidades(listaUnidades);
+            } catch (error) {
+                console.error("Error al cargar listados:", error);
+                setCategorias([]);
+                setUnidades([]);
+            }
         };
         fetchData();
     }, []);
@@ -47,7 +59,7 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setInsumo({...insumo, [name]: value });
-    }
+    };
 
     // Formatea el precio con puntos de miles mientras el usuario escribe (ej. 5000 -> 5.000)
     const handlePrecioChange = (e) => {
@@ -60,7 +72,9 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
         return Number(valor).toLocaleString('es-CO');
     };
 
-    const simboloUnidadActual = unidades.find(u => u.id_unidad === Number(insumo.id_unidad))?.simbolo || "";
+    const simboloUnidadActual = Array.isArray(unidades)
+        ? unidades.find(u => u.id_unidad === Number(insumo.id_unidad))?.simbolo || ""
+        : "";
 
     const handleSave = async () => {
         try {
@@ -144,9 +158,9 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                         required
                     >
                         <option value="">Seleccione una categoria</option>
-                        {categorias.map((cat) => (
+                        {(Array.isArray(categorias) ? categorias : []).map((cat) => (
                             <option key={cat.id_categoria} value={cat.id_categoria}>
-                             {cat.nombre} 
+                             {cat.nombre || cat.nombre_categoria} 
                             </option>
                         ))}
                     </select>
@@ -167,9 +181,9 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
                         disabled={!!idSeleccionado}
                     >
                         <option value="">Seleccione una unidad de medida</option>
-                        {unidades.map((ins) => (
+                        {(Array.isArray(unidades) ? unidades : []).map((ins) => (
                             <option key={ins.id_unidad} value={ins.id_unidad}>
-                             {ins.nombre}
+                             {ins.nombre || ins.nombre_unidad}
                             </option>
                         ))}
                     </select>
@@ -269,5 +283,6 @@ const ModalEditAgrTs = ({ idSeleccionado, onClose, onSuccess }) => {
     </div>
   );
 
-}
+};
+
 export default ModalEditAgrTs;
