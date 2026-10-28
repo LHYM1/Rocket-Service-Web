@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "cross-env": "^10.1.0",
-    "cypress": "^16.0.0"
+    "cypress": "^16.0.0",
+    "@rocket/shared": "file:../shared"
   }
 }

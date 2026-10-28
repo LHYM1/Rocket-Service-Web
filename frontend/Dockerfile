@@ -2,24 +2,35 @@
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Copiamos los archivos de configuración de workspaces de la raíz y de los paquetes
+# Copiamos archivos de workspaces y dependencias
 COPY package.json package-lock.json ./
 COPY frontend/package.json ./frontend/
 COPY backend/package.json ./backend/
 COPY shared/package.json ./shared/
 
-# Instalamos todas las dependencias del monorepo desde la raíz (enlazando @rocket/shared)
 RUN npm install
 
-# Copiamos el código fuente de frontend y de shared
+# Copiamos código fuente
 COPY shared/ ./shared/
 COPY frontend/ ./frontend/
 
-# Construimos el frontend (especificando el workspace del frontend)
 RUN npm run build --workspace=frontend
 
 # Etapa 2: Servir con Nginx
 FROM nginx:alpine
+
+# Copiamos el build de React
 COPY --from=builder /app/frontend/build /usr/share/nginx/html
+
+# Creamos una configuración personalizada de Nginx para React Router
+RUN echo 'server { \
+    listen 80; \
+    location / { \
+        root /usr/share/nginx/html; \
+        index index.html index.htm; \
+        try_files $uri $uri/ /index.html; \
+    } \
+}' > /etc/nginx/conf.d/default.conf
+
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
