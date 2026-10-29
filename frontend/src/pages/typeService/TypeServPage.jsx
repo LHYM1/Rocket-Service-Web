@@ -4,6 +4,7 @@ import TypeServTable from "../../components/typeServices/TypeServTable";
 import ModalEditAgrTs from "../../components/typeServices/ModalEditAgrTs";
 import { useAuth } from "../../context/AuthContext";
 import CategoriaBadge from "../../components/ui/CategoriaBadge";
+import { useToast } from "../../context/ToastContext";
 
 function TypeServPage() {
     const { esAdmin } = useAuth();
@@ -13,6 +14,7 @@ function TypeServPage() {
     const [filtroEstado, setFiltroEstado] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [cargando, setCargando] = useState(true);
+    const { mostrarToast } = useToast();
 
     const [pagina, setPagina] = useState(1);
     const tipServPorPagina = 8;
@@ -120,6 +122,7 @@ function TypeServPage() {
                         setShowModal(true);
                     }}
                     esAdmin={esAdmin}
+                    showToast={mostrarToast}
                     getTipoServicio={getTipoServicio}
                 />
             )}

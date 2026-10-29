@@ -1,4 +1,5 @@
-import axios from "axios";
+import axios from "../../axiosConfig";
+
 
 function TypeServTable({ tipServ, setIdSeleccionado, getTipoServicio, esAdmin, showToast }) {
     const eliminarTipServ = async (id, nombre) => {
