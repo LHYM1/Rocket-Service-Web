@@ -13,7 +13,7 @@ export const listarOrden = async (req, res) => {
         let ordenes;
         if (rol === "Administrador") {
             // RN-001 / RN-003: el Admin ve todas, con filtro adicional por técnico
-            ordenes = await ordenes_de_servicio.findAll({ codigo_orden, estado, id_tecnico });
+            ordenes = await ordenes_de_servicio.findAll({ codigo_orden, estado, id_tecnico, id_usuario });
         } else if (rol === "Técnico") {
             // RN-002: el Técnico ve solo sus propias órdenes asignadas
             ordenes = await ordenes_de_servicio.findAllByTecnico(id_usuario, { codigo_orden, estado });
@@ -53,6 +53,17 @@ export const listarTecnicosDisponibles = async (req, res) => {
         res.json(tecnicos);
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+};
+
+// listar clientes con moto para el selector del formulario de creación de la orden
+export const listarClientesConMoto = async (req, res) => {
+    try {
+        const clientes = await ordenes_de_servicio.findClientesConMoto();
+        res.json(clientes);
+    } catch (error) {
+        console.error("Error listar clientes:", error);
+        res.status(500).json({ message: 'Error interno del servidor' });
     }
 };
 
@@ -385,6 +396,7 @@ export default {
     listarOrden,
     obtenerOrden,
     listarTecnicosDisponibles,
+    listarClientesConMoto,
     crearOrden,
     actualizarOrden,
     cancelarOrden,

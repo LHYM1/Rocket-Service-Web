@@ -6,10 +6,12 @@ import { validarToken } from '../../middlewares/authMiddleware.js';
 
 // HU-006.2 / RN-005: Admin, Técnico y Cliente consultan (cada uno ve lo suyo, filtrado en el controller)
 router.get('/listar', validarToken(["Administrador", "Técnico", "Cliente"]), controllerOrders.listarOrden);
+router.get('/listar-clientes-con-moto', validarToken(["Administrador"]), controllerOrders.listarClientesConMoto);
 // Alias que ya usa el frontend del Técnico -- misma lógica que /listar
 router.get('/mis-ordenes', validarToken(["Técnico"]), controllerOrders.listarOrden);
 router.get('/consultar/:id', validarToken(["Administrador", "Técnico", "Cliente"]), controllerOrders.obtenerOrden);
 router.get('/tecnicos-disponibles', validarToken(["Administrador"]), controllerOrders.listarTecnicosDisponibles);
+
 
 // HU-006.1 / RN-001: solo el Administrador crea órdenes
 router.post('/crear', validarToken(["Administrador"]), controllerOrders.crearOrden);

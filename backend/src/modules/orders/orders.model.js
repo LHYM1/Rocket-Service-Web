@@ -8,6 +8,8 @@ const OrdenServicio = {
                 o.id_orden,
                 o.codigo_orden,
                 CONCAT(cli.nombre, ' ', cli.apellido) AS nombre_cliente,
+                o.id_usuario,
+                o.id_moto,
                 m.placa AS placa_moto,
                 mo.nombre AS nombre_modelo,
                 CONCAT(t.nombre, ' ', t.apellido) AS nombre_tecnico,
@@ -167,6 +169,37 @@ const OrdenServicio = {
                  AND ra.estado_disponibilidad != 'Disponible'
              )`
         );
+        return rows;
+    },
+
+    // Obtener usuarios con rol Cliente (id_tipo_usuario = 1) que tienen motocicleta registrada activa
+    findClientesConMoto: async () => {
+        const [rows] = await db.query(
+            `SELECT u.id_usuario, u.nombre, u.apellido
+             FROM usuarios u
+             JOIN clasificacion_de_usuarios c ON u.id_tipo_usuario = c.id_tipo_usuario
+             WHERE c.categoria_usuario = 'Cliente' 
+               AND u.estado = 2
+               AND EXISTS (
+                   SELECT 1 FROM motocicleta m 
+                   WHERE m.id_usuario = u.id_usuario 
+                   AND m.estado = 1
+               )
+             ORDER BY u.nombre ASC`
+        );
+        return rows;
+    },
+
+    // Obtener usuarios con rol Cliente (id_tipo_usuario = 1) que NO tienen motocicleta registrada activa
+    findClientesSinMoto: async () => {
+        const query = `
+            SELECT u.id_usuario, u.nombre, u.apellido 
+            FROM usuarios u
+            LEFT JOIN motocicleta m ON u.id_usuario = m.id_usuario
+            WHERE u.id_tipo_usuario = 1 AND u.estado = 2 AND m.id_moto IS NULL
+            ORDER BY u.nombre ASC
+        `;
+        const [rows] = await db.query(query);
         return rows;
     },
 
