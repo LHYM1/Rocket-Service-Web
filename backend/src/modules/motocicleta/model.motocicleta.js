@@ -82,6 +82,25 @@ const motocicletas = {
         return rows;
     },
 
+    // Obtener motocicletas activas de un usuario específico
+    findByUsuario: async (id_usuario) => {
+        const query = `
+            SELECT 
+                m.id_moto,
+                m.placa,
+                m.id_modelo,
+                m.id_usuario,
+                m.estado,
+                mo.nombre AS nombre_modelo
+            FROM motocicleta m
+            LEFT JOIN modelo mo ON m.id_modelo = mo.id_modelo
+            WHERE m.id_usuario = ? AND m.estado = 1
+            ORDER BY m.id_moto DESC
+        `;
+        const [rows] = await db.query(query, [id_usuario]);
+        return rows;
+    },
+
     create: async (data) => {
         const { placa, id_modelo, kilometraje_actual, id_usuario, estado = 1 } = data;
         const [result] = await db.query(

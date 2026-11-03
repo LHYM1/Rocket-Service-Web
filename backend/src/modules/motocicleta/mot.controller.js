@@ -72,6 +72,22 @@ export const getUsuariosSinMoto = async (req, res) => {
     }
 };
 
+export const getMotocicletasPorUsuario = async (req, res) => {
+    try {
+        const { id_usuario } = req.params;
+        const motos = await motocicletas.findByUsuario(id_usuario);
+
+        if (!motos || motos.length === 0) {
+            return res.status(404).json({ status: 'error', message: 'No se encontraron motocicletas para este usuario.' });
+        }
+
+        return res.status(200).json({ status: 'success', data: motos });
+    } catch (error) {
+        console.error('Error al consultar motocicletas por usuario:', error);
+        return res.status(500).json({ status: 'error', message: 'Error interno al consultar motocicletas por usuario.' });
+    }
+};
+
 export const createMotocicleta = async (req, res) => {
     try {
         const { placa, id_modelo, id_usuario, kilometraje_actual } = req.body;
@@ -210,6 +226,7 @@ export default {
     getMotocicletaById,
     getByPlaca,
     getUsuariosSinMoto,
+    getMotocicletasPorUsuario,
     createMotocicleta,
     updateMotocicleta,
     cambiarEstadoMotocicleta
