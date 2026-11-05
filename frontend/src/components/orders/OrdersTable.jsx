@@ -126,13 +126,27 @@ function OrdenesTable({ ordenes, setIdSeleccionado, getOrdenes, esAdmin }) {
             mostrarNotificacion("Esta orden ya no se puede cancelar.", "error");
             return;
         }
-        setOrdenParaCancelar(id);
+        setOrdenParaCancelar({id, estado});
     };
 
     const confirmarCancelar = () => {
-        const id = ordenParaCancelar;
+        const { id, estado } = ordenParaCancelar;
+        let motivo = "";
+
+        if (estado === "EN PROCESO") {
+            motivo = window.prompt("Esta orden está EN PROCESO. Indica el motivo de la cancelación:");
+            if (motivo === null) {
+                setOrdenParaCancelar(null);
+                return;
+            }
+            if (motivo.trim() === "") {
+                mostrarNotificacion("El motivo es obligatorio para cancelar una orden en proceso.", "warning");
+                return;
+            }
+        }
+
         setOrdenParaCancelar(null);
-        axios.patch(`/api/ordenes_de_servicio/cancelar/${id}`)
+        axios.patch(`/api/ordenes_de_servicio/cancelar/${id}`, { motivo })
             .then(res => { mostrarNotificacion(res.data.message, "success"); getOrdenes(); })
             .catch(err => {
                 mostrarNotificacion(err.response?.data?.message || "No se pudo cancelar la orden.", "error");
