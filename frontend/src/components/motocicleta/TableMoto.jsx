@@ -64,15 +64,44 @@ function TableMoto({ moto, setIdSeleccionado, getMoto }) {
                                 <td>
                                     <span 
                                         className={`rs-status-badge ${mt.estado === 1 ? 'rs-status-active' : 'rs-status-inactive'}`}
-                                        style={mt.estado === 1 ? {
-                                            backgroundColor: "#d1fae5",
-                                            color: "#065f46",
-                                            border: "1px solid #a7f3d0",
-                                            padding: "4px 8px",
-                                            borderRadius: "12px",
-                                            fontWeight: "bold",
-                                            display: "inline-block"
-                                        } : {}}
+                                        onClick={() => {
+                                            // Alternamos el estado: si está en 1 pasa a 0, y viceversa
+                                            const nuevoEstado = mt.estado === 1 ? 0 : 1;
+                                            const mensaje = nuevoEstado === 1 ? "¿Estás seguro de activar esta motocicleta?" : "¿Estás seguro de desactivar esta motocicleta?";
+
+                                            if (window.confirm(mensaje)) {
+                                                axios.put(`/api/motocicleta/estado/${mt.id_moto}`, { estado: nuevoEstado })
+                                                    .then(() => {
+                                                        alert("Estado actualizado con éxito");
+                                                        getMoto(); // Refresca la tabla para ver el cambio
+                                                    })
+                                                    .catch(err => {
+                                                        console.error("Error al cambiar estado:", err);
+                                                        alert(err.response?.data?.message || "No se pudo actualizar el estado");
+                                                    });
+                                            }
+                                        }}
+                                        style={{
+                                            cursor: "pointer", // Esto hace que aparezca la manito al pasar el mouse por encima
+                                            ...(mt.estado === 1 ? {
+                                                backgroundColor: "#d1fae5",
+                                                color: "#065f46",
+                                                border: "1px solid #a7f3d0",
+                                                padding: "4px 8px",
+                                                borderRadius: "12px",
+                                                fontWeight: "bold",
+                                                display: "inline-block"
+                                            } : {
+                                                backgroundColor: "#fee2e2",
+                                                color: "#991b1b",
+                                                border: "1px solid #fecaca",
+                                                padding: "4px 8px",
+                                                borderRadius: "12px",
+                                                fontWeight: "bold",
+                                                display: "inline-block"
+                                            })
+                                        }}
+                                        title="Haz clic para cambiar el estado"
                                     >
                                         {mt.estado === 1 ? "Activa" : "Inactiva"}
                                     </span>
