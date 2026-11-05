@@ -342,7 +342,7 @@ const OrdenServicio = {
         );
         for (const item of insumosUsados) {
             await db.query(
-                `UPDATE insumos SET cantidad_disponible = cantidad_disponible + ?, estado = true WHERE id_insumo = ?`,
+                `UPDATE insumos SET cantidad_disponible = cantidad_disponible + ?::numeric, estado = true WHERE id_insumo = ?`,
                 [item.cantidad, item.id_insumo]
             );
         }
@@ -350,7 +350,7 @@ const OrdenServicio = {
 
     // RN de HU-006.4: la moto asociada se desactiva al cancelar
     desactivarMoto: async (id_moto) => {
-        await db.query(`UPDATE motocicleta SET estado = false WHERE id_moto = ?`, [id_moto]);
+        await db.query(`UPDATE motocicleta SET estado = 0 WHERE id_moto = ?`, [id_moto]);
     }
 };
 

@@ -197,41 +197,47 @@ export const actualizarOrden = async (req, res) => {
 
 // HU-006.4 -- Cancelar Orden (reemplaza la eliminación física)
 export const cancelarOrden = async (req, res) => {
+    let paso = "inicio";
     try {
         const { id } = req.params;
-        const { motivo } = req.body;
+        const { motivo } = req.body ?? {};
 
+        paso = "findById";
         const orden = await ordenes_de_servicio.findById(id);
-        if (!orden) {
-            return res.status(404).json({ message: "Orden no encontrada" });
-        }
+        if (!orden) return res.status(404).json({ message: "Orden no encontrada" });
 
-        // No se pueden cancelar órdenes FINALIZADAS ni ya CANCELADAS
         if (orden.nombre_estado === "FINALIZADA" || orden.nombre_estado === "CANCELADA") {
-            return res.status(400).json({
-                message: `No se puede cancelar una orden en estado ${orden.nombre_estado}.`
-            });
+            return res.status(400).json({ message: `No se puede cancelar una orden en estado ${orden.nombre_estado}.` });
         }
-
-        // Si está EN PROCESO, el motivo es obligatorio
         if (orden.nombre_estado === "EN PROCESO" && (!motivo || motivo.trim() === "")) {
-            return res.status(400).json({
-                message: "Debes indicar un motivo para cancelar una orden que está EN PROCESO."
-            });
+            return res.status(400).json({ message: "Debes indicar un motivo para cancelar una orden que está EN PROCESO." });
         }
 
+        paso = "getEstadoIdPorNombre";
         const idEstadoCancelada = await ordenes_de_servicio.getEstadoIdPorNombre("CANCELADA");
         if (!idEstadoCancelada) {
-            return res.status(500).json({ message: "No se encontró el estado CANCELADA en el catálogo de estados." });
+            return res.status(500).json({ message: "No se encontró el estado CANCELADA en el catálogo." });
         }
 
+        paso = "cancelar";
         await ordenes_de_servicio.cancelar(id, idEstadoCancelada);
+
+        paso = "devolverInsumosAlStock";
         await ordenes_de_servicio.devolverInsumosAlStock(id);
+
+        paso = "desactivarMoto";
         await ordenes_de_servicio.desactivarMoto(orden.id_moto);
+
+        paso = "liberarTecnico";
+        // Solo si el técnico ya había aceptado la orden (ahí se marcó "Realizando servicio")
+        if (["EN PROCESO", "PENDIENTE APROBACIÓN"].includes(orden.nombre_estado) && orden.id_tecnico_asignado) {
+            await ordenes_de_servicio.marcarTecnicoDisponible(orden.id_tecnico_asignado, id);
+        }
 
         res.json({ message: "Orden cancelada correctamente." });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`ERROR CANCELAR (paso: ${paso}):`, error);
+        res.status(500).json({ paso, error: error.message });
     }
 };
 
@@ -378,6 +384,7 @@ export const rechazarCotizacion = async (req, res) => {
             await ordenes_de_servicio.guardarMotivoRechazo(id, motivo);
             await ordenes_de_servicio.devolverInsumosAlStock(id);
             await ordenes_de_servicio.desactivarMoto(orden.id_moto);
+            await ordenes_de_servicio.marcarTecnicoDisponible(orden.id_tecnico_asignado, id);
             return res.json({ message: "La orden fue cancelada. El motivo fue enviado al administrador." });
         }
 
