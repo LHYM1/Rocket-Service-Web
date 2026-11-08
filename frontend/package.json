@@ -18,10 +18,7 @@
     "react-router-dom": "^7.14.2",
     "react-scripts": "5.0.1",
     "react-select": "^5.10.2",
-<<<<<<< HEAD
-=======
     "recharts": "^3.10.1",
->>>>>>> respaldo-proyecto
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -49,12 +46,8 @@
     ]
   },
   "devDependencies": {
-<<<<<<< HEAD
-    "cypress": "^15.21.1"
-=======
     "cross-env": "^10.1.0",
     "cypress": "^16.0.0",
     "@rocket/shared": "file:../shared"
->>>>>>> respaldo-proyecto
   }
 }
