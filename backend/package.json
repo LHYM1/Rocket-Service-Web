@@ -39,17 +39,14 @@
     "pg": "^8.23.0",
     "resend": "^6.28.1",
     "swagger-autogen": "^2.23.7",
-<<<<<<< HEAD
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",
     "@babel/preset-env": "^8.0.2",
     "babel-jest": "^30.5.0",
-    "jest": "^30.5.0"
-=======
+    "jest": "^30.5.0",
     "swagger-ui-express": "^5.0.1",
     "@rocket/shared": "file:../shared"
->>>>>>> respaldo-proyecto
   }
 }
