@@ -31,13 +31,13 @@ const RegActAgrEdt = ({ idSeleccionado, onClose, onSuccess }) => {
             if (idSeleccionado) {
                 // Editar
                 await axios.put(
-                    `http://localhost:4000/api/registro_actividad/modificar/${idSeleccionado.id_registro  }`, regstActv
+                    `/api/registro_actividad/modificar/${idSeleccionado.id_registro  }`, regstActv
                 );
                 alert("Registro de actividad actualizado con éxito");
             } else {
                 // Agregar
                 await axios.post(
-                    `http://localhost:4000/api/registro_actividad/crear`, regstActv
+                    `/api/registro_actividad/crear`, regstActv
                 );
 
                 alert("Registro de actividad agregado con éxito");

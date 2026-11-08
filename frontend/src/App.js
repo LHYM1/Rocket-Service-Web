@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from "./pages/login/login.jsx";
 import Register from './pages/register/Register.jsx';
 import DashboardLayout from './layouts/DashboardLayout.jsx';
@@ -16,10 +16,11 @@ import ProdtsUseServ from './pages/prdtsUseServ/prodtsUsServPage.jsx';
 import RegistActv from './pages/regstActv/regstActvPage.jsx';
 import ImagDanos from './pages/imgDanos/PageImg.jsx';
 import Motocicleta from './pages/motocicleta/PageMoto.jsx';
-import Modelo from './pages/modelo/PageModMoto.jsx';
 import EstadoOrdenPage from './pages/estOrdn/PageEstadoOrd.jsx';
 import Categoria from './pages/categoria/PageCategoria.jsx';
 import UnidadMedPage from './pages/undMed/PageUnidadMed.jsx';
+import PreRevisionPage from './pages/preRevision/PreRevisionPage.jsx';
+import FormEstbPassword from './components/formPassword/FormPassword.jsx';
 
 
 // Componente que redirige según rol
@@ -27,20 +28,22 @@ const RedirigirPorRol = () => {
     const rol = localStorage.getItem("rol");
     if (rol === "Administrador") return <Navigate to="/panel/dashboard" replace />;
     if (rol === "Técnico") return <Navigate to="/panel/orders" replace />;
+    if (rol === "Cliente") return <Navigate to="/panel/orders" replace />;
+
     return <Navigate to="/" replace />;
 };
 
 function App() {
   return (
-    <Router>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/establecer-contrasena" element={<FormEstbPassword />} />
 
         <Route
           path="/panel"
           element={
-            <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
+            <ProtectedRoute allowedRoles={["Administrador", "Técnico", "Cliente"]}>
               <DashboardLayout />
             </ProtectedRoute>
           }
@@ -97,15 +100,9 @@ function App() {
             </ProtectedRoute>
           }/>
 
-          <Route path="modelo" element={
-            <ProtectedRoute allowedRoles={["Administrador"]}>
-              <Modelo />
-            </ProtectedRoute>
-          }/>
-
-          {/* Admin y Técnico */}
+          {/* Admin, Técnico y cliente */}
           <Route path="orders" element={
-            <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
+            <ProtectedRoute allowedRoles={["Administrador", "Técnico", "Cliente"]}>
               <OrdersPage />
             </ProtectedRoute>
           }/>
@@ -134,13 +131,18 @@ function App() {
             </ProtectedRoute>
           }/>
 
+          <Route path="pre-revision" element={
+            <ProtectedRoute allowedRoles={["Administrador", "Técnico"]}>
+              <PreRevisionPage />
+            </ProtectedRoute>
+        }/>
+
           <Route path="content" element={<Content />} />
           <Route path="profile" element={<Profile />} />
           <Route path="reports" element={<Report />} />
 
         </Route>
       </Routes>
-    </Router>
   );
 }
 

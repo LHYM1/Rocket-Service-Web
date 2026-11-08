@@ -21,22 +21,25 @@
     
   },
   "dependencies": {
-    "axios": "^1.13.6",
+    "axios": "^1.20.0",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.2",
-    "cloudinary": "^2.9.0",
+    "cloudinary": "^2.11.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "http": "^0.0.1-security",
+    "https": "^1.0.0",
     "jsonwebtoken": "^9.0.3",
     "jwt-decode": "^4.0.0",
-    "modules": "^0.4.0",
     "mongoose": "^9.3.1",
     "multer": "^2.1.1",
     "mysql2": "^3.19.1",
     "nodemon": "^3.1.14",
+    "pg": "^8.23.0",
+    "resend": "^6.28.1",
     "swagger-autogen": "^2.23.7",
+<<<<<<< HEAD
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
@@ -44,5 +47,9 @@
     "@babel/preset-env": "^8.0.2",
     "babel-jest": "^30.5.0",
     "jest": "^30.5.0"
+=======
+    "swagger-ui-express": "^5.0.1",
+    "@rocket/shared": "file:../shared"
+>>>>>>> respaldo-proyecto
   }
 }

@@ -1,2 +1,33 @@
+<<<<<<< HEAD
 /node_modules 
 .env
+=======
+node_modules/
+dis/
+build/
+.env
+
+backend/.env
+frontend/.env
+
+uploads/
+
+# Dependencias
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Reportes y temporales de Pruebas
+test-results/
+playwright-report/
+frontend/playwright-report/
+frontend/test-results/
+
+# Cypress - Reportes, capturas y descargas locales
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+frontend/cypress/screenshots/
+frontend/cypress/videos/
+frontend/cypress/downloads/
+>>>>>>> respaldo-proyecto

@@ -1,56 +1,136 @@
-import axios from '../../axiosConfig'
+import axios from "../../axiosConfig";
 
-function TableMoto ({ moto, setIdSeleccionado, getMoto }) {
-
-    if (!moto || !Array.isArray(moto)) {
-        return <p>No hay motocicletas disponibles</p>;
+function TableMoto({ moto, setIdSeleccionado, getMoto }) {
+    if (!moto || !Array.isArray(moto) || moto.length === 0) {
+        return (
+            <div className="rs-empty">
+                <i className="fas fa-motorcycle rs-empty-icon"></i>
+                <p className="rs-empty-text">No hay motocicletas registradas o coincidentes con la búsqueda.</p>
+            </div>
+        );
     }
 
     const eliminarMoto = (id) => {
-        if (window.confirm("¿Estás seguro de eliminar esta motocicleta?")) {
-            axios.delete(`http://localhost:4000/api/motocicleta/eliminar/${id}`)
-            .then(() => { alert("Motocicleta eliminada con éxito"); getMoto(); })
-            .catch(err => { console.error(err); alert("No se pudo eliminar la motocicleta"); });
-        } else {
-            alert("La motocicleta no fue eliminada");
+        if (window.confirm("¿Estás seguro de desactivar esta motocicleta?")) {
+            axios.put(`/api/motocicleta/estado/${id}`, { estado: 0 })
+                .then(() => {
+                    alert("Motocicleta desactivada con éxito");
+                    getMoto();
+                })
+                .catch(err => {
+                    console.error("Error al desactivar motocicleta:", err);
+                    alert(err.response?.data?.message || "No se pudo desactivar la motocicleta");
+                });
         }
-    }
+    };
 
     return (
-        <div>
-            <table className="table table-hover" border="1">
-                <thead className="table-light">
+        <div className="rs-table-wrapper">
+            <table className="rs-table">
+                <thead>
                     <tr>
                         <th>Placa</th>
-                        <th>Dueño</th>
+                        <th>Cliente / Dueño</th>
                         <th>Modelo</th>
-                        <th>Kilometraje actual</th>
-                        <th>Acciones</th>
+                        <th>Kilometraje Actual</th>
+                        <th>Estado</th>
+                        <th style={{ textAlign: "center" }}>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {moto.map((mt) => (
-                        <tr key={mt.id_moto}>
-                            <td>{mt.placa}</td>
-                            <td>{mt.nombre_usuario} {mt.apellido_usuario}</td>
-                            <td>{mt.nombre_modelo || "Sin modelo"}</td>
-                            <td>{mt.kilometraje_actual}</td>
-                            <td>
-                                <button onClick={() => setIdSeleccionado(mt)}
-                                    type="button" className="btn btn-warning btn-color">
-                                    Editar
-                                </button>
-                                <button onClick={() => eliminarMoto(mt.id_moto)}
-                                    type="button" className="btn btn-danger btn-color">
-                                    Eliminar
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
+                    {moto.map((mt) => {
+                        // Truncar decimales para asegurar que aparezcan como enteros (Ej: 2000 => 2.000 KM)
+                        const kmEntero = Math.trunc(Number(mt.kilometraje_actual || 0));
+                        const kmFormateado = kmEntero.toLocaleString("es-CO", { maximumFractionDigits: 0 });
+
+                        return (
+                            <tr key={mt.id_moto}>
+                                <td>
+                                    <span className="rs-id-badge">{mt.placa}</span>
+                                </td>
+                                <td style={{ fontWeight: 500 }}>
+                                    {mt.nombre_usuario && mt.apellido_usuario 
+                                        ? `${mt.nombre_usuario} ${mt.apellido_usuario}` 
+                                        : "Sin Asignar"}
+                                </td>
+                                <td>
+                                    <span className="rs-cat-badge">
+                                        {mt.nombre_modelo || "Sin Modelo"}
+                                    </span>
+                                </td>
+                                <td style={{ fontWeight: 600 }}>
+                                    {kmFormateado} KM
+                                </td>
+                                <td>
+                                    <span 
+                                        className={`rs-status-badge ${mt.estado === 1 ? 'rs-status-active' : 'rs-status-inactive'}`}
+                                        onClick={() => {
+                                            // Alternamos el estado: si está en 1 pasa a 0, y viceversa
+                                            const nuevoEstado = mt.estado === 1 ? 0 : 1;
+                                            const mensaje = nuevoEstado === 1 ? "¿Estás seguro de activar esta motocicleta?" : "¿Estás seguro de desactivar esta motocicleta?";
+
+                                            if (window.confirm(mensaje)) {
+                                                axios.put(`/api/motocicleta/estado/${mt.id_moto}`, { estado: nuevoEstado })
+                                                    .then(() => {
+                                                        alert("Estado actualizado con éxito");
+                                                        getMoto(); // Refresca la tabla para ver el cambio
+                                                    })
+                                                    .catch(err => {
+                                                        console.error("Error al cambiar estado:", err);
+                                                        alert(err.response?.data?.message || "No se pudo actualizar el estado");
+                                                    });
+                                            }
+                                        }}
+                                        style={{
+                                            cursor: "pointer", // Esto hace que aparezca la manito al pasar el mouse por encima
+                                            ...(mt.estado === 1 ? {
+                                                backgroundColor: "#d1fae5",
+                                                color: "#065f46",
+                                                border: "1px solid #a7f3d0",
+                                                padding: "4px 8px",
+                                                borderRadius: "12px",
+                                                fontWeight: "bold",
+                                                display: "inline-block"
+                                            } : {
+                                                backgroundColor: "#fee2e2",
+                                                color: "#991b1b",
+                                                border: "1px solid #fecaca",
+                                                padding: "4px 8px",
+                                                borderRadius: "12px",
+                                                fontWeight: "bold",
+                                                display: "inline-block"
+                                            })
+                                        }}
+                                        title="Haz clic para cambiar el estado"
+                                    >
+                                        {mt.estado === 1 ? "Activa" : "Inactiva"}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div className="rs-actions" style={{ justifyContent: "center" }}>
+                                        <button
+                                            onClick={() => setIdSeleccionado(mt)}
+                                            className="rs-btn rs-btn-icon rs-btn-edit"
+                                            title="Editar motocicleta"
+                                        >
+                                            <i className="fas fa-edit"></i>
+                                        </button>
+                                        <button
+                                            onClick={() => eliminarMoto(mt.id_moto)}
+                                            className="rs-btn rs-btn-icon rs-btn-delete"
+                                            title="Desactivar motocicleta"
+                                        >
+                                            <i className="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        );
+                    })}
                 </tbody>
             </table>
         </div>
-    )
+    );
 }
 
 export default TableMoto;

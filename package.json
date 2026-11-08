@@ -1,0 +1,23 @@
+{
+  "name": "rocket-service-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "shared"
+  ],
+  "scripts": {    
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LHYM1/Rocket-Service-Web.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LHYM1/Rocket-Service-Web/issues"
+  },
+  "homepage": "https://github.com/LHYM1/Rocket-Service-Web#readme"
+}

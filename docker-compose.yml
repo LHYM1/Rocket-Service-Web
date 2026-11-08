@@ -1,0 +1,43 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: sena_backend_app
+    env_file:
+      - backend/.env
+    environment:
+      - PORT=4000
+    expose:
+      - "4000"
+    restart: always
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: sena_frontend_app
+    expose:
+      - "80"
+    depends_on:
+      - backend
+    restart: always
+
+  caddy:
+    image: caddy:2
+    container_name: sena_caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+    restart: always
+
+volumes:
+  caddy_data:
+  caddy_config:

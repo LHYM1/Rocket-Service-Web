@@ -25,13 +25,13 @@ const UnidadMedEditAgr = ({ idSeleccionado, onClose, onSuccess }) => {
             if (idSeleccionado) {
                 // Editar
                 await axios.put(
-                    `http://localhost:4000/api/unidad_de_medida/modificar/${idSeleccionado.id_unidad }`, undMed
+                    `/api/unidad_de_medida/modificar/${idSeleccionado.id_unidad }`, undMed
                 );
                 alert("Unidad de medida actualizada con éxito");
             } else {
                 // Agregar
                 await axios.post(
-                    `http://localhost:4000/api/unidad_de_medida/crear`, undMed
+                    `/api/unidad_de_medida/crear`, undMed
                 );
 
                 alert("Unidad de medida agregada con éxito");

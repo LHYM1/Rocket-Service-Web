@@ -1,116 +1,197 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../axiosConfig";
 import MotoEdAgr from "../../components/motocicleta/motoEdAgr";
 import TableMoto from "../../components/motocicleta/TableMoto";
+import ModalGestionarModelos from "../../components/motocicleta/ModalGestionarModelos";
+import CategoriaBadge from "../../components/ui/CategoriaBadge";
 
-function MotocicletaPage () {
-  const [moto, setMoto] = useState([]);
-  const [idSeleccionado, setIdSeleccionado] = useState(null);
-  const [busqueda, setBusqueda] = useState("");
-  const [showModal, setShowModal] = useState(false);
+// URL absoluta del Backend Express
+const API_BASE_URL = "/api";
 
-   // Paginación
-  const [pagina, setPagina] = useState(1);
-  const porPagina = 5;
+function MotocicletaPage() {
+    const [moto, setMoto] = useState([]);
+    const [modelos, setModelos] = useState([]);
+    const [idSeleccionado, setIdSeleccionado] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [showModalModelos, setShowModalModelos] = useState(false);
 
-  const getMoto = () => {
-    axios.get("http://localhost:4000/api/motocicleta/listar")
-      .then(res => setMoto(res.data))
-      .catch(err => console.error(err));
-  };
+    // Filtros
+    const [busqueda, setBusqueda] = useState("");
+    const [filtroModelo, setFiltroModelo] = useState("");
 
-  useEffect(() => {
-    getMoto();
-  }, []);
+    // Paginación
+    const [pagina, setPagina] = useState(1);
+    const porPagina = 5;
 
-  // Filtrar motos según búsqueda
-  const insSerFiltrados = moto.filter(moto => {
-    // Convertimos el ID a texto con string 
-    const idTexto = String(moto.placa || "");
-    return idTexto.toLowerCase().includes(busqueda.toLowerCase()); 
-  });
+    const getMoto = () => {
+        axios.get(`${API_BASE_URL}/motocicleta/listar`)
+            .then(res => {
+                const dataExtraida = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+                setMoto(dataExtraida);
+            })
+            .catch(err => {
+                console.error("Error al cargar motocicletas:", err);
+                setMoto([]);
+            });
+    };
 
-  // Calcular usuarios de la página actual
-  const inicio = (pagina - 1) * porPagina;
-  const fin = inicio + porPagina;
-  const paginados = insSerFiltrados.slice(inicio, fin);
+    const getModelos = () => {
+        axios.get(`${API_BASE_URL}/modelo/listar`)
+            .then(res => {
+                const dataExtraida = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+                setModelos(dataExtraida);
+            })
+            .catch(err => console.error("Error al cargar lista de modelos:", err));
+    };
 
-  // Número total de páginas
-  const totalPaginas = Math.ceil(insSerFiltrados.length / porPagina);
+    useEffect(() => {
+        getMoto();
+        getModelos();
+    }, []);
 
-  return (
-    <div className="container mt-4">
-      <h2>Gestión de motocicletas</h2>
+    useEffect(() => {
+        setPagina(1);
+    }, [busqueda, filtroModelo]);
 
-      {/* Barra de acciones */}
-      <div className="d-flex justify-content-between mb-3">
-        <button
-          className="btn btn-primary"
-          onClick={() => {
-            setIdSeleccionado(null);
-            setShowModal(true);
-          }}
-        >
-          Agregar 
-        </button>
+    // Filtrado por Placa/Cliente y por Modelo opcional
+    const motosFiltradas = moto.filter(m => {
+        const placa = String(m.placa || "").toLowerCase();
+        const dueno = String(`${m.nombre_usuario || ""} ${m.apellido_usuario || ""}`).toLowerCase();
+        const termino = busqueda.toLowerCase();
 
-        <input
-          type="text"
-          className="form-control w-50"
-          placeholder="Buscar motocicleta por placa"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
-      </div>
+        const coincideTermino = placa.includes(termino) || dueno.includes(termino);
+        const coincideModelo = filtroModelo === "" || String(m.id_modelo) === String(filtroModelo);
 
-      {/* Tabla */}
-      <TableMoto
-        moto={paginados}
-        setIdSeleccionado={(ts) => {
-          setIdSeleccionado(ts);
-          setShowModal(true);
-        }}
-        getMoto={getMoto}
-      />
+        return coincideTermino && coincideModelo;
+    });
 
-      {/* Paginador */}
-      <div className="d-flex justify-content-center mt-3">
-        <nav>
-          <ul className="pagination">
-            <li className={`page-item ${pagina === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina - 1)}>
-                Anterior
-              </button>
-            </li>
+    const inicio = (pagina - 1) * porPagina;
+    const paginados = motosFiltradas.slice(inicio, inicio + porPagina);
+    const totalPaginas = Math.ceil(motosFiltradas.length / porPagina) || 1;
 
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <li key={i} className={`page-item ${pagina === i + 1 ? "active" : ""}`}>
-                <button className="page-link" onClick={() => setPagina(i + 1)}>
-                  {i + 1}
-                </button>
-              </li>
-            ))}
+    return (
+        <div className="rs-page-light">
+            {/* Encabezado */}
+            <div className="rs-page-header">
+                <div>
+                    <h2 className="rs-page-title">
+                        <i className="fas fa-motorcycle"></i>
+                        Gestión de Motocicletas
+                        <CategoriaBadge tipo="inventario" />
+                    </h2>
+                    <p className="rs-page-subtitle">
+                        Administra el parque automotor y asignación de motocicletas
+                    </p>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                    <button
+                        className="rs-btn rs-btn-secondary"
+                        onClick={() => setShowModalModelos(true)}
+                    >
+                        <i className="fas fa-motorcycle"></i> Gestionar modelos
+                    </button>
+                    <button
+                        className="rs-btn rs-btn-primary"
+                        onClick={() => {
+                            setIdSeleccionado(null);
+                            setShowModal(true);
+                        }}
+                    >
+                        <i className="fas fa-plus"></i> Registrar Motocicleta
+                    </button>
+                </div>
+            </div>
 
-            <li className={`page-item ${pagina === totalPaginas ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina + 1)}>
-                Siguiente
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
+            {/* Filtros: Búsqueda global + Select de Modelo */}
+            <div className="rs-filters" style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                <div className="rs-search-wrapper" style={{ flex: 1 }}>
+                    <i className="fas fa-search rs-search-icon"></i>
+                    <input
+                        type="text"
+                        className="rs-search-input"
+                        placeholder="Buscar por placa o nombre de cliente..."
+                        value={busqueda}
+                        onChange={(e) => setBusqueda(e.target.value)}
+                    />
+                </div>
 
-      {/* Modal de agregar/editar */}
-      {showModal && (
-        <MotoEdAgr
-          idSeleccionado={idSeleccionado}
-          getMoto={getMoto}
-          onClose={() => setShowModal(false)}
-          onSuccess={() => getMoto()}
-        />
-      )}
-    </div>
-  );
+                <div style={{ minWidth: "200px" }}>
+                    <select
+                        className="rs-input-white"
+                        style={{ height: "42px" }}
+                        value={filtroModelo}
+                        onChange={(e) => setFiltroModelo(e.target.value)}
+                    >
+                        <option value="">Todos los modelos</option>
+                        {modelos.map(mod => (
+                            <option key={mod.id_modelo} value={mod.id_modelo}>
+                                {mod.nombre_modelo || mod.nombre}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
+            {/* Tabla con datos filtrados */}
+            <TableMoto
+                moto={paginados}
+                setIdSeleccionado={(mt) => {
+                    setIdSeleccionado(mt);
+                    setShowModal(true);
+                }}
+                getMoto={getMoto}
+            />
+
+            {/* Paginador */}
+            {totalPaginas > 1 && (
+                <div className="rs-pagination">
+                    <button
+                        className="rs-page-btn"
+                        disabled={pagina === 1}
+                        onClick={() => setPagina(pagina - 1)}
+                    >
+                        <i className="fa-solid fa-chevron-left"></i>
+                    </button>
+                    {Array.from({ length: totalPaginas }, (_, i) => (
+                        <button
+                            key={i + 1}
+                            className={`rs-page-btn ${pagina === i + 1 ? "active" : ""}`}
+                            onClick={() => setPagina(i + 1)}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+                    <button
+                        className="rs-page-btn"
+                        disabled={pagina === totalPaginas}
+                        onClick={() => setPagina(pagina + 1)}
+                    >
+                        <i className="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            )}
+
+            {/* Modal para Crear / Editar */}
+            {showModal && (
+                <MotoEdAgr
+                    idSeleccionado={idSeleccionado}
+                    onClose={() => setShowModal(false)}
+                    onSuccess={() => {
+                        getMoto();
+                        getModelos();
+                    }}
+                />
+            )}
+
+            {/* Modal de gestión de Modelos (fusionado aquí, ya no es una pestaña aparte) */}
+            {showModalModelos && (
+                <ModalGestionarModelos
+                    onClose={() => setShowModalModelos(false)}
+                    onCambio={() => getModelos()}
+                />
+            )}
+        </div>
+    );
 }
 
 export default MotocicletaPage;

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "../../axiosConfig";
 
 const ModalOrdenServicio = ({ idSeleccionado, onClose, onSuccess }) => {
+    console.log("¡El modal se está renderizando! idSeleccionado:", idSeleccionado);
 
     const [orden, setOrden] = useState({
     id_moto: "",
@@ -23,7 +24,9 @@ const ModalOrdenServicio = ({ idSeleccionado, onClose, onSuccess }) => {
 useEffect(() => {
     if (idSeleccionado) {
         // Al editar: técnicos sin orden + el técnico actual de esta orden
-        axios.get("http://localhost:4000/api/usuarios/tecnicos-sin-orden")
+        console.log("Datos recibidos en idSeleccionado:", idSeleccionado);
+        console.log("Id del usuario en está orden:", idSeleccionado.id_usuario);
+        axios.get("/api/ordenes_de_servicio/tecnicos-disponibles")
             .then(res => {
                 const tecnicoActual = {
                     id_usuario: idSeleccionado.id_tecnico_asignado,
@@ -37,25 +40,44 @@ useEffect(() => {
             })
             .catch(err => console.error(err));
     } else {
-        axios.get("http://localhost:4000/api/usuarios/tecnicos-sin-orden")
+        axios.get("/api/ordenes_de_servicio/tecnicos-disponibles")
             .then(res => setTecnicos(res.data))
             .catch(err => console.error(err));
     }
 
-    axios.get("http://localhost:4000/api/usuarios/clientes-con-moto")
-        .then(res => setClientes(res.data))
-        .catch(err => console.error(err));
-
-    axios.get("http://localhost:4000/api/tipo_servicio/listar")
+    axios.get("/api/tipo_servicio/listar")
         .then(res => setTiposServicio(res.data))
         .catch(err => console.error(err));
 
-    axios.get("http://localhost:4000/api/estado_de_orden_de_servicio/listar")
+    axios.get("/api/estado_de_orden_de_servicio/listar")
         .then(res => setEstadosOrden(res.data))
         .catch(err => console.error(err));
 
         
 }, [idSeleccionado]);
+
+// al editar precargar clientes con moto y el cliente de la orden seleccionada
+useEffect(() => {
+    if (idSeleccionado) {
+        axios.get("/api/ordenes_de_servicio/listar-clientes-con-moto")
+            .then(res => {
+                const clienteConMoto = {
+                    id_usuario: idSeleccionado. id_usuario,
+                    nombre: idSeleccionado.nombre_cliente?.split(" ")[0] || "",
+                    apellido: idSeleccionado.nombre_cliente?.split(" ")[1] || ""
+                };
+                const yaIncluido = res.data.some(c => c.id_usuario === idSeleccionado.id_usuario);
+                const listaClientes = yaIncluido ? res.data : [clienteConMoto, ...res.data];
+                setClientes(listaClientes);
+            })
+            .catch(err => console.error(err));
+    } else {
+        axios.get("/api/ordenes_de_servicio/listar-clientes-con-moto")
+            .then(res => setClientes(res.data))
+            .catch(err => console.error(err));
+    }
+}, [idSeleccionado]);
+
 
 // useEffect separado solo para precargar los datos del formulario al edita
 useEffect(() => {
@@ -75,14 +97,14 @@ useEffect(() => {
         });
 
         if (idSeleccionado.id_usuario) {
-            axios.get(`http://localhost:4000/api/motocicleta/por-usuario/${idSeleccionado.id_usuario}`)
-                .then(res => setMotoCliente(res.data))
+            axios.get(`/api/motocicleta/por-usuario/${idSeleccionado.id_usuario}`)
+                .then(res => setMotoCliente(res.data.data))
                 .catch(err => console.error(err));
         }
     }
 }, [idSeleccionado]);
 
-    // Al seleccionar cliente cargar su moto automáticamente
+    /// Al seleccionar cliente cargar su moto automáticamente
     const handleClienteChange = async (e) => {
         const idUsuario = e.target.value;
         setOrden({ ...orden, id_usuario: idUsuario, id_moto: "" });
@@ -90,9 +112,12 @@ useEffect(() => {
 
         if (idUsuario) {
             try {
-                const res = await axios.get(`http://localhost:4000/api/motocicleta/por-usuario/${idUsuario}`);
-                setMotoCliente(res.data);
-                setOrden(prev => ({ ...prev, id_usuario: idUsuario, id_moto: res.data.id_moto }));
+                const res = await axios.get(`/api/motocicleta/por-usuario/${idUsuario}`);
+                const motos = res.data.data;
+                setMotoCliente(motos);
+                if (motos && motos.length > 0) {
+                    setOrden(prev => ({ ...prev, id_usuario: idUsuario, id_moto: motos[0].id_moto }));
+                }
             } catch (err) {
                 console.error("Error al cargar moto:", err);
             }
@@ -115,12 +140,12 @@ useEffect(() => {
         try {
             if (idSeleccionado) {
                 await axios.put(
-                    `http://localhost:4000/api/ordenes_de_servicio/modificar/${idSeleccionado.id_orden}`,
+                    `/api/ordenes_de_servicio/modificar/${idSeleccionado.id_orden}`,
                     orden
                 );
                 alert("Orden actualizada con éxito");
             } else {
-                await axios.post("http://localhost:4000/api/ordenes_de_servicio/crear", orden);
+                await axios.post("/api/ordenes_de_servicio/crear", orden);
                 alert("Orden creada con éxito");
             }
             onSuccess();
@@ -177,10 +202,10 @@ useEffect(() => {
                                 <label className="form-label fw-semibold">
                                     <i className="bi bi-bicycle me-1"></i>Motocicleta
                                 </label>
-                                {motoCliente ? (
+                                {motoCliente && motoCliente.length > 0 ? (
                                     <div className="form-control bg-light">
-                                        <strong>{motoCliente.placa}</strong>
-                                        <span className="text-muted ms-2">— {motoCliente.nombre_modelo}</span>
+                                        <strong>{motoCliente[0].placa}</strong>
+                                        <span className="text-muted ms-2">— {motoCliente[0].nombre_modelo || 'Modelo N/A'}</span>
                                     </div>
                                 ) : (
                                     <div className="form-control bg-light text-muted">

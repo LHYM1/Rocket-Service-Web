@@ -1,114 +1,171 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../axiosConfig";
 import TypeServTable from "../../components/typeServices/TypeServTable";
 import ModalEditAgrTs from "../../components/typeServices/ModalEditAgrTs";
 import { useAuth } from "../../context/AuthContext";
+import CategoriaBadge from "../../components/ui/CategoriaBadge";
+import { useToast } from "../../context/ToastContext";
 
 function TypeServPage() {
-   const { esAdmin } = useAuth();
-  const [tipServ, setTipServ] = useState([]);
-  const [idSeleccionado, setIdSeleccionado] = useState(null);
-  const [busqueda, setBusqueda] = useState("");
-  const [showModal, setShowModal] = useState(false);
+    const { esAdmin } = useAuth();
+    const [tipServ, setTipServ] = useState([]);
+    const [idSeleccionado, setIdSeleccionado] = useState(null);
+    const [busqueda, setBusqueda] = useState("");
+    const [filtroEstado, setFiltroEstado] = useState("");
+    const [showModal, setShowModal] = useState(false);
+    const [cargando, setCargando] = useState(true);
+    const { mostrarToast } = useToast();
 
-   // Paginación
-  const [pagina, setPagina] = useState(1);
-  const tipServPorPagina = 3;
+    const [pagina, setPagina] = useState(1);
+    const tipServPorPagina = 8;
 
-  const getTipoServicio = () => {
-    axios.get("http://localhost:4000/api/tipo_servicio/listar")
-      .then(res => setTipServ(res.data))
-      .catch(err => console.error(err));
-  };
+    const getTipoServicio = async () => {
+        setCargando(true);
+        try {
+            const res = await axios.get("/api/tipo_servicio/listar");
+            setTipServ(res.data);
+        } catch (err) {
+            console.error("Error al obtener tipos de servicio:", err);
+        } finally {
+            setCargando(false);
+        }
+    };
 
-  useEffect(() => {
-    getTipoServicio();
-  }, []);
+    useEffect(() => {
+        getTipoServicio();
+    }, []);
 
-  // Filtrar usuarios según búsqueda
-  const tipServFiltrados = tipServ.filter(ts =>
-    (ts.nombre_servicio || "").toLowerCase().includes(busqueda.toLowerCase())
-  );
+    const tipServFiltrados = tipServ.filter(ts => {
+        const texto = busqueda.toLowerCase();
+        const coincideBusqueda =
+            (ts.nombre_servicio || "").toLowerCase().includes(texto) ||
+            (ts.descripcion_servicio || "").toLowerCase().includes(texto);
 
-  // Calcular usuarios de la página actual
-  const inicio = (pagina - 1) * tipServPorPagina;
-  const fin = inicio + tipServPorPagina;
-  const tipServPaginados = tipServFiltrados.slice(inicio, fin);
+        const coincideEstado =
+            filtroEstado === "" ||
+            String(ts.estado) === filtroEstado ||
+            (filtroEstado === "1" && ts.estado === true) ||
+            (filtroEstado === "0" && ts.estado === false);
 
-  // Número total de páginas
-  const totalPaginas = Math.ceil(tipServFiltrados.length / tipServPorPagina);
+        return coincideBusqueda && coincideEstado;
+    });
 
-  return (
-    <div className="container mt-4">
-      <h2>Gestión de Tipo servicio</h2> 
+    const inicio = (pagina - 1) * tipServPorPagina;
+    const fin = inicio + tipServPorPagina;
+    const tipServPaginados = tipServFiltrados.slice(inicio, fin);
+    const totalPaginas = Math.ceil(tipServFiltrados.length / tipServPorPagina) || 1;
 
-      {/* Barra de acciones */}
-      <div className="d-flex justify-content-between mb-3">
+    return (
+        <div className="rs-page-light">
+            <div className="rs-page-header">
+                <div>
+                    <h2 className="rs-page-title">
+                        <i className="fa-solid fa-screwdriver-wrench"></i>
+                        Gestión de Tipo de Servicio
+                        <CategoriaBadge tipo="configuracion" />
+                    </h2>
+                    <p className="rs-page-subtitle">
+                        Gestiona todos los servicios ofrecidos en el Taller
+                    </p>
+                </div>
 
-        {/* Botón solo Admin */}
-        {esAdmin && (
-          <button className="btn btn-primary" onClick={() => { setIdSeleccionado(null); setShowModal(true); }}>
-            Agregar tipo servicio
-          </button>
-        )}
+                {esAdmin && (
+                    <button 
+                        className="rs-btn rs-btn-primary" 
+                        onClick={() => { setIdSeleccionado(null); setShowModal(true); }}
+                    >
+                        <i className="fa-solid fa-plus"></i>
+                        <span>Agregar tipo servicio</span>
+                    </button>
+                )}
+            </div>
 
-        <input
-          type="text"
-          className="form-control w-50"
-          placeholder="Buscar tipo servicio"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
-      </div>
+            <div className="rs-filters">
+                <div className="rs-search-wrapper">
+                    <i className="fa-solid fa-magnifying-glass rs-search-icon"></i>
+                    <input
+                        type="text"
+                        className="rs-search-input"
+                        placeholder="Buscar tipo servicio por nombre o descripción..."
+                        value={busqueda}
+                        onChange={(e) => {
+                            setBusqueda(e.target.value);
+                            setPagina(1);
+                        }}
+                    />
+                </div>
 
-      {/* Tabla */}
-      <TypeServTable
-        tipServ={tipServPaginados}
-        setIdSeleccionado={(ts) => {
-          setIdSeleccionado(ts);
-          setShowModal(true); }}
-        esAdmin={esAdmin}
-        getTipoServicio={getTipoServicio}
-      />
+                <select
+                    className="rs-select"
+                    value={filtroEstado}
+                    onChange={(e) => {
+                        setFiltroEstado(e.target.value);
+                        setPagina(1);
+                    }}
+                >
+                    <option value="">Todos los estados</option>
+                    <option value="1">Activo</option>
+                    <option value="0">Inactivo</option>
+                </select>
+            </div>
 
-      {/* Paginador */}
-      <div className="d-flex justify-content-center mt-3">
-        <nav>
-          <ul className="pagination">
-            <li className={`page-item ${pagina === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina - 1)}>
-                Anterior
-              </button>
-            </li>
+            {cargando ? (
+                <div className="rs-empty">
+                    <i className="fa-solid fa-spinner fa-spin rs-empty-icon" style={{ color: "var(--rs-naranja)" }}></i>
+                    <p className="rs-empty-text">Cargando tipos de servicio...</p>
+                </div>
+            ) : (
+                <TypeServTable
+                    tipServ={tipServPaginados}
+                    setIdSeleccionado={(ts) => {
+                        setIdSeleccionado(ts);
+                        setShowModal(true);
+                    }}
+                    esAdmin={esAdmin}
+                    showToast={mostrarToast}
+                    getTipoServicio={getTipoServicio}
+                />
+            )}
 
-            {Array.from({ length: totalPaginas }, (_, i) => (
-              <li key={i} className={`page-item ${pagina === i + 1 ? "active" : ""}`}>
-                <button className="page-link" onClick={() => setPagina(i + 1)}>
-                  {i + 1}
-                </button>
-              </li>
-            ))}
+            {!cargando && tipServFiltrados.length > 0 && (
+                <div className="rs-pagination">
+                    <button 
+                        className="rs-page-btn" 
+                        disabled={pagina === 1}
+                        onClick={() => setPagina(pagina - 1)}
+                    >
+                        <i className="fa-solid fa-chevron-left"></i>
+                    </button>
 
-            <li className={`page-item ${pagina === totalPaginas ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPagina(pagina + 1)}>
-                Siguiente
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
+                    {Array.from({ length: totalPaginas }, (_, i) => (
+                        <button
+                            key={i}
+                            className={`rs-page-btn ${pagina === i + 1 ? "active" : ""}`}
+                            onClick={() => setPagina(i + 1)}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
 
-      {/* Modal de agregar/editar */}
-      {showModal && esAdmin && (
-        <ModalEditAgrTs
-          idSeleccionado={idSeleccionado}
-          getTipoServicio={getTipoServicio}
-          onClose={() => setShowModal(false)}
-          onSuccess={() => getTipoServicio()}
-        />
-      )}
-    </div>
-  );
+                    <button 
+                        className="rs-page-btn" 
+                        disabled={pagina === totalPaginas}
+                        onClick={() => setPagina(pagina + 1)}
+                    >
+                        <i className="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            )}
+
+            {showModal && esAdmin && (
+                <ModalEditAgrTs
+                    idSeleccionado={idSeleccionado}
+                    onClose={() => setShowModal(false)}
+                    onSuccess={getTipoServicio}
+                />
+            )}
+        </div>
+    );
 }
 
 export default TypeServPage;

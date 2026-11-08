@@ -1,18 +1,19 @@
 import express from 'express';
 const router = express.Router();
 import controllerImgDan from './imgDanos.controller.js';
-// configuración de multer
-import upload from '../../middlewares/multer.js'; 
+import upload from '../../middlewares/multer.js';
+import { validarToken } from '../../middlewares/authMiddleware.js';
 
-// Rutas para imagenes danos 
-router.get('/listar', controllerImgDan.listarImgDanos);
-router.get('/consultar/:id', controllerImgDan.ObtenerImgDanos);
+// Listado completo -- Admin y Técnico
+router.get('/listar', validarToken(["Administrador", "Técnico"]), controllerImgDan.listarImgDanos);
+router.get('/consultar/:id', validarToken(["Administrador", "Técnico"]), controllerImgDan.ObtenerImgDanos);
 
-// Añadimos upload.single('url_imagen')
-// 'url_imagen' debe ser el mismo nombre que usas en el FormData de React
-router.post('/crear', upload.single('url_imagen'), controllerImgDan.crearImagenDanos);
+// Fotos de UNA orden -- Admin, Técnico y Cliente
+router.get('/por-orden/:id_orden', validarToken(["Administrador", "Técnico", "Cliente"]), controllerImgDan.obtenerPorOrden);
 
-router.put('/modificar/:id', upload.single('url_imagen'), controllerImgDan.actImgDanos);
-router.delete('/eliminar/:id', controllerImgDan.eliminarImgDano);
+// Subir foto -- Admin y Técnico
+router.post('/crear', validarToken(["Administrador", "Técnico"]), upload.single('url_imagen'), controllerImgDan.crearImagenDanos);
+router.put('/modificar/:id', validarToken(["Administrador", "Técnico"]), upload.single('url_imagen'), controllerImgDan.actImgDanos);
+router.delete('/eliminar/:id', validarToken(["Administrador", "Técnico"]), controllerImgDan.eliminarImgDano);
 
 export default router;
