@@ -1,5 +1,6 @@
 // cypress/e2e/11-rnf-jwt-seguridad.cy.js
 import { decodificarJwt } from '../support/datos';
+import { API_URL } from '../support/entorno';
 
 describe('RNF-001 - Seguridad de sesión con JWT (tokens simulados)', () => {
   const ADMIN = '/api/auth/admin-data';
@@ -122,15 +123,19 @@ describe('RNF-002 - Tiempo de respuesta (verificación rápida; carga completa c
 
 describe('RNF-003 / RNF-004 - Credenciales y disponibilidad', () => {
   it('CP-RNF003-02: La autenticación funciona con contraseña cifrada y no la expone', () => {
-    cy.loginApi().then((r) => {
-      expect(r.status).to.eq(200);
-      expect(JSON.stringify(r.body)).to.not.include(Cypress.env('ADMIN_CLAVE'));
-      expect(r.body.user).to.not.have.property('contrasena');
-    });
+    cy.credenciales().then(({ clave }) =>
+      cy.loginApi().then((r) => {
+        expect(r.status).to.eq(200);
+        expect(JSON.stringify(r.body)).to.not.include(clave);
+        expect(r.body.user).to.not.have.property('contrasena');
+      })
+    );
   });
 
   it('CP-RNF003-04: Una contraseña distinta (hash no coincide) invalida la autenticación', () => {
-    cy.loginApi(Cypress.env('ADMIN_CORREO'), '$2b$12$hashfalsohashfalsohashfalsohashfalsohashfalsohashfalsoh').its('status').should('eq', 401);
+    cy.credenciales().then(({ correo }) =>
+      cy.loginApi(correo, '$2b$12$hashfalsohashfalsohashfalsohashfalsohashfalsohashfalsoh').its('status').should('eq', 401)
+    );
   });
 
   it('CP-RNF004-01: El sistema responde a una solicitud de monitoreo (ping)', () => {
@@ -144,7 +149,7 @@ describe('RNF-003 / RNF-004 - Credenciales y disponibilidad', () => {
   it('CP-RNF004-02: Un error en la API no tumba el servidor (JSON malformado)', () => {
     cy.request({
       method: 'POST',
-      url: `${Cypress.env('API_URL')}/api/auth/login`,
+      url: `${API_URL}/api/auth/login`,
       headers: { 'Content-Type': 'application/json' },
       body: '{"correo_usuario": ',
       failOnStatusCode: false,
