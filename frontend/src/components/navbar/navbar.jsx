@@ -77,6 +77,27 @@ const Navbar = () => {
             </nav>
 
             <div className="icons">
+                <a
+                    href="/downloads/rocket-service.apk"
+                    download="RocketService.apk"
+                    className="btn btn-sm fw-semibold me-2"
+                    style={{
+                        backgroundColor: "#ff6600",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "20px",
+                        padding: "6px 14px",
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px"
+                    }}
+                    title="Descargar aplicación Android RocketService"
+                >
+                    <i className="fa-brands fa-android"></i>
+                    <span>APK</span>
+                </a>
+
                 {esTecnico && (
                     <span
                         className="btn btn-sm fw-semibold me-2"
